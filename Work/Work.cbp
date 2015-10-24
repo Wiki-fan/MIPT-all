@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Work" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="Work" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+			</Target>
+			<Target title="Debug x64">
+				<Option output="Work" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+			</Target>
+			<Target title="Release x64">
+				<Option output="Work" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+			</Target>
+			<Target title="Release Win32">
+				<Option output="Work" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+			</Target>
+		</Build>
+		<Unit filename="ExternalSort.cpp" />
+		<Unit filename="ExternalSort.h" />
+		<Unit filename="File.cpp" />
+		<Unit filename="File.h" />
+		<Unit filename="Heap.cpp" />
+		<Unit filename="Heap.h" />
+		<Unit filename="HeapForMerge.cpp" />
+		<Unit filename="HeapForMerge.h" />
+		<Unit filename="Smth.cpp" />
+		<Unit filename="Smth.h" />
+		<Unit filename="SortedListFromFile.cpp" />
+		<Unit filename="SortedListFromFile.h" />
+		<Unit filename="Sorts.h" />
+		<Unit filename="Vector.cpp" />
+		<Unit filename="Vector.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="main_contest.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
