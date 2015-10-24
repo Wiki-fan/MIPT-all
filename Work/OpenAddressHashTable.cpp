@@ -1,10 +1,10 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "OpenAddressHashTable.h"
 
-// Начальный размер хеш-таблицы. Взаимнопрост с параметром хеш-функции.
+// РќР°С‡Р°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С…РµС€-С‚Р°Р±Р»РёС†С‹. Р’Р·Р°РёРјРЅРѕРїСЂРѕСЃС‚ СЃ РїР°СЂР°РјРµС‚СЂРѕРј С…РµС€-С„СѓРЅРєС†РёРё.
 const int initialOpenAddressHashTableSize = 8;
 const int m = 32;
-// Параметр хеш-функции.
+// РџР°СЂР°РјРµС‚СЂ С…РµС€-С„СѓРЅРєС†РёРё.
 const int HashParameter = 91;
 
 COpenAddressHashTable::COpenAddressHashTable() :table( initialOpenAddressHashTableSize, 0 )
@@ -37,11 +37,11 @@ bool COpenAddressHashTable::Add( const std::string& key )
 	}
 	const int hash = myHash( key );
 	int bucket = hash;
-	for( int i = 0; bucket < table.size() && table[bucket] != 0 && table[bucket]->Deleted == false; ++bucket ) { // Проматываем до ближайшей пустой или удалённой корзины.
-																 //TODO:квадратичное пробирование.
+	for( int i = 0; bucket < table.size() && table[bucket] != 0 && table[bucket]->Deleted == false; ++bucket ) { // РџСЂРѕРјР°С‚С‹РІР°РµРј РґРѕ Р±Р»РёР¶Р°Р№С€РµР№ РїСѓСЃС‚РѕР№ РёР»Рё СѓРґР°Р»С‘РЅРЅРѕР№ РєРѕСЂР·РёРЅС‹.
+																 //TODO:РєРІР°РґСЂР°С‚РёС‡РЅРѕРµ РїСЂРѕР±РёСЂРѕРІР°РЅРёРµ.
 	}
 	if( bucket == table.size() )
-		rehash(); // WAT? O_o Если вылезает за границы.
+		rehash(); // WAT? O_o Р•СЃР»Рё РІС‹Р»РµР·Р°РµС‚ Р·Р° РіСЂР°РЅРёС†С‹.
 	table[bucket] = new CTableNode( key );
 	++keysCount;
 	return true;
@@ -50,7 +50,7 @@ bool COpenAddressHashTable::Add( const std::string& key )
 bool COpenAddressHashTable::Remove( const std::string& key )
 {
 	const int hash = myHash( key );
-	if( table[hash] == 0 ) { // Нет элемента с таким хешем в таблице, и никогда не было.
+	if( table[hash] == 0 ) { // РќРµС‚ СЌР»РµРјРµРЅС‚Р° СЃ С‚Р°РєРёРј С…РµС€РµРј РІ С‚Р°Р±Р»РёС†Рµ, Рё РЅРёРєРѕРіРґР° РЅРµ Р±С‹Р»Рѕ.
 		return false;
 	}
 	int bucket = hash;
@@ -59,7 +59,7 @@ bool COpenAddressHashTable::Remove( const std::string& key )
 			break;
 		}
 	}
-	if( table[bucket] == 0 ) { // Промотали все возможные и не нашли нужный.
+	if( table[bucket] == 0 ) { // РџСЂРѕРјРѕС‚Р°Р»Рё РІСЃРµ РІРѕР·РјРѕР¶РЅС‹Рµ Рё РЅРµ РЅР°С€Р»Рё РЅСѓР¶РЅС‹Р№.
 		return false;
 	}
 	table[bucket]->Deleted = true;

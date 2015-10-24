@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "SortedListFromFile.h"
 
 namespace my
@@ -19,9 +19,9 @@ type CSortedListFromFile::getNext( my::CFile& f, mysize intsInPiece, mysize ints
 
 void CSortedListFromFile::ReadIfNeeded( my::CFile& f, mysize intsInPiece, mysize intsInChunk )
 {
-	// Не конец чанка.
+	// РќРµ РєРѕРЅРµС† С‡Р°РЅРєР°.
 	if( offset - 1 < chunkend ) {
-		// Надо считать новый piece.
+		// РќР°РґРѕ СЃС‡РёС‚Р°С‚СЊ РЅРѕРІС‹Р№ piece.
 		if( index == size ) {
 			mysize blocksize = chunkend - offset < intsInPiece ? chunkend - offset : intsInPiece;
 			size = f.ReadToArr( buf, blocksize, offset );

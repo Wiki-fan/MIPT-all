@@ -1,14 +1,14 @@
-#pragma once
+п»ї#pragma once
 #include "Vector.h"
 #include "File.h"
 
 namespace my {
 
-// Массив type'ов с автоподгрузкой. Если больше неоткуда грузить, size == 0.
+// РњР°СЃСЃРёРІ type'РѕРІ СЃ Р°РІС‚РѕРїРѕРґРіСЂСѓР·РєРѕР№. Р•СЃР»Рё Р±РѕР»СЊС€Рµ РЅРµРѕС‚РєСѓРґР° РіСЂСѓР·РёС‚СЊ, size == 0.
 class CSortedListFromFile
 {
 public:
-	// Конструктор.
+	// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ.
 	CSortedListFromFile( mysize intsInPiece, int _chunk ) :
 		size( 0 ),
 		buf( new type[intsInPiece] ),
@@ -17,25 +17,25 @@ public:
 		offset( _chunk*IntsInChunk )
 	{
 	};
-	// Деструктор.
+	// Р”РµСЃС‚СЂСѓРєС‚РѕСЂ.
 	~CSortedListFromFile();
 
-	// Извлечь следующий (с подгрузкой).
+	// РР·РІР»РµС‡СЊ СЃР»РµРґСѓСЋС‰РёР№ (СЃ РїРѕРґРіСЂСѓР·РєРѕР№).
 	type getNext( my::CFile& f, mysize intsInPiece, mysize intsInChunk );
-	//Получить уже подгруженный элемент.
+	//РџРѕР»СѓС‡РёС‚СЊ СѓР¶Рµ РїРѕРґРіСЂСѓР¶РµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚.
 	type getItem() { return buf[index]; }
-	// Дочитать, если надо.
+	// Р”РѕС‡РёС‚Р°С‚СЊ, РµСЃР»Рё РЅР°РґРѕ.
 	void ReadIfNeeded( my::CFile& f, mysize intsInPiece, mysize intsInChunk );
 
-	// Проверка, был ли это последний piece данного chunk'а.
+	// РџСЂРѕРІРµСЂРєР°, Р±С‹Р» Р»Рё СЌС‚Рѕ РїРѕСЃР»РµРґРЅРёР№ piece РґР°РЅРЅРѕРіРѕ chunk'Р°.
 	bool isEnd() const { return (size == 0); }
 
 private:
-	type *buf; // Массив с числами.
-	mysize index; // Индекс текущего элемента.
-	mysize size; // Всего элементов.
-	mysize offset; // Текущая позиция piece'а в chunk'е. 
-	mysize chunkend; // Верхняя граница нужного чанка в файле.
+	type *buf; // РњР°СЃСЃРёРІ СЃ С‡РёСЃР»Р°РјРё.
+	mysize index; // РРЅРґРµРєСЃ С‚РµРєСѓС‰РµРіРѕ СЌР»РµРјРµРЅС‚Р°.
+	mysize size; // Р’СЃРµРіРѕ СЌР»РµРјРµРЅС‚РѕРІ.
+	mysize offset; // РўРµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ piece'Р° РІ chunk'Рµ. 
+	mysize chunkend; // Р’РµСЂС…РЅСЏСЏ РіСЂР°РЅРёС†Р° РЅСѓР¶РЅРѕРіРѕ С‡Р°РЅРєР° РІ С„Р°Р№Р»Рµ.
 };
 
 } // namespace my

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Stack.h"
 #include "Stack.cpp"
 
@@ -40,26 +40,26 @@ bool ToReversePolish( std::istream& is, std::ostream& os )
 {
 	my::CStack<char> oper;
 	char c;
-	int unary_flag = 1; // Õèòðûé ñïîñîá. Åñëè 1 — ìèíóñ èëè ïëþñ äîëæåí áûòü óíàðíûì. Åñëè 0 — íåò.
+	int unary_flag = 1; // Ð¥Ð¸Ñ‚Ñ€Ñ‹Ð¹ ÑÐ¿Ð¾ÑÐ¾Ð±. Ð•ÑÐ»Ð¸ 1 â€” Ð¼Ð¸Ð½ÑƒÑ Ð¸Ð»Ð¸ Ð¿Ð»ÑŽÑ Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð±Ñ‹Ñ‚ÑŒ ÑƒÐ½Ð°Ñ€Ð½Ñ‹Ð¼. Ð•ÑÐ»Ð¸ 0 â€” Ð½ÐµÑ‚.
 	double a = 0;
 	while( is >> c ) {
 		if( isdigit( c ) ) {
 			is.putback( c );
 			is >> a;
 			os << a << ' ';
-		} else if( (c == '-' || c == '+') && unary_flag == 1 ) { // Ìèíóñ èëè ïëþñ óíàðíûé â íà÷àëå ñòðîêè èëè ïîñëå '('.
+		} else if( (c == '-' || c == '+') && unary_flag == 1 ) { // ÐœÐ¸Ð½ÑƒÑ Ð¸Ð»Ð¸ Ð¿Ð»ÑŽÑ ÑƒÐ½Ð°Ñ€Ð½Ñ‹Ð¹ Ð² Ð½Ð°Ñ‡Ð°Ð»Ðµ ÑÑ‚Ñ€Ð¾ÐºÐ¸ Ð¸Ð»Ð¸ Ð¿Ð¾ÑÐ»Ðµ '('.
 			is >> a;
 			os << "0 " << a << ' ' << c;
 		} else if( c == '(' ) {
 			oper.push( '(' );
-			unary_flag = 2; // Â êîíöå öèêëà áóäåò äåêðåìåíòèðîâàí. Áóäåò 1, ò.å. åñëè äàëüøå ìèíóñ, òî îí óíàðíûé.
+			unary_flag = 2; // Ð’ ÐºÐ¾Ð½Ñ†Ðµ Ñ†Ð¸ÐºÐ»Ð° Ð±ÑƒÐ´ÐµÑ‚ Ð´ÐµÐºÑ€ÐµÐ¼ÐµÐ½Ñ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½. Ð‘ÑƒÐ´ÐµÑ‚ 1, Ñ‚.Ðµ. ÐµÑÐ»Ð¸ Ð´Ð°Ð»ÑŒÑˆÐµ Ð¼Ð¸Ð½ÑƒÑ, Ñ‚Ð¾ Ð¾Ð½ ÑƒÐ½Ð°Ñ€Ð½Ñ‹Ð¹.
 		} else if( c == ')' ) {
 			massert( !oper.empty(), "closing parethence before opening one" );
 			while( oper.top() != '(' ) {
 				massert( !oper.empty(), "closing parethence before opening one" );
 				os << oper.pop();
 			}
-			oper.pop(); // Óäàëÿåì '(' èç ñòåêà.
+			oper.pop(); // Ð£Ð´Ð°Ð»ÑÐµÐ¼ '(' Ð¸Ð· ÑÑ‚ÐµÐºÐ°.
 		} else if( associativity( c ) == 'l' ) {
 			massert( unary_flag != 1, "missing operand for %c", c );
 			while( !oper.empty() && oper.top() != '(' && priority( c ) <= priority( oper.top() ) ) {

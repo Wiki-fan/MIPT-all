@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 #include "Sorts.h"
 #include "Smth.h"
@@ -26,17 +26,17 @@ int main()
 		std::string key;
 		std::cin >> key;
 		switch( command ) {
-			case '?':
-				std::cout << (hashTable.Has( key ) ? "OK" : "FAIL") <<std::endl;
-				break;
-			case '+':
-				std::cout << (hashTable.Add( key ) ? "OK" : "FAIL") << std::endl;
-				break;
-			case '-':
-				std::cout << (hashTable.Remove( key ) ? "OK" : "FAIL") << std::endl;
-				break;
-			default:
-				massert( false );
+		case '?':
+			std::cout << (hashTable.Has( key ) ? "OK" : "FAIL") << std::endl;
+			break;
+		case '+':
+			std::cout << (hashTable.Add( key ) ? "OK" : "FAIL") << std::endl;
+			break;
+		case '-':
+			std::cout << (hashTable.Remove( key ) ? "OK" : "FAIL") << std::endl;
+			break;
+		default:
+			massert( false );
 		}
 	}
 }

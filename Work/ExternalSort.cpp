@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include <ctime>
 #include <cstdlib>
 #include <limits.h>
@@ -11,20 +11,20 @@
 namespace my
 {
 
-// Генерация файла.
+// Р“РµРЅРµСЂР°С†РёСЏ С„Р°Р№Р»Р°.
 void GenFile()
 {
 	srand( static_cast<unsigned int>(time( 0 )) );
 
 	FILE* outf = fopen( "in", "wb+" );
-	const mysize N = 4 * 1024 * 1024 / sizeof( type ); // Столько type'ов займут 4 ГБ.
+	const mysize N = 4 * 1024 * 1024 / sizeof( type ); // РЎС‚РѕР»СЊРєРѕ type'РѕРІ Р·Р°Р№РјСѓС‚ 4 Р“Р‘.
 
-	// Будем писать числа в буфер, а потом записывать куском в файл.
+	// Р‘СѓРґРµРј РїРёСЃР°С‚СЊ С‡РёСЃР»Р° РІ Р±СѓС„РµСЂ, Р° РїРѕС‚РѕРј Р·Р°РїРёСЃС‹РІР°С‚СЊ РєСѓСЃРєРѕРј РІ С„Р°Р№Р».
 	const mysize max = 1024;
 	type *buf = new type[max];
 	for( int i = 0; i < N; ++i ) {
 		for( int j = 0; j < max; ++j ) {
-			buf[j] = rand()*rand()*rand()*rand(); // Нужно больше энтропии.
+			buf[j] = rand()*rand()*rand()*rand(); // РќСѓР¶РЅРѕ Р±РѕР»СЊС€Рµ СЌРЅС‚СЂРѕРїРёРё.
 		}
 		size_t count = fwrite( buf, sizeof( type ), max, outf );
 	}
@@ -35,13 +35,13 @@ void GenFile()
 	delete[] buf;
 }
 
-// Проверка корректости сортировки файла.
+// РџСЂРѕРІРµСЂРєР° РєРѕСЂСЂРµРєС‚РѕСЃС‚Рё СЃРѕСЂС‚РёСЂРѕРІРєРё С„Р°Р№Р»Р°.
 bool CheckFile()
 {
 	FILE* inf = fopen( "target", "rb" );
 	const int N = IntsInChunk;
 	type *buf = new type[N];
-	type prev = _I64_MIN; // Первое значение - минимальное из возможных.
+	type prev = _I64_MIN; // РџРµСЂРІРѕРµ Р·РЅР°С‡РµРЅРёРµ - РјРёРЅРёРјР°Р»СЊРЅРѕРµ РёР· РІРѕР·РјРѕР¶РЅС‹С….
 	while( mysize size = fread( buf, sizeof( type ), N, inf ) ) {
 		for( int i = 0; i < size; ++i ) {
 			if( prev > i ) {
@@ -57,7 +57,7 @@ bool CheckFile()
 
 }
 
-// Сравнение двух чисел для qsort'а
+// РЎСЂР°РІРЅРµРЅРёРµ РґРІСѓС… С‡РёСЃРµР» РґР»СЏ qsort'Р°
 int Compare( const void * a, const void * b )
 {
 	return (int)(*(type*)a - *(type*)b);
@@ -65,7 +65,7 @@ int Compare( const void * a, const void * b )
 
 void ExternalSort( const wchar_t* sourceFileName, const wchar_t* targetFilename )
 {
-	// Считывание, сотрировка и запись чанков по IntsInChunk int'ов.
+	// РЎС‡РёС‚С‹РІР°РЅРёРµ, СЃРѕС‚СЂРёСЂРѕРІРєР° Рё Р·Р°РїРёСЃСЊ С‡Р°РЅРєРѕРІ РїРѕ IntsInChunk int'РѕРІ.
 	CFile inf( sourceFileName, false );
 	type *arr = new type[my::IntsInChunk];
 	type *buffer = new type[my::IntsInChunk];
@@ -80,20 +80,20 @@ void ExternalSort( const wchar_t* sourceFileName, const wchar_t* targetFilename 
 		++i;
 	}
 
-	int chunks = i; // Количество чанков.
-	// Размер куска, такой, чтобы в сумме они составляли 100 МБ.
+	int chunks = i; // РљРѕР»РёС‡РµСЃС‚РІРѕ С‡Р°РЅРєРѕРІ.
+	// Р Р°Р·РјРµСЂ РєСѓСЃРєР°, С‚Р°РєРѕР№, С‡С‚РѕР±С‹ РІ СЃСѓРјРјРµ РѕРЅРё СЃРѕСЃС‚Р°РІР»СЏР»Рё 100 РњР‘.
 	int IntsInPiece = IntsInChunk / chunks + 1;
 	delete[] arr;
 	delete[] buffer;
 
-	// Строим кучу.
+	// РЎС‚СЂРѕРёРј РєСѓС‡Сѓ.
 	CHeapForMerge heap( inf );
 	for( int i = 0; i < chunks; ++i ) {
 		heap.Push( IntsInPiece, i, IntsInChunk );
 	}
 
-	//Сливаем
-	type *items = new type[IntsInChunk]; // Будем писать на диск кусками по столько int'ов.
+	//РЎР»РёРІР°РµРј
+	type *items = new type[IntsInChunk]; // Р‘СѓРґРµРј РїРёСЃР°С‚СЊ РЅР° РґРёСЃРє РєСѓСЃРєР°РјРё РїРѕ СЃС‚РѕР»СЊРєРѕ int'РѕРІ.
 	offset = 0;
 	CFile outf( targetFilename, true );
 	while( !heap.isEmpty() ) {

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Stack.h"
 
 namespace my
@@ -7,7 +7,7 @@ namespace my
 template<typename T>
 CStack<T>::CStack()
 {
-	
+
 }
 
 template<typename T>

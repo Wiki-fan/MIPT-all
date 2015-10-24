@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 /*void MergeSort(int *start, int *finish, int* buffer)
 {
 	if( start + 1 == finish)
@@ -32,7 +32,7 @@
 
 namespace my {
 
-//Сортировка слиянием. Принимает указатели на начало, конец, дополнительный буфер соответствующего размера.
+//РЎРѕСЂС‚РёСЂРѕРІРєР° СЃР»РёСЏРЅРёРµРј. РџСЂРёРЅРёРјР°РµС‚ СѓРєР°Р·Р°С‚РµР»Рё РЅР° РЅР°С‡Р°Р»Рѕ, РєРѕРЅРµС†, РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ Р±СѓС„РµСЂ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ СЂР°Р·РјРµСЂР°.
 template<typename T>
 void MergeSort( T *start, T *finish, T* buffer )
 {
@@ -53,7 +53,7 @@ void MergeSort( T *start, T *finish, T* buffer )
 		*i2 = *i1;
 	}
 
-	// Быстро, но подходит только для ПОДов
+	// Р‘С‹СЃС‚СЂРѕ, РЅРѕ РїРѕРґС…РѕРґРёС‚ С‚РѕР»СЊРєРѕ РґР»СЏ РџРћР”РѕРІ
 	// ::memcpy(start1, start, (mid1 - start1)*sizeof(int));
 	// ::memcpy(mid1, mid, (finish1 - mid1)*sizeof(int));
 
@@ -68,9 +68,9 @@ void MergeSort( T *start, T *finish, T* buffer )
 	}
 }
 
-// qsort с выбором пивота по методу Хоара
+// qsort СЃ РІС‹Р±РѕСЂРѕРј РїРёРІРѕС‚Р° РїРѕ РјРµС‚РѕРґСѓ РҐРѕР°СЂР°
 template<typename T>
-void qsort( int l, int r, T *a) // start, finish и указатель на начало массива.
+void qsort( int l, int r, T *a ) // start, finish Рё СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»Рѕ РјР°СЃСЃРёРІР°.
 {
 	if( l >= r )
 		return;

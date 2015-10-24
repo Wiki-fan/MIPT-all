@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "HashTable.h"
 
 class COpenAddressHashTable : public CHashTable
@@ -15,7 +15,7 @@ private:
 	{
 		std::string *Key;
 		bool Deleted;
-		CTableNode(const std::string& key) : Key(new std::string(key)), Deleted( false ) {}
+		CTableNode( const std::string& key ) : Key( new std::string( key ) ), Deleted( false ) {}
 		~CTableNode() { delete Key; }
 		void deleteItem() { delete Key; }
 	};

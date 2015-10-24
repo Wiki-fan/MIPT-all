@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 // copyright 2015 me
 
 /*#define _CRT_SECURE_NO_WARNINGS
@@ -39,9 +39,9 @@ class CVector {
 	}
 
  private:
-	mysize size;	// Размер (количество хранящихся элементов).
-	mysize maxSize;	// Максимальный размер, a.k.a. размер буфера items.
-	T* items;	// Указатель на элементы.
+	mysize size;	// Р Р°Р·РјРµСЂ (РєРѕР»РёС‡РµСЃС‚РІРѕ С…СЂР°РЅСЏС‰РёС…СЃСЏ СЌР»РµРјРµРЅС‚РѕРІ).
+	mysize maxSize;	// РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ, a.k.a. СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° items.
+	T* items;	// РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЌР»РµРјРµРЅС‚С‹.
 };
 
 }	// namespace my

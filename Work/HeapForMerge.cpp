@@ -1,4 +1,4 @@
-#include "stdafx.h"
+Ôªø#include "stdafx.h"
 #include "HeapForMerge.h"
 
 namespace my
@@ -26,7 +26,7 @@ void CHeapForMerge::siftDown( mysize index )
 void CHeapForMerge::Push( mysize _size, int _chunk, mysize intsInChunk )
 {
 	arr.push_back( new CSortedListFromFile( _size, _chunk ) );
-	arr.back()->ReadIfNeeded( f, _size, intsInChunk ); // œÓ‰„ÛÊ‡ÂÏ ÍÛÒÓÍ.
+	arr.back()->ReadIfNeeded( f, _size, intsInChunk ); // –ü–æ–¥–≥—Ä—É–∂–∞–µ–º –∫—É—Å–æ–∫.
 	siftUp( arr.size() - 1 );
 }
 

@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "stdafx.h"
 
 /*struct CPoint
@@ -45,7 +45,7 @@ int main()
 	}
 	CPoint *buffer = new CPoint[points.Size()];
 	my::MergeSort<CPoint>( points.Begin(), points.End(), buffer );
-	int cnt = 1;	// points[0] - начало, оно явно является открывающейся скобкой
+	int cnt = 1;	// points[0] - РЅР°С‡Р°Р»Рѕ, РѕРЅРѕ СЏРІРЅРѕ СЏРІР»СЏРµС‚СЃСЏ РѕС‚РєСЂС‹РІР°СЋС‰РµР№СЃСЏ СЃРєРѕР±РєРѕР№
 	int sum = 0;
 	for( mysize i = 1; i < points.Size(); ++i ) {
 		if( cnt == 1 ) {

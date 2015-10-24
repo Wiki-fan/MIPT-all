@@ -1,16 +1,16 @@
-#pragma once
+п»ї#pragma once
 #include "stdafx.h"
 #include "Deque.h"
 
 namespace my
 {
 
-const int DequeFragmentSize = 5; 
+const int DequeFragmentSize = 5;
 
 template<typename T>
 CDeque<T>::CDeque()
-	: f( DequeFragmentSize/2 ),
-	l( DequeFragmentSize/2-1 ), 
+	: f( DequeFragmentSize / 2 ),
+	l( DequeFragmentSize / 2 - 1 ),
 	count( 0 )
 {
 	CNode *node = new CNode( 0, 0 );
@@ -21,7 +21,7 @@ template<typename T>
 void CDeque<T>::push_back( const T& item )
 {
 	++count;
-	if( l + 1 != DequeFragmentSize ) { // Не выходим за границу массива.
+	if( l + 1 != DequeFragmentSize ) { // РќРµ РІС‹С…РѕРґРёРј Р·Р° РіСЂР°РЅРёС†Сѓ РјР°СЃСЃРёРІР°.
 		last->buf[++l] = item;
 	} else {
 		CNode *node = new CNode( last, 0 );
@@ -35,7 +35,7 @@ void CDeque<T>::push_back( const T& item )
 template<typename T>
 T CDeque<T>::pop_back()
 {
-	massert( count>0 ); // Нет элементов.
+	massert( count > 0 ); // РќРµС‚ СЌР»РµРјРµРЅС‚РѕРІ.
 	--count;
 	if( l != 0 ) {
 		return last->buf[l--];
@@ -68,9 +68,9 @@ void CDeque<T>::push_front( const T& item )
 template<typename T>
 T CDeque<T>::pop_front()
 {
-	massert( count > 0 ); // Нет элементов.
+	massert( count > 0 ); // РќРµС‚ СЌР»РµРјРµРЅС‚РѕРІ.
 	--count;
-	if( f != DequeFragmentSize-1 ) {
+	if( f != DequeFragmentSize - 1 ) {
 		return first->buf[f++];
 	} else {
 		T ret = first->buf[f];
@@ -84,10 +84,10 @@ T CDeque<T>::pop_front()
 }
 
 template<typename T>
-T& CDeque<T>::operator[](mysize n)
+T& CDeque<T>::operator[]( mysize n )
 {
-	massert( count > 0 ); // Нет элементов.
-	if( n < DequeFragmentSize - f ) { // В первой ноде.
+	massert( count > 0 ); // РќРµС‚ СЌР»РµРјРµРЅС‚РѕРІ.
+	if( n < DequeFragmentSize - f ) { // Р’ РїРµСЂРІРѕР№ РЅРѕРґРµ.
 		return first->buf[n + f];
 	} else {
 		CNode* cur = first;

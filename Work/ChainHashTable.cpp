@@ -1,9 +1,9 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "ChainHashTable.h"
 
-// Начальный размер хеш-таблицы. Взаимнопрост с параметром хеш-функции.
+// РќР°С‡Р°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С…РµС€-С‚Р°Р±Р»РёС†С‹. Р’Р·Р°РёРјРЅРѕРїСЂРѕСЃС‚ СЃ РїР°СЂР°РјРµС‚СЂРѕРј С…РµС€-С„СѓРЅРєС†РёРё.
 const int initialSize = 4;
-// Параметр хеш-функции.
+// РџР°СЂР°РјРµС‚СЂ С…РµС€-С„СѓРЅРєС†РёРё.
 const int HashParameter = 91;
 
 CChainHashTable::CChainHashTable() :
@@ -39,7 +39,7 @@ bool CChainHashTable::Add( const std::string& key )
 	for( CListNode* current = table[hash]; current != 0; current = current->Next ) {
 		if( current->Key == key ) {
 			return false;
-		} 
+		}
 	}
 	CListNode* newNode = new CListNode( key );
 	newNode->Next = table[hash];
@@ -75,7 +75,7 @@ bool CChainHashTable::Remove( const std::string& key )
 	return true;
 }
 
-// Полиномиальная хеш-функция, вычисленная методом Горнера.
+// РџРѕР»РёРЅРѕРјРёР°Р»СЊРЅР°СЏ С…РµС€-С„СѓРЅРєС†РёСЏ, РІС‹С‡РёСЃР»РµРЅРЅР°СЏ РјРµС‚РѕРґРѕРј Р“РѕСЂРЅРµСЂР°.
 int CChainHashTable::myHash( const std::string& key ) const
 {
 	int hash = 0;
@@ -85,7 +85,7 @@ int CChainHashTable::myHash( const std::string& key ) const
 	return hash;
 }
 
-// Перехеширование с удвоением таблицы.
+// РџРµСЂРµС…РµС€РёСЂРѕРІР°РЅРёРµ СЃ СѓРґРІРѕРµРЅРёРµРј С‚Р°Р±Р»РёС†С‹.
 void CChainHashTable::rehash()
 {
 	std::vector<CListNode*> oldTable( table.size() * 2 );

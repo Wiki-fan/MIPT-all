@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "stdafx.h"
 #include "Vector.h"
 #include "Smth.h"
@@ -6,30 +6,30 @@
 
 namespace my {
 
-// Min-куча
+// Min-РєСѓС‡Р°
 template<typename T>
 class CHeap
 {
 
 public:
-	CHeap(); // Конструктор по умолчанию создаёт пустую кучу.
-	explicit CHeap( mysize initialSize ); // Создаёт кучу размера initial_size.
-	CHeap( const CHeap& other ); // Конструктор копирования.
-	~CHeap(); // Деструктор.
+	CHeap(); // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЃРѕР·РґР°С‘С‚ РїСѓСЃС‚СѓСЋ РєСѓС‡Сѓ.
+	explicit CHeap( mysize initialSize ); // РЎРѕР·РґР°С‘С‚ РєСѓС‡Сѓ СЂР°Р·РјРµСЂР° initial_size.
+	CHeap( const CHeap& other ); // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ.
+	~CHeap(); // Р”РµСЃС‚СЂСѓРєС‚РѕСЂ.
 
 	//CHeap& operator=( const CHeap& other );
 
-	bool isEmpty() const { return (arr.Size() == 0); } // Проверка пустоты.
-	mysize Size() const { return arr.Size(); } // Размер кучи.
-	const T& Top() const; // Вершина.
-	void Push( const T& element ); // Вставка элемента.
-	virtual const T& Pop(); //Извлечение вершины.
+	bool isEmpty() const { return (arr.Size() == 0); } // РџСЂРѕРІРµСЂРєР° РїСѓСЃС‚РѕС‚С‹.
+	mysize Size() const { return arr.Size(); } // Р Р°Р·РјРµСЂ РєСѓС‡Рё.
+	const T& Top() const; // Р’РµСЂС€РёРЅР°.
+	void Push( const T& element ); // Р’СЃС‚Р°РІРєР° СЌР»РµРјРµРЅС‚Р°.
+	virtual const T& Pop(); //РР·РІР»РµС‡РµРЅРёРµ РІРµСЂС€РёРЅС‹.
 
 protected:
-	CVector<T> arr; // Массив, хранящий элементы кучи.
+	CVector<T> arr; // РњР°СЃСЃРёРІ, С…СЂР°РЅСЏС‰РёР№ СЌР»РµРјРµРЅС‚С‹ РєСѓС‡Рё.
 
-	void siftUp( int index ); // Просеять вверх.
-	void siftDown( int index ); // Просеять вниз.
+	void siftUp( int index ); // РџСЂРѕСЃРµСЏС‚СЊ РІРІРµСЂС….
+	void siftDown( int index ); // РџСЂРѕСЃРµСЏС‚СЊ РІРЅРёР·.
 };
 
 } // namespace my

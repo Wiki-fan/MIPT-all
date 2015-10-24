@@ -1,9 +1,9 @@
-#pragma once
+п»ї#pragma once
 
 namespace my
 {
 
-// Внешняя сотрировка, работающая с long long.
+// Р’РЅРµС€РЅСЏСЏ СЃРѕС‚СЂРёСЂРѕРІРєР°, СЂР°Р±РѕС‚Р°СЋС‰Р°СЏ СЃ long long.
 void ExternalSort( const wchar_t* sourceFileName, const wchar_t* targetFilename );
 void GenFile();
 bool CheckFile();

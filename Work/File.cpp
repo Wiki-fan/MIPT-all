@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "File.h"
 
 namespace my
@@ -6,7 +6,7 @@ namespace my
 
 CFile::CFile( const wchar_t* filename, bool write )
 {
-	_wfopen_s( &f, filename, write?L"wb+":L"rb+" );
+	_wfopen_s( &f, filename, write ? L"wb+" : L"rb+" );
 }
 
 CFile::~CFile()

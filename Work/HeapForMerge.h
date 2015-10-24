@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "SortedListFromFile.h"
 #include "Smth.h"
 #include "Smth.cpp"
@@ -6,24 +6,24 @@
 namespace my
 {
 
-// MinHeap для внешней сортировки.
+// MinHeap РґР»СЏ РІРЅРµС€РЅРµР№ СЃРѕСЂС‚РёСЂРѕРІРєРё.
 class CHeapForMerge
 {
 public:
-	// Конструктор.
+	// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ.
 	CHeapForMerge( CFile& inf ) : f( inf ) {};
 
-	// Добавление элемента в кучу.
+	// Р”РѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РІ РєСѓС‡Сѓ.
 	void Push( mysize _size, int _chunk, mysize intsInChunk );
-	// Извлечение элемента из кучи.
+	// РР·РІР»РµС‡РµРЅРёРµ СЌР»РµРјРµРЅС‚Р° РёР· РєСѓС‡Рё.
 	const type Pop( mysize intsInPiece, mysize intsInChunk );
-	// Пуста ли куча?
+	// РџСѓСЃС‚Р° Р»Рё РєСѓС‡Р°?
 	bool isEmpty() { return arr.empty(); }
 private:
-	my::CVector<CSortedListFromFile*> arr; // Массив, хранящий элементы кучи.
-	CFile f; // Файл.
-	void siftUp( mysize index ); // Сдвинуть вверх.
-	void siftDown( mysize index ); // Сдвинуть вниз.
+	my::CVector<CSortedListFromFile*> arr; // РњР°СЃСЃРёРІ, С…СЂР°РЅСЏС‰РёР№ СЌР»РµРјРµРЅС‚С‹ РєСѓС‡Рё.
+	CFile f; // Р¤Р°Р№Р».
+	void siftUp( mysize index ); // РЎРґРІРёРЅСѓС‚СЊ РІРІРµСЂС….
+	void siftDown( mysize index ); // РЎРґРІРёРЅСѓС‚СЊ РІРЅРёР·.
 };
 
 } // namespace my

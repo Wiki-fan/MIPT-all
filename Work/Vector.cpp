@@ -1,9 +1,9 @@
-#pragma once
+п»ї#pragma once
 #include "stdafx.h"
 #include "Vector.h"
 #include "Smth.h"
 
-// Размер буфера по умолчанию, когда используется дефолтный конструктор.
+// Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ, РєРѕРіРґР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґРµС„РѕР»С‚РЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ.
 const mysize DefaultInitialVectorSize = 8;
 
 namespace my
@@ -120,9 +120,9 @@ void CVector<T>::copy( mysize _count, const T *from, T *to )
 template<typename T>
 void CVector<T>::shrink_to_fit()
 {
-	maxCount = max<mysize>(count+1, DefaultInitialVectorSize);// На всякий случай, если будет много push_back'ов и pop_back'ов на этом месте.
-	T* new_items = new T[maxCount]; 
-	
+	maxCount = max<mysize>( count + 1, DefaultInitialVectorSize );// РќР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№, РµСЃР»Рё Р±СѓРґРµС‚ РјРЅРѕРіРѕ push_back'РѕРІ Рё pop_back'РѕРІ РЅР° СЌС‚РѕРј РјРµСЃС‚Рµ.
+	T* new_items = new T[maxCount];
+
 	copy( count, items, new_items );
 
 	delete[] items;
