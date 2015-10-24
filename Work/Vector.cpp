@@ -1,5 +1,7 @@
+#pragma once
 #include "stdafx.h"
 #include "Vector.h"
+#include "Smth.h"
 
 // Размер буфера по умолчанию, когда используется дефолтный конструктор.
 const mysize DefaultInitialVectorSize = 8;
@@ -8,41 +10,38 @@ namespace my
 {
 
 template<typename T>
-CVector<T>::CVector() : size( 0 ), maxSize( DefaultInitialVectorSize ), items( new T[maxSize] )
+CVector<T>::CVector() : count( 0 ), maxCount( DefaultInitialVectorSize ), items( new T[maxCount] )
 {
 }
 
 template<typename T>
 CVector<T>::CVector( mysize _size ) :
-	size( _size ),
-	maxSize( size ),
-	items( new T[size] )
+	count( _count ),
+	maxCount( count ),
+	items( new T[count] )
 {
-	assert( size > 0 );
+	massert( count > 0 );
 }
 
 template <typename T>
-CVector<T>::CVector( mysize _size, T* _items ) :
-	size( _size ),
-	maxSize( size ),
-	items( new T[size] )
+CVector<T>::CVector( mysize _count, const T* _items ) :
+	count( _count ),
+	maxCount( count ),
+	items( new T[count] )
 {
-	for( int i = 0; i < size; ++i )
-		items[i] = _items[i];
+	copy( count, _items, items );
 }
 
 template <typename T>
 CVector<T>::CVector( const CVector& other )
 {
-	if( maxSize < other.size ) {
+	if( maxCount < other.count ) {
 		delete[] items;
-		size = other.size;
-		maxSize = other.maxSize;
-		items = new T[maxSize];
+		maxCount = other.maxCount;
+		items = new T[maxCount];
 	}
-	for( int i = 0; i < size; ++i ) {
-		items[i] = other.items[i];
-	}
+	count = other.count;
+	copy( count, other.items, items );
 }
 
 template <typename T>
@@ -57,64 +56,78 @@ CVector<T>& my::CVector<T>::operator=( const CVector& other )
 	if( &other == this ) {
 		return *this;
 	} else {
-		delete[] items;
-		size = other.size;
-		maxSize = other.maxSize;
-		items = new T[maxSize];
-
-		for( int i = 0; i < size; ++i ) {
-			items[i] = other.items[i];
+		if( maxCount < other.count ) {
+			delete[] items;
+			maxCount = other.maxCount;
+			items = new T[maxCount];
 		}
+		count = other.count;
+		copy( count, other.items, items );
 	}
 }
 
 template <typename T>
-T CVector<T>::operator[] ( const mysize n ) const
+const T& CVector<T>::operator[] ( mysize n ) const
 {
-	assert( n >= 0 && n < size );
+	massert( n >= 0 && n < count );
 	return items[n];
 }
 
 template <typename T>
-T& CVector<T>::operator[] ( const mysize n )
+T& CVector<T>::operator[] ( mysize n )
 {
-	assert( n >= 0 && n < size );
+	massert( n >= 0 && n < count );
 	return items[n];
 }
 
 template<typename T>
-void CVector<T>::PushBack( const T& item )
+void CVector<T>::push_back( const T& item )
 {
-	assert( size <= maxSize );
-	if( size == maxSize ) {
-		maxSize = 2 * maxSize;
-		T* new_items = new T[maxSize];
+	massert( count <= maxCount );
+	if( count == maxCount ) {
+		maxCount = 2 * maxCount;
+		T* new_items = new T[maxCount];
 
-		for( int i = 0; i < size; ++i ) {
-			new_items[i] = items[i];
-		}
-		new_items[size++] = item;
+		copy( count, items, new_items );
+
+		new_items[count++] = item;
 		delete[] items;
 		items = new_items;
 	} else {
-		items[size++] = item;
+		items[count++] = item;
 	}
 }
 
 template<typename T>
-T CVector<T>::PopBack()
+T CVector<T>::pop_back()
 {
-	assert( size > 0 );
-	--size;
-	return items[size];
+	massert( count > 0 );
+	if( count <= maxCount / 2 ) {
+		shrink_to_fit();
+	}
+
+	return items[--count];
 }
 
 template<typename T>
-void CVector<T>::copy( mysize _size, const T *from, T *to )
+void CVector<T>::copy( mysize _count, const T *from, T *to )
 {
-	for( int i = 0; i < _size; ++i ) {
+	for( int i = 0; i < _count; ++i ) {
 		to[i] = from[i];
 	}
 }
 
+template<typename T>
+void CVector<T>::shrink_to_fit()
+{
+	maxCount = max<mysize>(count+1, DefaultInitialVectorSize);// На всякий случай, если будет много push_back'ов и pop_back'ов на этом месте.
+	T* new_items = new T[maxCount]; 
+	
+	copy( count, items, new_items );
+
+	delete[] items;
+	items = new_items;
+}
+
 } // namespace my
+

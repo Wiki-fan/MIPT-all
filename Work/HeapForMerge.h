@@ -18,12 +18,12 @@ public:
 	// Извлечение элемента из кучи.
 	const type Pop( mysize intsInPiece, mysize intsInChunk );
 	// Пуста ли куча?
-	bool isEmpty() { return arr.isEmpty(); }
+	bool isEmpty() { return arr.empty(); }
 private:
 	my::CVector<CSortedListFromFile*> arr; // Массив, хранящий элементы кучи.
 	CFile f; // Файл.
-	void siftUp( int index ); // Сдвинуть вверх.
-	void siftDown( int index ); // Сдвинуть вниз.
+	void siftUp( mysize index ); // Сдвинуть вверх.
+	void siftDown( mysize index ); // Сдвинуть вниз.
 };
 
 } // namespace my

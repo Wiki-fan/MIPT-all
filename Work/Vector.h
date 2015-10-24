@@ -1,5 +1,5 @@
 #pragma once
-#include <cassert>
+#include "stdafx.h"
 
 namespace my
 {
@@ -12,54 +12,60 @@ public:
 	// Дефолтный конструктор.
 	CVector(); 
 	// Создаёт вектор размера _size
-	CVector( mysize _size ); 
+	CVector( mysize _size );
 	// Создаёт вектор размера _size и копирует туда _size элементов _items.
-	CVector( mysize _size, T* items ); 
+	CVector( mysize _size, const T* items );
 	// Копирующий конструктор.
-	CVector( const CVector& other ); 
+	CVector( const CVector& other );
 	// Деструктор. 
-	~CVector();
+	virtual ~CVector();
 
-	T operator[]( const mysize n ) const;
-	T& operator[]( const mysize n );
+	// Элемент на позиции n.
+	const T& operator[]( mysize n) const;
+	T& operator[]( mysize n );
 
 	CVector& operator=( const CVector& other );
 
 	// Добавление элемента в конец вектора.
-	void PushBack( const T& item );
-	// Удаление элемента из конца вектора.
-	T PopBack();
+	virtual void push_back( const T& item );
+	// Удаление элемента из конца вектора. Не совпадает с решением в STL, т.к. возвращает удаляемый элемент.
+	virtual T pop_back();
+	// Перевыделяет память так, чтобы не было лишней неиспользуемой памяти.
+	void shrink_to_fit();
+
 	// Проверка пустоты вектора.
-	bool isEmpty() const { return (size == 0); }
+	bool empty() const { return (count == 0); }
 	// Указатель на начало.
-	T* Begin() const { return items; }
+	T* begin() const { return items; }
 	// Указатель на элемент, следующий за последним элементом вектора.
-	T* End() const { return &(items[size]); }
+	T* end() const { return &(items[size]); }
 	// Последний элемент.
-	T& Last() 
+	T& back() const
 	{
-		assert( !isEmpty() );
-		return items[size - 1];
+		massert( !empty() );
+		return items[count - 1];
 	}
 	// Первый элемент.
-	T& First() 
+	T& front() const
 	{
-		assert( !isEmpty() );
+		massert( !empty() );
 		return items[0];
 	}
 
 	// Возвращает размер вектора.
-	const mysize Size() const { return size; }
+	const mysize size() const { return count; }
 	// Возвращает количество памяти, отведённое в данный момент под элементы.
-	const mysize MaxSize() const { return maxSize; }
+	const mysize max_size() const { return maxCount; }
 
 private:
-	mysize size;	// Размер (количество хранящихся элементов).
-	mysize maxSize;	// Максимальный размер, a.k.a. размер буфера items.
-	T* items;	// Указатель на элементы.
+	mysize count; // Размер (количество хранящихся элементов).
+	mysize maxCount; // Максимальный размер, a.k.a. размер буфера items.
+	T* items; // Указатель на элементы.
 
 	// Копирование элементов вектора из буфера from в буфер to.
 	void copy( mysize _size, const T *from, T *to );
+	// Должна как-нибудь перевыделить память. Пока что не нужна.
+	// void realloc( mysize& count, mysize otherCount, T* items, T* otherItems );
 };
 
 } // namespace my

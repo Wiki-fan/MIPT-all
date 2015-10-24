@@ -26,10 +26,10 @@ void GenFile()
 		for( int j = 0; j < max; ++j ) {
 			buf[j] = rand()*rand()*rand()*rand(); // Нужно больше энтропии.
 		}
-		int count = fwrite( buf, sizeof( type ), max, outf );
+		size_t count = fwrite( buf, sizeof( type ), max, outf );
 	}
 	fclose( outf );
-#ifdef STDOUT_DEBUG
+#ifdef STDOUT_CFILE_DEBUG
 	perror( "GenFile: " );
 #endif
 	delete[] buf;
@@ -41,8 +41,8 @@ bool CheckFile()
 	FILE* inf = fopen( "target", "rb" );
 	const int N = IntsInChunk;
 	type *buf = new type[N];
-	int prev = _I64_MIN; // Первое значение - минимальное из возможных.
-	while( int size = fread( buf, sizeof( type ), N, inf ) ) {
+	type prev = _I64_MIN; // Первое значение - минимальное из возможных.
+	while( mysize size = fread( buf, sizeof( type ), N, inf ) ) {
 		for( int i = 0; i < size; ++i ) {
 			if( prev > i ) {
 				fclose( inf );
@@ -110,3 +110,11 @@ void ExternalSort( const wchar_t* sourceFileName, const wchar_t* targetFilename 
 }
 
 } // namespace my
+
+  /*int main()
+  {
+  my::GenFile();
+  my::ExternalSort( L"in", L"target" );
+  printf( "%s", my::CheckFile() ? "OK" : "NOPE" );
+  return 0;
+  }*/

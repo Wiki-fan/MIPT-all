@@ -7,7 +7,7 @@ namespace my
 {
 
 // Размер куска, сортируемого единовременно. Так, чтобы размер был 100 МБ. 100*1024*1024
-const int IntsInChunk = 100*1024*1024 / sizeof( type ); 
+const int IntsInChunk = 100 * 1024 * 1024 / sizeof( type );
 
 // Файл.
 class CFile
@@ -24,7 +24,7 @@ public:
 	mysize WriteFromArr( type* buffer, mysize count, mysize offset );
 
 	// Конец файла.
-	bool IsEOF() { return feof( f ); }
+	bool IsEOF() { feof( f ); }
 
 private:
 	FILE* f; // Файловый дескриптор.

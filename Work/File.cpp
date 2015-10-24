@@ -17,11 +17,11 @@ CFile::~CFile()
 mysize CFile::ReadToArr( type* buffer, mysize count, mysize offset )
 {
 	_fseeki64( f, offset*sizeof( type ), SEEK_SET );
-#ifdef STDOUT_DEBUG
+#ifdef STDOUT_CFILE_DEBUG
 	perror( "ReadToArr fseek: " );
 #endif
 	mysize size = fread( buffer, sizeof( type ), count, f );
-#ifdef STDOUT_DEBUG
+#ifdef STDOUT_CFILE_DEBUG
 	perror( "ReadToArr fread: " );
 #endif
 	return size;
@@ -30,11 +30,11 @@ mysize CFile::ReadToArr( type* buffer, mysize count, mysize offset )
 mysize CFile::WriteFromArr( type* buffer, mysize count, mysize offset )
 {
 	_fseeki64( f, offset*sizeof( type ), SEEK_SET );
-#ifdef STDOUT_DEBUG
+#ifdef STDOUT_CFILE_DEBUG
 	perror( "WriteToArr fseek: " );
 #endif
 	mysize size = fwrite( buffer, sizeof( type ), count, f );
-#ifdef STDOUT_DEBUG
+#ifdef STDOUT_CFILE_DEBUG
 	perror( "WriteFromArr fwrite: " );
 #endif
 	return size;

@@ -4,15 +4,15 @@
 namespace my
 {
 
-void CHeapForMerge::siftDown( int index )
+void CHeapForMerge::siftDown( mysize index )
 {
-	int top = index;
-	int left = 2 * index + 1;
-	int right = 2 * index + 2;
-	if( left < arr.Size() && arr[left]->getItem() < arr[index]->getItem() ) {
+	mysize top = index;
+	mysize left = 2 * index + 1;
+	mysize right = 2 * index + 2;
+	if( left < arr.size() && arr[left]->getItem() < arr[index]->getItem() ) {
 		top = left;
 	}
-	if( right < arr.Size() && arr[right]->getItem() < arr[top]->getItem() ) {
+	if( right < arr.size() && arr[right]->getItem() < arr[top]->getItem() ) {
 		top = right;
 	}
 	if( top != index ) {
@@ -25,15 +25,15 @@ void CHeapForMerge::siftDown( int index )
 
 void CHeapForMerge::Push( mysize _size, int _chunk, mysize intsInChunk )
 {
-	arr.PushBack( new CSortedListFromFile( _size, _chunk ) );
-	arr.Last()->ReadIfNeeded( f, _size, intsInChunk ); // Подгружаем кусок.
-	siftUp( arr.Size() - 1 );
+	arr.push_back( new CSortedListFromFile( _size, _chunk ) );
+	arr.back()->ReadIfNeeded( f, _size, intsInChunk ); // Подгружаем кусок.
+	siftUp( arr.size() - 1 );
 }
 
-void CHeapForMerge::siftUp( int index )
+void CHeapForMerge::siftUp( mysize index )
 {
 	while( index > 0 ) {
-		int parent = (index - 1) / 2;
+		mysize parent = (index - 1) / 2;
 		if( arr[index]->getItem() > arr[parent]->getItem() ) {
 			return;
 		}
@@ -44,13 +44,13 @@ void CHeapForMerge::siftUp( int index )
 
 const type CHeapForMerge::Pop( mysize intsInPiece, mysize intsInChunk )
 {
-	assert( arr.Size() != 0 );
+	massert( arr.size() != 0 );
 	type top = arr[0]->getNext( f, intsInPiece, intsInChunk );
 	if( arr[0]->isEnd() ) {
-		swap<CSortedListFromFile*>( arr.First(), arr.Last() );
-		arr.PopBack();
+		swap<CSortedListFromFile*>( arr.front(), arr.back() );
+		arr.pop_back();
 	}
-	if( arr.Size() != 0 ) {
+	if( arr.size() != 0 ) {
 		siftDown( 0 );
 	}
 	return top;

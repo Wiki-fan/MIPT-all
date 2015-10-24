@@ -121,23 +121,35 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Calc.cpp" />
+    <ClCompile Include="Deque.cpp" />
     <ClCompile Include="ExternalSort.cpp" />
     <ClCompile Include="File.cpp" />
+    <ClCompile Include="ChainHashTable.cpp" />
     <ClCompile Include="HeapForMerge.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Heap.cpp" />
+    <ClCompile Include="OpenAddressHashTable.cpp" />
     <ClCompile Include="Smth.cpp" />
     <ClCompile Include="SortedListFromFile.cpp" />
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Stack.cpp" />
+    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Deque.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="ExternalSort.h" />
+    <ClInclude Include="ChainHashTable.h" />
+    <ClInclude Include="HashTable.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="HeapForMerge.h" />
+    <ClInclude Include="OpenAddressHashTable.h" />
     <ClInclude Include="Smth.h" />
     <ClInclude Include="SortedListFromFile.h" />
     <ClInclude Include="Stack.h" />

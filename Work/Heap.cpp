@@ -22,14 +22,14 @@ CHeap<T>::CHeap( const CHeap& other ) : arr( other.arr ) {}
 template<typename T>
 const T& CHeap<T>::Top() const
 {
-	assert( Size() > 0 );
+	massert( Size() > 0 );
 	return arr[0];
 }
 
 template<typename T>
 void CHeap<T>::Push( const T& element )
 {
-	arr.PushBack( element );
+	arr.push_back( element );
 	siftUp( arr.Size() - 1 );
 }
 
@@ -48,10 +48,10 @@ void CHeap<T>::siftUp( int index )
 template<typename T>
 const T& CHeap<T>::Pop()
 {
-	assert( !isEmpty() );
+	massert( !isEmpty() );
 	T top = arr[0];
 	arr[0] = arr.Last();
-	arr.PopBack();
+	arr.pop_back();
 	if( !isEmpty() ) {
 		siftDown( 0 );
 	}
