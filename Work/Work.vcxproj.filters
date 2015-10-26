@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Тесты">
+      <UniqueIdentifier>{0f9f0b6c-c56b-483d-a04e-a2ce03590a37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -39,9 +42,6 @@
     <ClCompile Include="HeapForMerge.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
-      <Filter>Файлы ресурсов</Filter>
-    </ClCompile>
     <ClCompile Include="Stack.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
@@ -59,6 +59,9 @@
     </ClCompile>
     <ClCompile Include="OpenAddressHashTable.cpp">
       <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenAddressHashTableTests.cpp">
+      <Filter>Тесты</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +105,9 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="OpenAddressHashTable.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="Table.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

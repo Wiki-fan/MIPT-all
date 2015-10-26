@@ -1,34 +1,4 @@
 ﻿#pragma once
-/*void MergeSort(int *start, int *finish, int* buffer)
-{
-	if( start + 1 == finish)
-	return;
-
-	int *mid = start + (finish - start + 1) / 2;
-	MergeSort(start, mid, buffer);
-	MergeSort(mid, finish, buffer);
-
-	int *start1 = buffer, *mid1 = start1 + (mid - start), *finish1 = start1 + (finish - start);
-	//for (int *i1 = start, *i2 = start1; i1 != mid; ++i1, ++i2) {
-	//	*i2 = *i1;
-	//}
-	//for (int *i1 = mid, *i2 = mid1; i1 != finish; ++i1, ++i2) {
-	//	*i2 = *i1;
-	//}
-	memcpy(start1, start, (mid1 - start1)*sizeof(int));
-	memcpy(mid1, mid, (finish1 - mid1)*sizeof(int));
-
-	for (int *i = start, *i1 = start1, *i2 = mid1; i != finish; ++i) {
-	if( (*i1 <= *i2 && i1 != mid1) || i2 == finish1) {
-		*i = *i1;
-		++i1;
-	}
-	else if( (*i1 > *i2 && i2 != finish1) || i1 == mid1) {
-		*i = *i2;
-		++i2;
-	}
-	}
-}*/
 
 namespace my {
 
@@ -68,7 +38,7 @@ void MergeSort( T *start, T *finish, T* buffer )
 	}
 }
 
-// qsort с выбором пивота по методу Хоара
+// Быстрая сортировка с выбором пивота по методу Хоара.
 template<typename T>
 void qsort( int l, int r, T *a ) // start, finish и указатель на начало массива.
 {

@@ -14,29 +14,30 @@
 #include "Deque.h"
 #include "Deque.cpp"
 
+#include "OpenAddressHashTableTests.cpp"
+
+/*int main()
+{
+	my::TestDeque();
+	return 0;
+}*/
+
+void TestVector()
+{
+	srand( static_cast<unsigned int>(time( NULL )) );
+	my::CVector<int> vec;
+	for( int i = 0; i < 200; ++i ) {
+		vec.push_back( rand() );
+	}
+	for( int i = 0; i < 200; ++i ) {
+		vec.pop_back();
+		std::cout << vec.max_size() <<' ';
+	}
+}
+
 int main()
 {
-	COpenAddressHashTable hashTable;
-	while( true ) {
-		char command = 0;
-		std::cin >> command;
-		if( std::cin.eof() ) {
-			return 0;
-		}
-		std::string key;
-		std::cin >> key;
-		switch( command ) {
-		case '?':
-			std::cout << (hashTable.Has( key ) ? "OK" : "FAIL") << std::endl;
-			break;
-		case '+':
-			std::cout << (hashTable.Add( key ) ? "OK" : "FAIL") << std::endl;
-			break;
-		case '-':
-			std::cout << (hashTable.Remove( key ) ? "OK" : "FAIL") << std::endl;
-			break;
-		default:
-			massert( false );
-		}
-	}
+	TestOpenAddressHashTable();
+	std::cin.get();
+	return 0;
 }

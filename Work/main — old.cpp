@@ -1,4 +1,5 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿
+#define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 #include <conio.h>
 #include <cstring>
@@ -9,7 +10,7 @@
 #include <vector>
 
 #include "Sorts.h"
-#include "MyVector.h"
+#include "Vector.h"
 
 /*unsigned findRepetitionsCount(const char* s, char c1, char c2)
 {

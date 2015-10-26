@@ -28,7 +28,7 @@ public:
 
 	// Добавление элемента в конец вектора.
 	virtual void push_back( const T& item );
-	// Удаление элемента из конца вектора. Не совпадает с решением в STL, т.к. возвращает удаляемый элемент.
+	// Удаление элемента из конца вектора. В отличие от std::vector возвращает удаляемый элемент.
 	virtual T pop_back();
 	// Перевыделяет память так, чтобы не было лишней неиспользуемой памяти.
 	void shrink_to_fit();
@@ -63,7 +63,7 @@ private:
 	T* items; // Указатель на элементы.
 
 	// Копирование элементов вектора из буфера from в буфер to.
-	void copy( mysize _size, const T *from, T *to );
+	static void copy( mysize _size, const T *from, T *to );
 	// Должна как-нибудь перевыделить память. Пока что не нужна.
 	// void realloc( mysize& count, mysize otherCount, T* items, T* otherItems );
 };

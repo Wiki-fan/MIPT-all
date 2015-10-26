@@ -15,7 +15,7 @@ CVector<T>::CVector() : count( 0 ), maxCount( DefaultInitialVectorSize ), items(
 }
 
 template<typename T>
-CVector<T>::CVector( mysize _size ) :
+CVector<T>::CVector( mysize _count ) :
 	count( _count ),
 	maxCount( count ),
 	items( new T[count] )
