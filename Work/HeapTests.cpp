@@ -1,0 +1,16 @@
+#include "stdafx.h"
+#include "Heap.h"
+
+int HeapTest()
+{
+	my::CHeap<int> h1;
+	h1.Push( 4 );
+	h1.Push( 6 );
+	h1.Push( 2 );
+	std::cout << h1.Pop() << std::endl;
+	std::cout << h1.Top() << std::endl;
+	std::cout << h1.Pop() << std::endl;
+	std::cout << h1.Pop() << std::endl;
+	std::cout << h1.Pop() << std::endl;
+	return 0;
+}

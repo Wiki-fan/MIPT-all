@@ -1,6 +1,6 @@
+#pragma once
 #include "stdafx.h"
 #include "OpenAddressHashTable.h"
-#include "OpenAddressHashTable.cpp"
 
 void TestOpenAddressHashTable()
 {

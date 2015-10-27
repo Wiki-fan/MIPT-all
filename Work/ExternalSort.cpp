@@ -1,8 +1,4 @@
 ﻿#include "stdafx.h"
-#include <ctime>
-#include <cstdlib>
-#include <limits.h>
-#include <algorithm>
 #include "ExternalSort.h"
 #include "File.h"
 #include "Sorts.h"
@@ -20,13 +16,13 @@ void GenFile()
 	const mysize N = 4 * 1024 * 1024 / sizeof( type ); // Столько type'ов займут 4 ГБ.
 
 	// Будем писать числа в буфер, а потом записывать куском в файл.
-	const mysize max = 1024;
+	const mysize max = 1024 * 1024;
 	type *buf = new type[max];
 	for( int i = 0; i < N; ++i ) {
 		for( int j = 0; j < max; ++j ) {
-			buf[j] = rand()*rand()*rand()*rand(); // Нужно больше энтропии.
+			buf[j] = rand()/**rand()*rand()*rand()*/; // Нужно больше энтропии.
 		}
-		size_t count = fwrite( buf, sizeof( type ), max, outf );
+		fwrite( buf, sizeof( type ), max, outf );
 	}
 	fclose( outf );
 #ifdef STDOUT_CFILE_DEBUG
@@ -46,15 +42,14 @@ bool CheckFile()
 		for( int i = 0; i < size; ++i ) {
 			if( prev > i ) {
 				fclose( inf );
-				delete buf;
+				delete[] buf;
 				return false;
 			}
 		}
 	}
 	fclose( inf );
-	delete buf;
+	delete[] buf;
 	return true;
-
 }
 
 // Сравнение двух чисел для qsort'а
@@ -72,10 +67,9 @@ void ExternalSort( const wchar_t* sourceFileName, const wchar_t* targetFilename 
 	int i = 0;
 	mysize offset = 0;
 	while( mysize count = inf.ReadToArr( arr, IntsInChunk, offset ) ) {
-		// MergeSort<type>( arr, arr + count, buffer );
-		std::qsort( arr, count, sizeof( type ), Compare );
-		mysize written = inf.WriteFromArr( arr, count, offset );
-		// printf( "%d %d\n", count, written );
+		MergeSort<type>( arr, arr + count, buffer );
+		// std::qsort( arr, count, sizeof( type ), Compare );
+		inf.WriteFromArr( arr, count, offset );
 		offset += count;
 		++i;
 	}
@@ -110,11 +104,3 @@ void ExternalSort( const wchar_t* sourceFileName, const wchar_t* targetFilename 
 }
 
 } // namespace my
-
-  /*int main()
-  {
-  my::GenFile();
-  my::ExternalSort( L"in", L"target" );
-  printf( "%s", my::CheckFile() ? "OK" : "NOPE" );
-  return 0;
-  }*/

@@ -1,38 +1,38 @@
-﻿#include "stdafx.h"
+﻿#pragma once
+#include "stdafx.h"
 #include "Stack.h"
-#include "Stack.cpp"
 
 char associativity( char c )
 {
 	switch( c ) {
-	case '+':
-	case '*':
-	case '/':
-	case '-':
-		return 'l';
-	case '^':
-		return 'r';
-	default:
-		massert( false );
+		case '+':
+		case '*':
+		case '/':
+		case '-':
+			return 'l';
+		case '^':
+			return 'r';
+		default:
+			massert( false );
 	}
 }
 
 int priority( char c )
 {
 	switch( c ) {
-	case '(':
-	case ')':
-		return 0;
-	case '+':
-	case '-':
-		return 1;
-	case '*':
-	case '/':
-		return 2;
-	case '^':
-		return 3;
-	default:
-		massert( false );
+		case '(':
+		case ')':
+			return 0;
+		case '+':
+		case '-':
+			return 1;
+		case '*':
+		case '/':
+			return 2;
+		case '^':
+			return 3;
+		default:
+			massert( false );
 	}
 }
 
@@ -117,15 +117,4 @@ double CalculateReversePolish( std::istream& is )
 		}
 	}
 	return st.pop();
-}
-
-int maincalc()
-{
-	std::stringstream ss;
-	ToReversePolish( std::cin, ss );
-	double res = CalculateReversePolish( ss );
-	std::cout << res;
-	_getch();
-
-	return 0;
 }

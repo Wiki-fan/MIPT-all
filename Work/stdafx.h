@@ -12,7 +12,9 @@
 #include <ctime>
 #include <cstring>
 #include <cassert>
+#include <cstdlib>
 #include <stdarg.h>
+#include <limits.h>
 #include <iostream>
 #include <fstream>
 #include <istream>

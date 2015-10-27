@@ -16,26 +16,29 @@ public:
 		chunkend( (_chunk + 1)*IntsInChunk ),
 		offset( _chunk*IntsInChunk )
 	{
-	};
+	}
 	// Деструктор.
 	~CSortedListFromFile();
 
 	// Извлечь следующий (с подгрузкой).
 	type getNext( my::CFile& f, mysize intsInPiece, mysize intsInChunk );
-	//Получить уже подгруженный элемент.
-	type getItem() { return buf[index]; }
 	// Дочитать, если надо.
 	void ReadIfNeeded( my::CFile& f, mysize intsInPiece, mysize intsInChunk );
 
+	//Получить уже подгруженный элемент.
+	type getItem() const { return buf[index]; }
 	// Проверка, был ли это последний piece данного chunk'а.
 	bool isEnd() const { return (size == 0); }
 
 private:
+	mysize size; // Всего элементов.
 	type *buf; // Массив с числами.
 	mysize index; // Индекс текущего элемента.
-	mysize size; // Всего элементов.
-	mysize offset; // Текущая позиция piece'а в chunk'е. 
 	mysize chunkend; // Верхняя граница нужного чанка в файле.
+	mysize offset; // Текущая позиция piece'а в chunk'е. 
+	
+	// Копирующий конструктор в private, потому что он не нужен и не должен вызываться.
+	CSortedListFromFile( const CSortedListFromFile& other );
 };
 
 } // namespace my

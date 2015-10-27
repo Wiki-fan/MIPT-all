@@ -130,22 +130,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Calc.cpp" />
-    <ClCompile Include="Deque.cpp" />
+    <ClCompile Include="CalcTests.cpp" />
+    <ClCompile Include="DequeTests.cpp" />
     <ClCompile Include="ExternalSort.cpp" />
+    <ClCompile Include="ExternalSortTests.cpp" />
     <ClCompile Include="File.cpp" />
-    <ClCompile Include="ChainHashTable.cpp" />
     <ClCompile Include="HeapForMerge.cpp" />
+    <ClCompile Include="HeapTests.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Heap.cpp" />
-    <ClCompile Include="OpenAddressHashTable.cpp" />
     <ClCompile Include="OpenAddressHashTableTests.cpp" />
-    <ClCompile Include="Smth.cpp" />
     <ClCompile Include="SortedListFromFile.cpp" />
-    <ClCompile Include="Stack.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Vector.cpp" />
+    <ClCompile Include="VectorTests.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Calc.h" />
     <ClInclude Include="Deque.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="ExternalSort.h" />
