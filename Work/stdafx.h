@@ -5,6 +5,7 @@
 // #define STDOUT_CFILE_DEBUG 
 // Для вывода подробных massert'ов.
 #define NO_MY_DEBUG
+#define MY_DOUBLE_HASHING
 
 #include <conio.h>
 #include <cstdio>

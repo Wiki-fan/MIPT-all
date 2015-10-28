@@ -13,14 +13,14 @@ void GenFile()
 	srand( static_cast<unsigned int>(time( 0 )) );
 
 	FILE* outf = fopen( "in", "wb+" );
-	const mysize N = 4 * 1024 * 1024 / sizeof( type ); // Столько type'ов займут 4 ГБ.
+	const mysize N = 4 * 1024 / sizeof( type );
 
 	// Будем писать числа в буфер, а потом записывать куском в файл.
 	const mysize max = 1024 * 1024;
 	type *buf = new type[max];
 	for( int i = 0; i < N; ++i ) {
 		for( int j = 0; j < max; ++j ) {
-			buf[j] = rand()/**rand()*rand()*rand()*/; // Нужно больше энтропии.
+			buf[j] = rand()*rand()*rand()*rand(); // Нужно больше энтропии.
 		}
 		fwrite( buf, sizeof( type ), max, outf );
 	}

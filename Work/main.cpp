@@ -1,9 +1,9 @@
 ﻿#include "stdafx.h"
-extern void TestExternalSort();
+extern void TestOpenAddressHashTable();
 
 int main()
 {
-	TestExternalSort();
+	TestOpenAddressHashTable();
 	_getch();
 	return 0;
 }

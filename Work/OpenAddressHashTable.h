@@ -3,8 +3,6 @@
 
 // Начальный размер хеш-таблицы. Взаимнопрост с параметром хеш-функции.
 const int initialOpenAddressHashTableSize = 8;
-// TODO: выяснить, что такое m
-const int m = 32;
 
 class COpenAddressHashTable : public CHashTable {
 
@@ -12,9 +10,9 @@ public:
 	COpenAddressHashTable();
 	~COpenAddressHashTable();
 
-	virtual bool Add( const std::string& key );
-	virtual bool Remove( const std::string& key );
-	virtual bool Has( const std::string& key ) const;
+	bool Add( const std::string& key );
+	bool Remove( const std::string& key );
+	bool Has( const std::string& key ) const;
 
 private:
 	struct CTableNode {
@@ -31,8 +29,11 @@ private:
 	};
 	std::vector<CTableNode*> table;
 
-	virtual void rehash();
-	virtual int myHash( const std::string& key ) const;
+	void rehash();
+	int myHash( const std::string& key ) const;
+	int myHash2( const std::string& key ) const;
+	// Устанавливаем следующую возможную корзину, которую следует проверить.
+	int setNextBucket( const std::string& key, int& bucket, int& probe ) const;
 };
 
 COpenAddressHashTable::COpenAddressHashTable() :table( initialOpenAddressHashTableSize, 0 )
@@ -57,19 +58,15 @@ bool COpenAddressHashTable::Add( const std::string& key )
 		// Проматываем до ближайшей пустой или удалённой корзины.
 		for( int probe = 1;
 		bucket < table.size() && table[bucket] != 0 && table[bucket]->Deleted == false;
-			bucket = (bucket + probe) % m, ++probe ) {
+			setNextBucket( key, bucket, probe ) ) {
 			if( *(table[bucket]->Key) == key ) {
 				return false; // Уже есть такой элемент, незачем добавлять.
 			}
 		}
 
-		if( bucket == table.size() ) {
-			rehash(); // Если вылезает за границы, перехешируем с удвоением размера и повторим.
-		} else {
-			table[bucket] = new CTableNode( key );
-			++keysCount;
-			return true;
-		}
+		table[bucket] = new CTableNode( key );
+		++keysCount;
+		return true;
 	}
 
 }
@@ -82,7 +79,7 @@ bool COpenAddressHashTable::Remove( const std::string& key )
 	}
 	int bucket = hash;
 	// Проматываем все не равные key элементы.
-	for( int probe = 1; table[bucket] != 0; bucket = (bucket + probe) % m, ++probe ) {
+	for( int probe = 1; table[bucket] != 0; setNextBucket( key, bucket, probe ) ) {
 		if( table[bucket]->Deleted == false && *(table[bucket]->Key) == key ) {
 			break;
 		}
@@ -104,7 +101,7 @@ bool COpenAddressHashTable::Has( const std::string& key ) const
 	int bucket = hash;
 
 	// Ищем элемент, равный нужному. Если доходим до удалённого, ищем дальше, если доходим до пустого, не нашли.
-	for( int probe = 1; table[bucket] != 0; bucket = (bucket + probe) % m, ++probe ) {
+	for( int probe = 1; table[bucket] != 0; setNextBucket( key, bucket, probe ) ) {
 		if( table[bucket]->Deleted == false && *(table[bucket]->Key) == key ) {
 			return true;
 		}
@@ -134,4 +131,22 @@ int COpenAddressHashTable::myHash( const std::string& key ) const
 		hash = (hash*HashParameter + key[i]) % table.size();
 	}
 	return hash;
+}
+
+int COpenAddressHashTable::myHash2( const std::string& key ) const
+{
+	int hash = 0;
+	for( size_t i = key.length() - 1; i >= 0; --i ) {
+		hash = (hash*HashParameter + key[i]) % table.size();
+	}
+	return hash;
+}
+
+int COpenAddressHashTable::setNextBucket( const std::string& key, int& bucket, int& probe ) const
+{
+#ifdef MY_DOUBLE_HASHING
+	return (bucket = (myHash( key ) + probe*myHash2( key )) % table.size());
+#else
+	return (bucket = (bucket + probe++) % table.size());
+#endif
 }
