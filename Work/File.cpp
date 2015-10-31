@@ -3,20 +3,30 @@
 
 namespace my
 {
-
+#ifndef __GLIBC__
 CFile::CFile( const wchar_t* filename, bool write )
 {
 	_wfopen_s( &f, filename, write ? L"wb+" : L"rb+" );
 }
+#else
+CFile::CFile( const char *filename, bool write )
+{
+	f = fopen( filename, write ? "wb+" : "rb+" );
+}
+#endif
 
 CFile::~CFile()
 {
 	fclose( f );
 }
 
-mysize CFile::ReadToArr( type* buffer, mysize count, mysize offset )
+mysize CFile::ReadToArr( type *buffer, mysize count, mysize offset )
 {
-	_fseeki64( f, offset*sizeof( type ), SEEK_SET );
+#ifndef __GLIBC__
+	_fseeki64( f, offset * sizeof( type ), SEEK_SET );
+#else
+	fseeko64( f, offset * sizeof( type ), SEEK_SET );
+#endif
 #ifdef STDOUT_CFILE_DEBUG
 	perror( "ReadToArr fseek: " );
 #endif
@@ -27,9 +37,13 @@ mysize CFile::ReadToArr( type* buffer, mysize count, mysize offset )
 	return size;
 }
 
-mysize CFile::WriteFromArr( type* buffer, mysize count, mysize offset )
+mysize CFile::WriteFromArr( type *buffer, mysize count, mysize offset )
 {
-	_fseeki64( f, offset*sizeof( type ), SEEK_SET );
+#ifndef __GLIBC__
+	_fseeki64( f, offset * sizeof( type ), SEEK_SET );
+#else
+	fseeko64( f, offset * sizeof( type ), SEEK_SET );
+#endif
 #ifdef STDOUT_CFILE_DEBUG
 	perror( "WriteToArr fseek: " );
 #endif

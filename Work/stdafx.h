@@ -4,10 +4,9 @@
 // Для вывода ошибок чтения файлов в CFile в stdout.
 // #define STDOUT_CFILE_DEBUG 
 // Для вывода подробных massert'ов.
-#define NO_MY_DEBUG
+// #define NO_MY_DEBUG
 #define MY_DOUBLE_HASHING
 
-#include <conio.h>
 #include <cstdio>
 #include <cmath>
 #include <ctime>
@@ -37,7 +36,7 @@ void mfrassert( bool check, ... );
 // ifndef NO_MY_DEBUG пишет файл, строку и сообщение об ошибке (если таковое имеется). 
 // Иначе просто выводит "error" и выходит с кодом 1.
 #ifndef NO_MY_DEBUG
-#define massert( check, ... ) ( mfassert( __FILE__, __LINE__, check, __VA_ARGS__) )
+#define massert( check, ... ) mfassert( __FILE__, __LINE__, check, ##__VA_ARGS__)
 #else
 #define massert( check, ... ) ( mfrassert(check) )
 #endif

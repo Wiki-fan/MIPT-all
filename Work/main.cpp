@@ -4,6 +4,6 @@ extern void TestOpenAddressHashTable();
 int main()
 {
 	TestOpenAddressHashTable();
-	_getch();
+	std::cin.get();
 	return 0;
 }

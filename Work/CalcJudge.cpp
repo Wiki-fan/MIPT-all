@@ -1,4 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿/*#define _CRT_SECURE_NO_WARNINGS
 // Для вывода ошибок чтения файлов в CFile в stdout.
 // #define STDOUT_CFILE_DEBUG
 // Для вывода подробных massert'ов.
@@ -449,3 +449,4 @@ int main()
 
 	return 0;
 }
+*/

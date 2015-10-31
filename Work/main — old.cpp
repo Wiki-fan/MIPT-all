@@ -1,18 +1,4 @@
-﻿
-#define _CRT_SECURE_NO_WARNINGS
-#include <cstdio>
-#include <conio.h>
-#include <cstring>
-#include <cmath>
-#include <ctime>
-#include <iostream>
-#include <fstream>
-#include <vector>
-
-#include "Sorts.h"
-#include "Vector.h"
-
-/*unsigned findRepetitionsCount(const char* s, char c1, char c2)
+﻿/*unsigned findRepetitionsCount(const char* s, char c1, char c2)
 {
 	unsigned ret = 0;
 	for (const char *s1 = s + 1; *s1 != '\0'; ++s, ++s1) {
@@ -124,7 +110,7 @@ int main()
 	return 0;
 }*/
 
-struct Point
+/*struct Point
 {
 	int x_;
 	bool b_;
@@ -150,7 +136,7 @@ struct Point
 	}
 };
 
-int main() {
+int main2() {
 	int n;
 	scanf("%d", &n);
 	my::MyVector<Point> points(n*2);
@@ -175,3 +161,4 @@ int main() {
 	printf("%d", sum);
 	return 0;
 }
+*/

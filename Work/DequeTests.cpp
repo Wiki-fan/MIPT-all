@@ -1,4 +1,3 @@
-#pragma once
 #include "stdafx.h"
 #include "Deque.h"
 
@@ -31,7 +30,7 @@ void TestDeque()
 			deque.pop_front();
 			pop_front_t = (double)(clock() - t) / CLOCKS_PER_SEC;
 			
-			printf( "%7d %10.10 %f %f %f %f\n", i, push_back_t, push_front_t, operator_br_t, pop_back_t, pop_front_t );
+			printf( "%7d %10.10f %f %f %f %f\n", i, push_back_t, push_front_t, operator_br_t, pop_back_t, pop_front_t );
 		}
 
 		

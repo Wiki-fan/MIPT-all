@@ -37,7 +37,7 @@ bool CheckFile()
 	FILE* inf = fopen( "target", "rb" );
 	const int N = IntsInChunk;
 	type *buf = new type[N];
-	type prev = _I64_MIN; // Первое значение - минимальное из возможных.
+	type prev = LONG_LONG_MIN; // Первое значение - минимальное из возможных.
 	while( mysize size = fread( buf, sizeof( type ), N, inf ) ) {
 		for( int i = 0; i < size; ++i ) {
 			if( prev > i ) {
@@ -58,7 +58,11 @@ int Compare( const void * a, const void * b )
 	return (int)(*(type*)a - *(type*)b);
 }
 
+#ifndef __GLIBC__
 void ExternalSort( const wchar_t* sourceFileName, const wchar_t* targetFilename )
+#else
+void ExternalSort( const char* sourceFileName, const char* targetFilename )
+#endif
 {
 	// Считывание, сотрировка и запись чанков по IntsInChunk int'ов.
 	CFile inf( sourceFileName, false );

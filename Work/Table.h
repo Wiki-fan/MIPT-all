@@ -8,7 +8,7 @@ public:
 
 	int& operator()( int i, int j );
 
-	// Работа с итераторами.
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 	class iterator : public std::iterator<std::random_access_iterator_tag, int>
 	{
 	public:
@@ -64,6 +64,7 @@ int main()
 		}
 		std::cout << std::endl;
 	}
+	return 0;
 
 }
 

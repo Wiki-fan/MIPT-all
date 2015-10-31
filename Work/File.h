@@ -13,19 +13,24 @@ class CFile {
 
 public:
 	// Конструктор, принимает имя файла и 1, коли файл следует создать, если его нет, и обнулить, если он есть.
+	explicit CFile( const wchar_t *filename, bool write );
+#ifndef __GLIBC__
 	explicit CFile( const wchar_t* filename, bool write );
+#else
+	CFile( const char *filename, bool write );
+#endif
 	// Деструктор.
-	~CFile(); 
+	~CFile();
 
 	// Читать в буфер из файла.
-	mysize ReadToArr( type* buffer, mysize count, mysize offset );
+	mysize ReadToArr( type *buffer, mysize count, mysize offset );
 	// Писать файл из буфера.
-	mysize WriteFromArr( type* buffer, mysize count, mysize offset );
+	mysize WriteFromArr( type *buffer, mysize count, mysize offset );
 	// Конец файла.
 	bool IsEOF() const { return feof( f ); }
 
 private:
-	FILE* f; // Файловый дескриптор.
+	FILE *f; // Файловый дескриптор.
 };
 
 } // namespace my

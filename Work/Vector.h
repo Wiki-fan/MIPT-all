@@ -39,7 +39,7 @@ public:
 	// Указатель на начало.
 	T* begin() const { return items; }
 	// Указатель на элемент, следующий за последним элементом вектора.
-	T* end() const { return &(items[size]); }
+	T* end() const { return &(items[count]); }
 	// Первый элемент.
 	T& front() const
 	{
@@ -126,6 +126,7 @@ CVector<T>& my::CVector<T>::operator=( const CVector& other )
 		count = other.count;
 		copy( count, other.items, items );
 	}
+	return *this;
 }
 
 template <typename T>

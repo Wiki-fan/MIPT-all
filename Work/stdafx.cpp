@@ -8,7 +8,7 @@ void mfassert( char* file, unsigned int line, bool check, char *format, ... )
 		va_start( args, format );
 		vprintf( format, args );
 		va_end( args );
-		_getch();
+		std::cin.get();
 		exit( 1 );
 	}
 }

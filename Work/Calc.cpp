@@ -1,5 +1,4 @@
-﻿#pragma once
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Stack.h"
 
 char associativity( char c )
@@ -110,9 +109,9 @@ double CalculateReversePolish( std::istream& is )
 			massert( a2 != 0, "division by zero" );
 			st.push( a1 / a2 );
 		} else if( c == '^' ) {
-			double b = st.pop();
-			double a = st.pop();
-			double res = pow( a, b );
+			double a2 = st.pop();
+			double a1 = st.pop();
+			double res = pow( a, a2 );
 			st.push( res );
 		}
 	}

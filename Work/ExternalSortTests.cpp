@@ -4,6 +4,10 @@
 void TestExternalSort()
 {
 	my::GenFile();
+#ifndef __GLIBC__
 	my::ExternalSort( L"in", L"target" );
+#else
+	my::ExternalSort( "in", "target" );
+#endif
 	printf( "%s", my::CheckFile() ? "OK" : "NOPE" );
 }
