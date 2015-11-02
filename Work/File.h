@@ -13,11 +13,10 @@ class CFile {
 
 public:
 	// Конструктор, принимает имя файла и 1, коли файл следует создать, если его нет, и обнулить, если он есть.
-	explicit CFile( const wchar_t *filename, bool write );
 #ifndef __GLIBC__
 	explicit CFile( const wchar_t* filename, bool write );
 #else
-	CFile( const char *filename, bool write );
+	explicit CFile( const char *filename, bool write );
 #endif
 	// Деструктор.
 	~CFile();

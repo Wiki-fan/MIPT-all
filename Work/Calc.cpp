@@ -1,16 +1,20 @@
 ﻿#include "stdafx.h"
 #include "Stack.h"
 
-char associativity( char c )
+enum Associativity {
+	left,right
+};
+
+Associativity associativity( char c )
 {
 	switch( c ) {
 		case '+':
 		case '*':
 		case '/':
 		case '-':
-			return 'l';
+			return Associativity::left;
 		case '^':
-			return 'r';
+			return Associativity::right;
 		default:
 			massert( false );
 	}
@@ -59,13 +63,13 @@ bool ToReversePolish( std::istream& is, std::ostream& os )
 				os << oper.pop();
 			}
 			oper.pop(); // Удаляем '(' из стека.
-		} else if( associativity( c ) == 'l' ) {
+		} else if( associativity( c ) == Associativity::left ) {
 			massert( unary_flag != 1, "missing operand for %c", c );
 			while( !oper.empty() && oper.top() != '(' && priority( c ) <= priority( oper.top() ) ) {
 				os << oper.pop();
 			}
 			oper.push( c );
-		} else if( associativity( c ) == 'r' ) {
+		} else if( associativity( c ) == Associativity::right ) {
 			massert( unary_flag != 1, "missing operand for %c", c );
 			while( !oper.empty() && oper.top() != '(' && priority( c ) < priority( oper.top() ) ) {
 				os << oper.pop();

@@ -123,7 +123,7 @@ void COpenAddressHashTable::rehash()
 int COpenAddressHashTable::myHash( const std::string &key ) const
 {
 	int hash = 0;
-	for( size_t i = 0; i < key.length(); ++i ) {
+	for( mysize i = 0; i < key.length(); ++i ) {
 		hash = ( hash * HashParameter + key[i] ) % table.size();
 	}
 	return hash;
@@ -132,7 +132,7 @@ int COpenAddressHashTable::myHash( const std::string &key ) const
 int COpenAddressHashTable::myHash2( const std::string &key ) const
 {
 	int hash = 0;
-	for( size_t i = key.length() - 1; i >= 0; --i ) {
+	for( mysize i = key.length() - 1; i >= 0; --i ) {
 		hash = ( hash * HashParameter + key[i] ) % table.size();
 	}
 	return hash;

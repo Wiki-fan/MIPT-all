@@ -27,23 +27,35 @@
 				<Option compiler="gcc" />
 			</Target>
 		</Build>
+		<Unit filename="Calc.cpp" />
+		<Unit filename="Calc.h" />
+		<Unit filename="CalcTests.cpp" />
+		<Unit filename="ChainHashTable.h" />
+		<Unit filename="Deque.h" />
+		<Unit filename="DequeTests.cpp" />
 		<Unit filename="ExternalSort.cpp" />
 		<Unit filename="ExternalSort.h" />
+		<Unit filename="ExternalSortTests.cpp" />
 		<Unit filename="File.cpp" />
 		<Unit filename="File.h" />
-		<Unit filename="Heap.cpp" />
+		<Unit filename="HashTable.h" />
 		<Unit filename="Heap.h" />
 		<Unit filename="HeapForMerge.cpp" />
 		<Unit filename="HeapForMerge.h" />
-		<Unit filename="Smth.cpp" />
+		<Unit filename="HeapTests.cpp" />
+		<Unit filename="OpenAddressHashTable.h" />
+		<Unit filename="OpenAddressHashTableTests.cpp" />
 		<Unit filename="Smth.h" />
 		<Unit filename="SortedListFromFile.cpp" />
 		<Unit filename="SortedListFromFile.h" />
 		<Unit filename="Sorts.h" />
-		<Unit filename="Vector.cpp" />
+		<Unit filename="Stack.h" />
+		<Unit filename="Table.h" />
 		<Unit filename="Vector.h" />
+		<Unit filename="VectorTests.cpp" />
 		<Unit filename="main.cpp" />
-		<Unit filename="main_contest.cpp" />
+		<Unit filename="stdafx.cpp" />
+		<Unit filename="stdafx.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

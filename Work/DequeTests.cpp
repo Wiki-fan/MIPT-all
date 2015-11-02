@@ -8,7 +8,7 @@ void TestDeque()
 	my::CDeque<int> deque;
 	printf( "N       push_back pop_back push_front pop_front operator[]\n" );
 	double push_back_t, pop_back_t, push_front_t, pop_front_t, operator_br_t;
-	for( int i = 0; i < 1000; ++i ) {
+	for( int i = 1; i < 10000; i *= 10 ) {
 		for( int j = 0; j < i; ++j ) {
 			t = clock();
 			deque.push_back( rand() );

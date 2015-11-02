@@ -1,9 +1,9 @@
 ﻿#include "stdafx.h"
-extern void TestOpenAddressHashTable();
+extern void TestDeque();
 
 int main()
 {
-	TestOpenAddressHashTable();
+	TestDeque();
 	std::cin.get();
 	return 0;
 }

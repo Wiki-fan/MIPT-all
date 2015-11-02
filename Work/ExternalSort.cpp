@@ -37,7 +37,11 @@ bool CheckFile()
 	FILE* inf = fopen( "target", "rb" );
 	const int N = IntsInChunk;
 	type *buf = new type[N];
+#ifdef __GLIBC__
 	type prev = LONG_LONG_MIN; // Первое значение - минимальное из возможных.
+#else
+	type prev = _I64_MIN;
+#endif
 	while( mysize size = fread( buf, sizeof( type ), N, inf ) ) {
 		for( int i = 0; i < size; ++i ) {
 			if( prev > i ) {
