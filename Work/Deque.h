@@ -1,14 +1,17 @@
 ﻿#pragma once
 
-namespace my
-{
+#include "stdafx.h"
 
-const int DequeFragmentSize = 5;
+namespace my {
+
+const int DequeFragmentSize = 10;
 
 template<typename T>
 class CDeque {
+
 private:
 	class CNode;
+
 public:
 	// Конструктор по умолчанию, создающий пустой дек.
 	CDeque();
@@ -21,81 +24,95 @@ public:
 	// Вытолкнуть элемент спереди.
 	T pop_front();
 	// Пуст ли дек?
-	bool empty() const { return count == 0; };
+	bool empty() const { return count == 0; }
 	// Количество элементов.
-	mysize size() const { return count; };
-	// Элемент на позиции n.
-	T& operator[]( mysize n ); // Индексация, как обычно, с нуля.
+	mysize size() const { return count; }
+	// Элемент на позиции n. Индексация, как обычно, с нуля.
+	T& operator[]( mysize n );
 	const T& operator[]( mysize n ) const;
 	// Последний элемент.
-	T& back() { return last->buf[l]; };
-	const T& back() const { return last->buf[l]; };
+	T& back() { return last->buf[l]; }
+	const T& back() const { return last->buf[l]; }
 	// Первый элемент.
 	T& front() { return first->buf[f]; }
-	const T& front() const { return first->buf[f]; };
+	const T& front() const { return first->buf[f]; }
 
-	class iterator : public std::iterator<std::random_access_iterator_tag, T> {
+	class CIterator : public std::iterator<std::random_access_iterator_tag, T> {
 
 	public:
-		iterator( CDeque& _parent, int _n ); // Конструктор по номеру элемента в деке.
-		iterator( const iterator& other); // Копирующий конструктор.
-		~iterator(); // Деструктор.
+		CIterator(); // Конструктор по умолчанию.
+		CIterator( CDeque& _parent, int _n ); // Конструктор по номеру элемента в деке.
+		CIterator( const CIterator& other ); // Копирующий конструктор.
+		~CIterator(); // Деструктор.
 
-		iterator operator++(); // Префиксный инкремент.
-		iterator operator++( int ); // Постфиксный инкремент.
+		CIterator operator++(); // Префиксный инкремент.
+		CIterator operator++( int ); // Постфиксный инкремент.
+		CIterator operator--(); // Префиксный декремент.
+		CIterator operator--( int ); // Постфиксный декремент.
 
-		iterator& operator=( const iterator& other ); // Оператор присваивания.
-		bool operator==( const iterator& other) const; // Равенство.
-		bool operator!=( const iterator& other) const; // Неравенство.
+		CIterator operator+( int a );
+		CIterator operator-( int a );
 
-		reference operator*() const; // Разыменовывание.
+		CIterator& operator=( const CIterator& other ); // Оператор присваивания.
+		bool operator==( const CIterator& other ) const; // Равенство.
+		bool operator!=( const CIterator& other ) const; // Неравенство.
+		bool operator>( const CIterator& other ) const; // Больше.
+		bool operator>=( const CIterator& other ) const; // Больше или равно.
+		bool operator<( const CIterator& other ) const; // Меньше.
+		bool operator<=( const CIterator& other ) const; // Меньше или равно.
+
+		T& operator*() const; // Разыменовывание.
 
 	private:
 		// Конструктор по указателю на конкретный подмассив дека и номеру элемента в нём. Должен вызываться только внутри класса.
-		iterator( CDeque& _parent, int _i, CNode *_buf ); 
+		CIterator( CDeque& _parent, int _i, CNode* _buf );
 
-		CDeque& parent; // Дек, итератором когорого является *this.
-		CNode* buf; // Указатель на буфер, в котором находится текущий элемент.
+		CDeque* parent; // Дек, итератором когорого является *this.
+		CNode* node; // Указатель на буфер, в котором находится текущий элемент.
 		int iBuf; // Номер элемента в буфере.
-		int n; // Номер элемента во всём деке.
 		friend class CDeque;
 
 	};
 
-	iterator begin() { return iterator( *this, 0 ); }
-	iterator begin() const { return iterator( *this, 0 ); };
-	//const_iterator cbegin() const { return const_iterator( *this, 0 ); };
-	iterator end() { return iterator( *this, last, l ); };
-	iterator end() const { return iterator( *this, last, l ); };;
-	//const_iterator cend() cons { return const_iterator( *this, last, l ); }; t;
-	iterator rbegin();
-	iterator rbegin() const;
-	//const_iterator crbegin() const;
-	iterator rend(); 
-	iterator rend() const;
-	//const_iterator crend() const;
+	CIterator begin() { return CIterator( *this, 0 ); }
+	CIterator begin() const { return CIterator( *this, 0 ); };
+	//const_CIterator cbegin() const { return const_CIterator( *this, 0 ); };
+	CIterator end() { return CIterator( *this, l + 1, last ); };
+	CIterator end() const { return CIterator( *this, l + 1, last ); };
+	//const_CIterator cend() cons { return const_CIterator( *this, last, l ); }; t;
+	CIterator rbegin();
+	CIterator rbegin() const;
+	//const_CIterator crbegin() const;
+	CIterator rend();
+	CIterator rend() const;
+	//const_CIterator crend() const;
 
 private:
 	// Нода, имеющая ссылки на предыдущую и следующую ноды, а также массив с элементами.
 	struct CNode {
 
 	public:
-		CNode( CNode *_prev, CNode *_next ) : prev( _prev ), next( _next )
+		CNode( CNode* _prev, CNode* _next ) : prev( _prev ), next( _next )
 		{
 			buf = new T[DequeFragmentSize];
 		}
-		~CNode() { delete[] buf; }
+
+		~CNode()
+		{
+			delete[] buf;
+		}
 
 		CNode* prev; // Предыдущая.
 		CNode* next; // Следующая.
 		T* buf; // Элементы.
-		
+
 	private:
 		// Копирующий конструктор не нужен и не должен вызываться, посему описан в private,
 		CNode( const CNode& other );
 	};
-	CNode *first; // Первая нода.
-	CNode *last; // Последняя нода.
+
+	CNode* first; // Первая нода.
+	CNode* last; // Последняя нода.
 	mysize f; //Индекс первого элемента в первой ноде.
 	mysize l; // Индекс последнего элемента в последней ноде.
 	mysize count; // Количество элементов.
@@ -107,7 +124,7 @@ CDeque<T>::CDeque()
 	l( DequeFragmentSize / 2 - 1 ),
 	count( 0 )
 {
-	CNode *node = new CNode( 0, 0 );
+	CNode* node = new CNode( 0, 0 );
 	first = last = node;
 }
 
@@ -118,7 +135,7 @@ void CDeque<T>::push_back( const T& item )
 	if( l + 1 != DequeFragmentSize ) { // Не выходим за границу массива.
 		last->buf[++l] = item;
 	} else {
-		CNode *node = new CNode( last, 0 );
+		CNode* node = new CNode( last, 0 );
 		last->next = node;
 		last = node;
 		l = 0;
@@ -135,9 +152,9 @@ T CDeque<T>::pop_back()
 		return last->buf[l--];
 	} else {
 		T ret = last->buf[l];
-		CNode *n = last->prev;
+		CNode* node = last->prev;
 		delete last;
-		last = n;
+		last = node;
 		last->next = 0;
 		l = DequeFragmentSize - 1;
 		return ret;
@@ -148,14 +165,14 @@ template<typename T>
 void CDeque<T>::push_front( const T& item )
 {
 	++count;
-	if( f != 0 ) {
+	if( f -1 != -1 ) {
 		first->buf[--f] = item;
 	} else {
-		first->buf[f] = item;
-		CNode *node = new CNode( 0, first );
+		CNode* node = new CNode( 0, first );
 		first->prev = node;
 		first = node;
 		f = DequeFragmentSize - 1;
+		first->buf[f] = item;
 	}
 }
 
@@ -168,9 +185,9 @@ T CDeque<T>::pop_front()
 		return first->buf[f++];
 	} else {
 		T ret = first->buf[f];
-		CNode *n = first->next;
+		CNode* node = first->next;
 		delete first;
-		first = n;
+		first = node;
 		first->prev = 0;
 		f = 0;
 		return ret;
@@ -184,13 +201,13 @@ T& CDeque<T>::operator[]( mysize n )
 	if( n < DequeFragmentSize - f ) { // В первой ноде.
 		return first->buf[n + f];
 	} else {
-		CNode* cur = first;
-		mysize curpos = count - (DequeFragmentSize - f);
-		while( curpos > DequeFragmentSize - 1 ) {
-			curpos -= DequeFragmentSize;
+		CNode* cur = first->next;
+		n -= DequeFragmentSize - f;
+		while( n > DequeFragmentSize - 1 ) {
+			n -= DequeFragmentSize;
 			cur = cur->next;
 		}
-		return cur->buf[curpos];
+		return cur->buf[n];
 	}
 }
 
@@ -201,57 +218,55 @@ const T& CDeque<T>::operator[]( mysize n ) const
 }
 
 template<typename T>
-CDeque<T>::iterator::iterator( CDeque& _parent, int _iBuf, CNode *_buf )
-	:parent(_parent), iBuf(_iBuf), buf(_buf)
+CDeque<T>::CIterator::CIterator()
+	:parent( 0 ), node( 0 ), iBuf( 0 )
 {
-	int temp = 0;
-	CNode* cur = parent.first;
-	while( cur != buf ) {
-		++temp;
-		cur = cur->next;
-	}
-	n = temp*DequeFragmentSize + iBuf;
+
 }
 
 template<typename T>
-CDeque<T>::iterator::iterator( CDeque<T>& _parent, int _n ) :
-	parent(_parent), n(_n)
+CDeque<T>::CIterator::CIterator( CDeque& _parent, int _iBuf, CNode* _buf )
+	: parent( &_parent ), iBuf( _iBuf ), node( _buf )
 {
-	buf = parent.first;
-	n = _n;
-	if( n < DequeFragmentSize - parent.f ) { // В первой ноде.
-		buf = parent.first;
-		iBuf = n + parent.f;
+}
+
+template<typename T>
+CDeque<T>::CIterator::CIterator( CDeque<T>& _parent, int _n ) :
+	parent( &_parent )
+{
+	node = parent->first;
+	if( _n < DequeFragmentSize - parent->f ) { // В первой ноде.
+		node = parent->first;
+		iBuf = _n + parent->f;
 	} else {
-		CNode* cur = parent.first;
-		mysize curpos = parent.count - (DequeFragmentSize - parent.f);
+		CNode* cur = parent->first;
+		mysize curpos = parent->count - (DequeFragmentSize - parent->f);
 		while( curpos > DequeFragmentSize - 1 ) {
 			curpos -= DequeFragmentSize;
 			cur = cur->next;
 		}
-		buf = cur;
+		node = cur;
 		iBuf = curpos;
 	}
 }
 
 template<typename T>
-CDeque<T>::iterator::iterator( const iterator& other )
-	:n(other.n), buf(other.buf), iBuf(other.iBuf), parent(other.parent)
+CDeque<T>::CIterator::CIterator( const CIterator& other )
+	: node( other.node ), iBuf( other.iBuf ), parent( other.parent )
 {
 }
 
 template<typename T>
-CDeque<T>::iterator::~iterator()
+CDeque<T>::CIterator::~CIterator()
 {
 	// TODO
 }
 
 template<typename T>
-CDeque<T>::iterator& CDeque<T>::iterator::operator=( const iterator& other)
+typename CDeque<T>::CIterator& CDeque<T>::CIterator::operator=( const CIterator& other )
 {
 	if( this != &other ) {
-		n = other.n;
-		buf = other.buf;
+		node = other.node;
 		iBuf = other.iBuf;
 		parent = other.parent;
 	}
@@ -259,42 +274,126 @@ CDeque<T>::iterator& CDeque<T>::iterator::operator=( const iterator& other)
 }
 
 template<typename T>
-bool CDeque<T>::iterator::operator==( const iterator& other ) const
+bool CDeque<T>::CIterator::operator==( const CIterator& other ) const
 {
-	return (n == other.n);
+	return (node->buf == other.node->buf && iBuf == other.iBuf);
 }
 
 template<typename T>
-bool CDeque<T>::iterator::operator!=( const iterator& other ) const
+bool CDeque<T>::CIterator::operator!=( const CIterator& other ) const
 {
-	return !(*operator==(*this, other));
+	return !(*this == other);
 }
 
 template<typename T>
-CDeque<T>::iterator CDeque<T>::iterator::operator++()
+typename CDeque<T>::CIterator CDeque<T>::CIterator::operator++()
 {
-	++n;
-	if( iElem + 1 >= DequeFragmentSize ) {
-		buf = buf->next;
-		iElem = 0;
+	if( iBuf + 1 >= DequeFragmentSize ) {
+		node = node->next;
+		//massert( node != 0, "Deque operator++ out of range" );
+		iBuf = 0;
 	} else {
-		++iElem;
+		++iBuf;
 	}
 	return *this;
 }
 
 template<typename T>
-CDeque<T>::iterator CDeque<T>::iterator::operator++(int)
+typename CDeque<T>::CIterator CDeque<T>::CIterator::operator++( int )
 {
-	iterator ret = *this;
+	CIterator ret = *this;
 	this->operator++();
 	return ret;
 }
 
 template<typename T>
-reference CDeque<T>::iterator::operator*() const
+typename CDeque<T>::CIterator CDeque<T>::CIterator::operator--()
 {
-	return buf[iBuf];
+	if( iBuf - 1 < 0 ) {
+		node = node->prev;
+		//massert( node != 0, "Deque operator-- out of range" );
+		iBuf = DequeFragmentSize - 1;
+	} else {
+		--iBuf;
+	}
+	return *this;
+}
+
+template<typename T>
+typename CDeque<T>::CIterator CDeque<T>::CIterator::operator--( int )
+{
+	CIterator ret = *this;
+	this->operator--();
+	return ret;
+}
+
+template<typename T>
+typename CDeque<T>::CIterator CDeque<T>::CIterator::operator+( int a )
+{
+	CNode* temp = node;
+	while( iBuf + a >= DequeFragmentSize ) {
+		temp = temp->next;
+		a -= DequeFragmentSize;
+	}
+	return CIterator( parent, temp, a );
+}
+
+template<typename T>
+typename CDeque<T>::CIterator CDeque<T>::CIterator::operator-( int a )
+{
+	CNode* temp = node;
+	while( iBuf - a < 0 ) {
+		temp = temp->prev;
+		a -= DequeFragmentSize;
+	}
+	return CIterator( parent, temp, a );
+}
+
+template<typename T>
+bool CDeque<T>::CIterator::operator>( const CIterator& other ) const
+{
+	massert( parent == other.parent );
+	// Если они указывают на элементы в одном подмассиве, просто сравниваем индексы.
+	if( other.node == node ) {
+		if( iBuf > other.iBuf ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	// Проматываем от подмассива other'а до конца. Если найдём подмассив *this'а, то он действительно больше.
+	CNode* temp = other.node;
+	while( temp != 0 ) {
+		if( temp == node ) {
+			return true;
+		}
+		temp = temp->next;
+	}
+	return false;
+}
+
+template<typename T>
+bool CDeque<T>::CIterator::operator>=( const CIterator& other ) const
+{
+	return ((*this) > other || (*this) == other);
+}
+
+template<typename T>
+bool CDeque<T>::CIterator::operator<( const CIterator& other ) const
+{
+	return !((*this) >= other);
+}
+
+template<typename T>
+bool CDeque<T>::CIterator::operator<=( const CIterator& other ) const
+{
+	return !((*this) > other);
+}
+
+template<typename T>
+T& CDeque<T>::CIterator::operator*() const
+{
+	return node->buf[iBuf];
 }
 
 } // namespace my

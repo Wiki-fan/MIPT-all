@@ -37,7 +37,7 @@ bool CheckFile()
 	FILE* inf = fopen( "target", "rb" );
 	const int N = IntsInChunk;
 	type *buf = new type[N];
-#ifdef __GLIBC__
+#ifdef __GNUC__
 	type prev = LONG_LONG_MIN; // Первое значение - минимальное из возможных.
 #else
 	type prev = _I64_MIN;
@@ -62,7 +62,7 @@ int Compare( const void * a, const void * b )
 	return (int)(*(type*)a - *(type*)b);
 }
 
-#ifndef __GLIBC__
+#ifndef __GNUC__
 void ExternalSort( const wchar_t* sourceFileName, const wchar_t* targetFilename )
 #else
 void ExternalSort( const char* sourceFileName, const char* targetFilename )

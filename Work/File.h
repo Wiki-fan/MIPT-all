@@ -13,7 +13,7 @@ class CFile {
 
 public:
 	// Конструктор, принимает имя файла и 1, коли файл следует создать, если его нет, и обнулить, если он есть.
-#ifndef __GLIBC__
+#ifndef __GNUC__
 	explicit CFile( const wchar_t* filename, bool write );
 #else
 	explicit CFile( const char *filename, bool write );

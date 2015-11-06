@@ -37,7 +37,7 @@ private:
 	int setNextBucket( const std::string &key, int &bucket, int &probe ) const;
 };
 
-COpenAddressHashTable::COpenAddressHashTable() : table( initialOpenAddressHashTableSize, 0 )
+COpenAddressHashTable::COpenAddressHashTable() : table( initialOpenAddressHashTableSize, (CTableNode*)0 )
 {
 }
 

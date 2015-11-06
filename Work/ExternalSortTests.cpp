@@ -4,7 +4,7 @@
 void TestExternalSort()
 {
 	my::GenFile();
-#ifndef __GLIBC__
+#ifndef __GNUC__
 	my::ExternalSort( L"in", L"target" );
 #else
 	my::ExternalSort( "in", "target" );

@@ -5,9 +5,8 @@
 void TestOpenAddressHashTable()
 {
 	COpenAddressHashTable hashTable;
-	while( true ) {
-		char command = 0;
-		std::cin >> command;
+	char command = 0;
+	while( std::cin >> command ) {
 		if( std::cin.eof() ) {
 			return;
 		}
