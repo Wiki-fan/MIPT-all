@@ -110,5 +110,8 @@
     <ClInclude Include="OpenAddressHashTableTests.h">
       <Filter>Тесты</Filter>
     </ClInclude>
+    <ClInclude Include="DequeTests.h">
+      <Filter>Тесты</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

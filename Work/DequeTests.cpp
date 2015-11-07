@@ -1,5 +1,5 @@
-#pragma once
 #include "stdafx.h"
+#include "DequeTests.h"
 #include "Deque.h"
 #include <deque>
 
@@ -29,7 +29,8 @@ void TestDeque()
 	std::reverse_iterator<my::CDeque<int>::CIterator> riter;
 	std::cout << "Testing reverse operator++" << std::endl;
 	for( riter = deque.rbegin(), rsiter = sdeque.rbegin();
-	riter != deque.rend(), rsiter != sdeque.rend(); ++riter, ++rsiter ) {
+	riter != deque.rend(), rsiter != sdeque.rend(); 
+		++riter, ++rsiter ) {
 		// std::cout <<i++ <<' ' << *riter <<' ' <<*rsiter <<std::endl;
 		massert( *riter == *rsiter );
 	}
@@ -42,7 +43,7 @@ void TestDeque()
 	}
 
 	std::cout << "Testing reverse operator--" << std::endl;
-	for( riter = deque.rend(), rsiter = sdeque.rend();
+	for( riter = deque.rend()-1, rsiter = sdeque.rend()-1;
 	riter != deque.rbegin(), rsiter != sdeque.rbegin(); --riter, --rsiter ) {
 		// std::cout <<i++ <<' ' << *riter <<' ' <<*rsiter <<std::endl;
 		massert( *riter == *rsiter );
@@ -57,8 +58,15 @@ void TestDeque()
 		}
 	}
 
+	std::cout << "Testing operator iter-iter" << std::endl;
+	iter2 = deque.begin();
+	for( i = 0, iter = deque.begin(); iter != deque.end(); ++iter, ++i ) {
+		massert( (iter - iter2) == i && -(iter2 - iter) == i );
+		//std::cout << iter2 - iter <<' ' << iter - iter2 <<std::endl;
+	}
+
 	std::cout << "Testing operators +, -" << std::endl;
-	for( int j = 0; j < 100; j++ ) {
+	for( int j = 0; j < 1000; j++ ) {
 		int origin = rand();
 		int offset = rand();
 		my::CDeque<int>::CIterator test = deque.begin() + origin % deque.size() - offset%((origin) % deque.size()+1);
@@ -68,6 +76,16 @@ void TestDeque()
 		//stest = sdeque.begin() + origin % deque.size() - offset%deque.size();
 		//massert( *test == *stest );
 	}
+
+	// Проверка компилируемости CConstIterator.
+	//const my::CDeque<int> cdeque = deque;
+	//my::CDeque<int>::CConstIterator citer;
+	//citer = (deque.cbegin());
+	//citer++; 
+	// Ошибка — не может присвоить константе. Работает!
+	// (*citer) = 13;
+
+	std::cout << "Testing linearity..." << std::endl;
 	printf( "N           push_back_t   push_front_t  operator_br_t pop_back_t    pop_front_t  \n" );
 	double push_back_t, pop_back_t, push_front_t, pop_front_t, operator_br_t;
 	for( int i = 10; i <= 1000000; i *= 10 ) {
@@ -78,7 +96,7 @@ void TestDeque()
 			deque.push_back( val );
 			sdeque.push_back( val );
 		}
-		push_back_t = (double)(clock() - t) / CLOCKS_PER_SEC;
+		push_back_t = double(clock() - t) / CLOCKS_PER_SEC;
 
 		t = clock();
 		for( int j = 0; j < i; ++j ) {

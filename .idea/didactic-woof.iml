@@ -11,6 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/ChainHashTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Deque.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/DequeTests.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/DequeTests.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/ExternalSort.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/ExternalSort.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/ExternalSortTests.cpp" isTestSource="false" />
@@ -25,6 +26,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/main_contest.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Smth.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SortedListFromFile.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SortedListFromFile.h" isTestSource="false" />

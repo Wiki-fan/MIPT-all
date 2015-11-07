@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include <cstdio>
-#include "Vector.h"
 
 namespace my
 {
@@ -26,7 +25,7 @@ public:
 	// Писать файл из буфера.
 	mysize WriteFromArr( type *buffer, mysize count, mysize offset );
 	// Конец файла.
-	bool IsEOF() const { return feof( f ); }
+	bool IsEOF() const { return bool(feof( f )); }
 
 private:
 	FILE *f; // Файловый дескриптор.

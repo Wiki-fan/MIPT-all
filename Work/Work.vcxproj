@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="Calc.h" />
     <ClInclude Include="Deque.h" />
+    <ClInclude Include="DequeTests.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="ExternalSort.h" />
     <ClInclude Include="ChainHashTable.h" />

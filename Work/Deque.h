@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include "stdafx.h"
 
 namespace my {
@@ -10,7 +9,7 @@ template<typename T>
 class CDeque {
 
 private:
-	class CNode; // Предварительное объявление.
+	struct CNode; // Предварительное объявление.
 
 public:
 	// Конструктор по умолчанию, создающий пустой дек.
@@ -37,104 +36,138 @@ public:
 	T& front() { return first->buf[f]; }
 	const T& front() const { return first->buf[f]; }
 
-	class CIterator : public std::iterator<std::random_access_iterator_tag, T> {
+	template<bool is_const_iterator>
+	class CMetaIterator : public std::iterator<std::random_access_iterator_tag, T> {
 
 	public:
-		typedef CIterator self_type;
+		typedef CMetaIterator self_type;
+		typedef std::ptrdiff_t difference_type;
 		typedef T value_type;
-		typedef T& reference;
-		typedef T* pointer;
-		CIterator(); // Конструктор по умолчанию.
-		CIterator( CDeque& _parent, int _n ); // Конструктор по номеру элемента в деке.
-		CIterator( const self_type& other ); // Копирующий конструктор.
-		~CIterator(); // Деструктор.
+		typedef typename std::conditional<is_const_iterator, const value_type&, value_type&>::type reference;
+		typedef typename std::conditional<is_const_iterator, const value_type*, value_type*>::type pointer;
+		// Конструктор по умолчанию.
+		CMetaIterator() :parent( 0 ), node( 0 ), iBuf( 0 )
+		{
+		}
+		// Конструктор по номеру элемента в деке.
+		CMetaIterator( CDeque& _parent, difference_type _n );
+		// Копирующий конструктор.
+		CMetaIterator( const self_type& other )
+			: node( other.node ), iBuf( other.iBuf ), parent( other.parent )
+		{
+		}
+		// Деструктор.
+		~CMetaIterator() {};
 
-		self_type operator++(); // Префиксный инкремент.
-		self_type operator++( int ); // Постфиксный инкремент.
-		self_type operator--(); // Префиксный декремент.
-		self_type operator--( int ); // Постфиксный декремент.
+		// Префиксный инкремент.
+		self_type operator++();
+		// Постфиксный инкремент.
+		self_type operator++( int )
+		{
+			CIterator ret = *this;
+			this->operator++();
+			return ret;
+		}
+		// Префиксный декремент.
+		self_type operator--();
+		// Постфиксный декремент.
+		self_type operator--( int )
+		{
+			CIterator ret = *this;
+			this->operator--();
+			return ret;
+		}
 
-		self_type operator+( int a ); // Плюс.
-		self_type operator-( int a ); // Минус.
-		self_type operator+=( int a );
-		self_type operator-=( int a );
+		self_type operator+( difference_type a ) const; // Плюс.
+		self_type operator-( difference_type a ) const; // Минус.
+		self_type operator+=( difference_type a )
+		{
+			*this = (*this) + a;
+			return *this;
+		}
+		self_type operator-=( difference_type a )
+		{
+			*this = (*this) - a;
+			return *this;
+		}
 
-		self_type& operator=( const self_type& other ); // Оператор присваивания.
-		bool operator==( const self_type& other ) const; // Равенство.
-		bool operator!=( const self_type& other ) const; // Неравенство.
-		bool operator>( const self_type& other ) const; // Больше.
-		bool operator>=( const self_type& other ) const; // Больше или равно.
-		bool operator<( const self_type& other ) const; // Меньше.
-		bool operator<=( const self_type& other ) const; // Меньше или равно.
+		difference_type operator-( const self_type& other );
 
-		reference operator*() const; // Разыменовывание.
+		// Оператор присваивания.
+		self_type& operator=( const self_type& other )
+		{
+			if( this != &other ) {
+				node = other.node;
+				iBuf = other.iBuf;
+				parent = other.parent;
+			}
+			return *this;
+		}
+		// Сравнение.
+		bool operator==( const self_type& other ) const
+		{
+			return (node->buf == other.node->buf && iBuf == other.iBuf);
+		}// Неравенство.
+		bool operator!=( const self_type& other ) const
+		{
+			return !(*this == other);
+		}
+		bool operator>( const self_type& other ) const;
+		bool operator>=( const self_type& other ) const { return ((*this) > other || (*this) == other); };
+		bool operator<( const self_type& other ) const { return !((*this) >= other); };
+		bool operator<=( const self_type& other ) const { return !((*this) > other); };
+		// Разыменовывание.
+		reference operator*() const
+		{
+			return node->buf[iBuf];
+		}
+		// Оператор стрелочка.
+		pointer operator->() const { return &(node->buf[iBuf]); };
 
-		friend self_type operator+( int a, CIterator &iter );
-		friend self_type operator-( int a, CIterator &iter );
+		// Прибавка к константе.
+		friend self_type operator+( difference_type a, const self_type &iter )
+		{
+			return iter.operator+( a );
+		}
+		friend self_type operator-( difference_type a, const self_type &iter )
+		{
+			return iter.operator-( a );
+		}
 
 	private:
-		CIterator( CDeque& _parent, CNode* _buf, int _i );
+		CMetaIterator( CDeque& _parent, CNode* _buf, difference_type _iBuf )
+			: parent( &_parent ), node( _buf ), iBuf( _iBuf )
+		{
+		}
 
 		CDeque* parent; // Дек, итератором когорого является *this.
 		CNode* node; // Указатель на буфер, в котором находится текущий элемент.
-		int iBuf; // Номер элемента в буфере.
+		difference_type iBuf; // Номер элемента в буфере.
 		friend class CDeque;
 
 	};
 
-	class CConstIterator : public CIterator {
-
-	public:
-		typedef CConstIterator self_type;
-		typedef const T value_type;
-		typedef const T& reference;
-		typedef const T* pointer;
-		CConstIterator(); // Конструктор по умолчанию.
-		CConstIterator( CDeque& _parent, int _n ); // Конструктор по номеру элемента в деке.
-		CConstIterator( const self_type& other ); // Копирующий конструктор.
-		~CConstIterator(); // Деструктор.
-
-		self_type operator++(); // Префиксный инкремент.
-		self_type operator++( int ); // Постфиксный инкремент.
-		self_type operator--(); // Префиксный декремент.
-		self_type operator--( int ); // Постфиксный декремент.
-
-		self_type operator+( int a );
-		self_type operator-( int a );
-
-		self_type& operator=( const self_type& other ); // Оператор присваивания.
-		bool operator==( const self_type& other ) const; // Равенство.
-		bool operator!=( const self_type& other ) const; // Неравенство.
-		bool operator>( const self_type& other ) const; // Больше.
-		bool operator>=( const self_type& other ) const; // Больше или равно.
-		bool operator<( const self_type& other ) const; // Меньше.
-		bool operator<=( const self_type& other ) const; // Меньше или равно.
-
-		reference operator*() const; // Разыменовывание.
-
-	private:
-		// Конструктор по указателю на конкретный подмассив дека и номеру элемента в нём. Должен вызываться только внутри класса.
-		CConstIterator( CDeque& _parent, CNode* _buf, int _i );
-
-		CDeque* parent; // Дек, итератором когорого является *this.
-		CNode* node; // Указатель на буфер, в котором находится текущий элемент.
-		int iBuf; // Номер элемента в буфере.
-		friend class CDeque;
-
-	};
+	typedef CMetaIterator<false> CIterator;
+	typedef CMetaIterator<true> CConstIterator;
 	typedef std::reverse_iterator<CIterator> CReverseIterator;
-	CIterator begin() { return CIterator( *this, 0 ); }
-	CIterator begin() const { return CIterator( *this, 0 ); };
-	CConstIterator cbegin() const { return CConstIterator( *this, 0 ); };
+	typedef std::reverse_iterator<CConstIterator> CReverseConstIterator;
+
+	CIterator begin() { return CIterator( *this, first, f ); }
+	CIterator begin() const { return CIterator( *this, first, f ); };
+	CConstIterator cbegin() { return CConstIterator( *this, first, f ); };
+	CConstIterator cbegin() const { return CConstIterator( *this, first, f ); };
 	CIterator end() { return CIterator( *this, last, l + 1 ); };
 	CIterator end() const { return CIterator( *this, last, l + 1 ); };
+	CConstIterator cend() { return CConstIterator( *this, last, l + 1 ); };
 	CConstIterator cend() const { return CConstIterator( *this, last, l + 1 ); };
 	CReverseIterator rbegin() { return std::reverse_iterator<CIterator>( end() ); };
 	CReverseIterator rbegin() const { return std::reverse_iterator<CIterator>( end() ); };
-	CConstIterator crbegin() const { return std::reverse_iterator<CConstIterator>( end() ); };
+	CReverseConstIterator crbegin() { return std::reverse_iterator<CConstIterator>( end() ); };
+	CReverseConstIterator crbegin() const { return std::reverse_iterator<CConstIterator>( end() ); };
 	CReverseIterator rend() { return std::reverse_iterator<CIterator>( begin() ); };
 	CReverseIterator rend() const { return std::reverse_iterator<CIterator>( begin() ); };
-	CConstIterator crend() const { return std::reverse_iterator<CConstIterator>( begin() ); };
+	CReverseConstIterator crend() { return std::reverse_iterator<CConstIterator>( begin() ); };
+	CReverseConstIterator crend() const { return std::reverse_iterator<CConstIterator>( begin() ); };
 
 private:
 	// Нода, имеющая ссылки на предыдущую и следующую ноды, а также массив с элементами.
@@ -267,20 +300,8 @@ const T& CDeque<T>::operator[]( mysize n ) const
 }
 
 template<typename T>
-CDeque<T>::CIterator::CIterator()
-	:parent( 0 ), node( 0 ), iBuf( 0 )
-{
-
-}
-
-template<typename T>
-CDeque<T>::CIterator::CIterator( CDeque& _parent, CNode* _buf, int _iBuf )
-	: parent( &_parent ), iBuf( _iBuf ), node( _buf )
-{
-}
-
-template<typename T>
-CDeque<T>::CIterator::CIterator( CDeque<T>& _parent, int _n ) :
+template <bool is_const_iterator>
+CDeque<T>::CMetaIterator<is_const_iterator>::CMetaIterator( CDeque<T>& _parent, difference_type _n ) :
 	parent( &_parent )
 {
 	node = parent->first;
@@ -300,42 +321,8 @@ CDeque<T>::CIterator::CIterator( CDeque<T>& _parent, int _n ) :
 }
 
 template<typename T>
-CDeque<T>::CIterator::CIterator( const self_type& other )
-	: node( other.node ), iBuf( other.iBuf ), parent( other.parent )
-{
-}
-
-template<typename T>
-CDeque<T>::CIterator::~CIterator()
-{
-	// Ничего не должен делать.
-}
-
-template<typename T>
-typename CDeque<T>::CIterator& CDeque<T>::CIterator::operator=( const self_type& other )
-{
-	if( this != &other ) {
-		node = other.node;
-		iBuf = other.iBuf;
-		parent = other.parent;
-	}
-	return *this;
-}
-
-template<typename T>
-bool CDeque<T>::CIterator::operator==( const self_type& other ) const
-{
-	return (node->buf == other.node->buf && iBuf == other.iBuf);
-}
-
-template<typename T>
-bool CDeque<T>::CIterator::operator!=( const self_type& other ) const
-{
-	return !(*this == other);
-}
-
-template<typename T>
-typename CDeque<T>::CIterator CDeque<T>::CIterator::operator++()
+template <bool is_const_iterator>
+typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is_const_iterator>::operator++()
 {
 	if( iBuf + 1 >= DequeFragmentSize ) {
 		node = node->next;
@@ -348,15 +335,8 @@ typename CDeque<T>::CIterator CDeque<T>::CIterator::operator++()
 }
 
 template<typename T>
-typename CDeque<T>::CIterator CDeque<T>::CIterator::operator++( int )
-{
-	CIterator ret = *this;
-	this->operator++();
-	return ret;
-}
-
-template<typename T>
-typename CDeque<T>::CIterator CDeque<T>::CIterator::operator--()
+template <bool is_const_iterator>
+typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is_const_iterator>::operator--()
 {
 	if( iBuf - 1 < 0 ) {
 		node = node->prev;
@@ -369,15 +349,8 @@ typename CDeque<T>::CIterator CDeque<T>::CIterator::operator--()
 }
 
 template<typename T>
-typename CDeque<T>::CIterator CDeque<T>::CIterator::operator--( int )
-{
-	CIterator ret = *this;
-	this->operator--();
-	return ret;
-}
-
-template<typename T>
-typename CDeque<T>::CIterator CDeque<T>::CIterator::operator+( int a )
+template <bool is_const_iterator>
+typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is_const_iterator>::operator+( difference_type a ) const
 {
 	CNode* temp = node;
 	while( iBuf + a >= DequeFragmentSize ) {
@@ -388,7 +361,8 @@ typename CDeque<T>::CIterator CDeque<T>::CIterator::operator+( int a )
 }
 
 template<typename T>
-typename CDeque<T>::CIterator CDeque<T>::CIterator::operator-( int a )
+template <bool is_const_iterator>
+typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is_const_iterator>::operator-( difference_type a ) const
 {
 	CNode* temp = node;
 	while( iBuf - a < 0 ) {
@@ -398,22 +372,49 @@ typename CDeque<T>::CIterator CDeque<T>::CIterator::operator-( int a )
 	return CIterator( *parent, temp, iBuf - a );
 }
 
-template<typename T>
-typename CDeque<T>::CIterator CDeque<T>::CIterator::operator+=( int a )
+template <typename T>
+template <bool is_const_iterator>
+typename CDeque<T>::CMetaIterator<is_const_iterator>::difference_type 
+CDeque<T>::CMetaIterator<is_const_iterator>::operator-( const self_type& other )
 {
-	*this = (*this) + a;
-	return *this;
+	massert( parent == other.parent );
+	// Если они указывают на элементы в одном подмассиве, просто сравниваем индексы.
+	if( other.node == node ) {
+		return iBuf - other.iBuf;
+	}
+	difference_type diff;
+	CNode* temp = other.node;
+	// Проматываем от подмассива other'а до конца. Если найдём подмассив *this'а, то вернём разницу.
+	bool fl = 0;
+	diff = iBuf;
+	while( temp != 0 ) {
+		if( temp == node ) {
+			fl = true;
+			break;
+		}
+		temp = temp->next;
+		diff += DequeFragmentSize;
+	}
+	diff -= other.iBuf;
+	// Не нашли, надо было идти в другую сторону.
+	if( fl == false ) {
+		diff = DequeFragmentSize-iBuf;
+		temp = other.node;
+		while( temp != 0 ) {
+			if( temp == node ) {
+				break;
+			}
+			temp = temp->prev;
+			diff -= DequeFragmentSize;
+		}
+		diff -= other.iBuf;
+	}
+	return diff;
 }
 
 template<typename T>
-typename CDeque<T>::CIterator CDeque<T>::CIterator::operator-=( int a )
-{
-	*this = (*this) - a;
-	return *this;
-}
-
-template<typename T>
-bool CDeque<T>::CIterator::operator>( const self_type& other ) const
+template <bool is_const_iterator>
+bool CDeque<T>::CMetaIterator<is_const_iterator>::operator>( const self_type& other ) const
 {
 	massert( parent == other.parent );
 	// Если они указывают на элементы в одном подмассиве, просто сравниваем индексы.
@@ -433,42 +434,6 @@ bool CDeque<T>::CIterator::operator>( const self_type& other ) const
 		temp = temp->next;
 	}
 	return false;
-}
-
-template<typename T>
-bool CDeque<T>::CIterator::operator>=( const self_type& other ) const
-{
-	return ((*this) > other || (*this) == other);
-}
-
-template<typename T>
-bool CDeque<T>::CIterator::operator<( const self_type& other ) const
-{
-	return !((*this) >= other);
-}
-
-template<typename T>
-bool CDeque<T>::CIterator::operator<=( const self_type& other ) const
-{
-	return !((*this) > other);
-}
-
-template<typename T>
-T& CDeque<T>::CIterator::operator*() const
-{
-	return node->buf[iBuf];
-}
-
-template<typename T>
-typename CDeque<T>::CIterator operator+( int a, typename CDeque<T>::CIterator& iter )
-{
-	return iter.operator+(a);
-}
-
-template<typename T>
-typename CDeque<T>::CIterator operator-( int a, typename CDeque<T>::CIterator& iter )
-{
-	return iter.operator-( a );
 }
 
 } // namespace my

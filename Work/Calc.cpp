@@ -115,7 +115,7 @@ double CalculateReversePolish( std::istream& is )
 		} else if( c == '^' ) {
 			double a2 = st.pop();
 			double a1 = st.pop();
-			double res = pow( a, a2 );
+			double res = pow( a1, a2 );
 			st.push( res );
 		}
 	}

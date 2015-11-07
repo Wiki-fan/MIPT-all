@@ -90,8 +90,8 @@ void ExternalSort( const char* sourceFileName, const char* targetFilename )
 
 	// Строим кучу.
 	CHeapForMerge heap( inf );
-	for( int i = 0; i < chunks; ++i ) {
-		heap.Push( IntsInPiece, i, IntsInChunk );
+	for( int j = 0; j < chunks; ++j ) {
+		heap.Push( IntsInPiece, j, IntsInChunk );
 	}
 
 	//Сливаем
@@ -99,14 +99,14 @@ void ExternalSort( const char* sourceFileName, const char* targetFilename )
 	offset = 0;
 	CFile outf( targetFilename, true );
 	while( !heap.isEmpty() ) {
-		int i = 0;
-		for( ; i < IntsInChunk && !heap.isEmpty(); ++i ) {
-			items[i] = heap.Pop( IntsInPiece, IntsInChunk );
+		int j = 0;
+		for( ; j < IntsInChunk && !heap.isEmpty(); ++j ) {
+			items[j] = heap.Pop( IntsInPiece, IntsInChunk );
 			// printf( "%d %lld\n", i, items[i] );
 		}
 		// printf( "%d \n", i );
-		outf.WriteFromArr( items, i, offset );
-		offset += i;
+		outf.WriteFromArr( items, j, offset );
+		offset += j;
 	}
 	delete[] items;
 }
