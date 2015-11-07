@@ -153,6 +153,7 @@
     <ClInclude Include="Heap.h" />
     <ClInclude Include="HeapForMerge.h" />
     <ClInclude Include="OpenAddressHashTable.h" />
+    <ClInclude Include="OpenAddressHashTableTests.h" />
     <ClInclude Include="Smth.h" />
     <ClInclude Include="SortedListFromFile.h" />
     <ClInclude Include="Stack.h" />

@@ -2,7 +2,8 @@
 #include "stdafx.h"
 
 // Параметр хеш-функции.
-const int HashParameter = 91;
+const int HashParameter1 = 91;
+const int HashParameter2 = 31;
 
 class CHashTable {
 

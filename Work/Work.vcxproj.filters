@@ -107,5 +107,8 @@
     <ClInclude Include="Calc.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="OpenAddressHashTableTests.h">
+      <Filter>Тесты</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
