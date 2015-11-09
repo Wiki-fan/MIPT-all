@@ -113,5 +113,8 @@
     <ClInclude Include="DequeTests.h">
       <Filter>Тесты</Filter>
     </ClInclude>
+    <ClInclude Include="PtrOwner.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

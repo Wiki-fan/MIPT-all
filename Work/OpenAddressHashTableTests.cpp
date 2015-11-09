@@ -9,22 +9,23 @@ void AutoTestOpenAddressHashTable()
 	std::map<std::string, int> map;
 
 	while( true ) {
-		char command = rand() % 10;
+		char command = rand() % 3;
 		switch( command ) {
-			case 0:case 1:case 2:case 3:case 4:case 5:case 6:case 7:
+			case 0://case 3:case 4:case 5:case 6:case 7:case 8:case 9:
 				command = '+';
 				break;
-			case 8:
+			case 1:
 				command = '-';
 				break;
-			case 9:
+			case 2:
 				command = '?';
 				break;
 			default:
 				massert( false );
 		}
-		std::string key(5, '\0');
-		for( int i = 0; i < 5; ++i ) {
+		const int n = 5;
+		std::string key(n, '\0');
+		for( int i = 0; i < n; ++i ) {
 			key[i] = char( rand() % 26 + 'a' );
 		}
 		int prevsize;
@@ -65,9 +66,9 @@ void TestOpenAddressHashTable()
 	COpenAddressHashTable hashTable;
 	char command = 0;
 	while( std::cin >> command ) {
-		if( std::cin.eof() ) {
+		/*if( std::cin.eof() ) {
 			return;
-		}
+		}*/
 		std::string key;
 		std::cin >> key;
 		switch( command ) {
@@ -81,7 +82,8 @@ void TestOpenAddressHashTable()
 				std::cout << (hashTable.Remove( key ) ? "OK" : "FAIL") << std::endl;
 				break;
 			default:
-				massert( false );
+				//massert( false );
+				continue;
 		}
 	}
 }

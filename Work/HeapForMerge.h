@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "SortedListFromFile.h"
-#include "Smth.h"
 
 namespace my
 {

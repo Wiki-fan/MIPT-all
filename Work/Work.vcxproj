@@ -155,6 +155,7 @@
     <ClInclude Include="HeapForMerge.h" />
     <ClInclude Include="OpenAddressHashTable.h" />
     <ClInclude Include="OpenAddressHashTableTests.h" />
+    <ClInclude Include="PtrOwner.h" />
     <ClInclude Include="Smth.h" />
     <ClInclude Include="SortedListFromFile.h" />
     <ClInclude Include="Stack.h" />

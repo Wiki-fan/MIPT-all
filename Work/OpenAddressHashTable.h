@@ -15,31 +15,43 @@ public:
 	bool Has( const std::string &key ) const;
 
 private:
-	struct CTableNode {
+	struct CNode {
 
 	public:
-		explicit CTableNode( const std::string &key ) : Key( new std::string( key ) ) {}
-		~CTableNode() { delete Key; }
-		void deleteItem() const { delete Key; }
+		explicit CNode( const std::string &key ) : Key( new std::string( key ) )
+		{
+		}
+
+		~CNode()
+		{
+			deleteItem();
+		}
+
+		void deleteItem() const
+		{
+			if( Key != 0 ) {
+				delete Key;
+			}
+		}
 
 		std::string *Key;
 
 	private:
-		CTableNode( const CTableNode &other );
+		CNode( const CNode &other );
 	};
 
-	static CTableNode* deleted;
+	static CNode *deleted;
 
 	void rehash();
 	int myHash( const std::string &key ) const;
 	int myHash2( const std::string &key ) const;
 	// Устанавливаем следующую возможную корзину, которую следует проверить.
-	int setNextBucket( int hash1, int hash2, int & probe ) const;
+	int setNextBucket( int hash1, int hash2, int &probe ) const;
 
-	std::vector<CTableNode *> table;
+	std::vector<CNode *> table;
 };
 
-COpenAddressHashTable::COpenAddressHashTable() : table( initialOpenAddressHashTableSize, static_cast<CTableNode*>(0) )
+COpenAddressHashTable::COpenAddressHashTable() : table( initialOpenAddressHashTableSize, static_cast<CNode*>(0) )
 {
 }
 
@@ -57,26 +69,36 @@ bool COpenAddressHashTable::Add( const std::string &key )
 	}
 	int hash1 = myHash( key );
 	int hash2 = myHash2( key );
-	int bucket = hash1;
-	while( true ) {
-		// Проматываем до ближайшей пустой или удалённой корзины.
-		for( int probe = 1;
-			table[bucket] != 0;
-			bucket = setNextBucket( hash1, hash2, probe ) ) {
-			/*if( probe > table.size() ) {
-				rehash();
-				break;
-			} */// Не уверен, что это очень надо, но пусть.
-			if( *(table[bucket]->Key) == key ) {
-				return false; // Уже есть такой элемент, незачем добавлять.
-			}
-		}
 
-		++keysCount;
-		table[bucket] = new CTableNode( key );
-		
-		return true;
+	// Проматываем до ближайшей пустой или удалённой корзины.
+//HELL:
+	int bucket = hash1;
+	CNode **toWrite = 0;
+	for( int probe = 1;
+	table[bucket] != 0 /*&& bucket != hash1*/; // Пока не пройдём по всем и дойдём до пустой /*или пока не достигнем начальной.*/
+		bucket = setNextBucket( hash1, hash2, probe ) ) {
+		if( probe > table.size() ) {
+			rehash();
+			break;
+		} // HERE
+		if( *(table[bucket]->Key) == key ) {
+			return false; // Уже есть такой элемент, незачем добавлять.
+		}
+		// Мы можем писать вместо удалённой, но должны домотать до конца, чтобы проверить, что такого элемента действительно нет.
+		if( toWrite == 0 && table[bucket] == deleted ) {
+			toWrite = &(table[bucket]);
+		}
 	}
+
+
+	if( toWrite == 0 ) {
+		++keysCount; // Должны инкрементировать, только если пишем вместо 0, не deleted.
+		toWrite = &(table[bucket]);
+	}
+
+	*toWrite = new CNode( key );
+
+	return true;
 }
 
 bool COpenAddressHashTable::Remove( const std::string &key )
@@ -86,8 +108,8 @@ bool COpenAddressHashTable::Remove( const std::string &key )
 	int bucket = hash1;
 	// Проматываем все не равные key элементы.
 	for( int probe = 1; table[bucket] != 0; bucket = setNextBucket( hash1, hash2, probe ) ) {
-		//if( probe > table.size() )
-			//return false;
+		if( probe > table.size() )
+			return false; // HERE
 		if( table[bucket] != deleted && *(table[bucket]->Key) == key ) {
 			break;
 		}
@@ -112,8 +134,8 @@ bool COpenAddressHashTable::Has( const std::string &key ) const
 
 	// Ищем элемент, равный нужному. Если доходим до удалённого, ищем дальше, если доходим до пустого, не нашли.
 	for( int probe = 1; table[bucket] != 0; bucket = setNextBucket( hash1, hash2, probe ) ) {
-		//if( probe > table.size() ) {
-		//}
+		if( probe > table.size() )
+			return false; // HERE
 		if( table[bucket] != deleted && *(table[bucket]->Key) == key ) {
 			return true;
 		}
@@ -124,7 +146,7 @@ bool COpenAddressHashTable::Has( const std::string &key ) const
 void COpenAddressHashTable::rehash()
 {
 	// Создаём новую таблицу, в два раза больше.
-	std::vector<CTableNode *> oldTable( table.size() * 2, static_cast<CTableNode*>(0) );
+	std::vector<CNode *> oldTable( table.size() * 2, static_cast<CNode*>(0) );
 	std::swap( table, oldTable );
 	keysCount = 0;
 	// Добавляем все ключи в новую таблицу.
@@ -138,7 +160,7 @@ void COpenAddressHashTable::rehash()
 
 int COpenAddressHashTable::myHash( const std::string &key ) const
 {
-	int hash = 0;
+	mysize hash = 0;
 	for( mysize i = 0; i < key.length(); ++i ) {
 		hash = (hash * HashParameter1 + key[i]) % table.size();
 	}
@@ -148,16 +170,22 @@ int COpenAddressHashTable::myHash( const std::string &key ) const
 int COpenAddressHashTable::myHash2( const std::string &key ) const
 {
 	return (myHash( key ) * 2 + 1) % table.size();
+	/*mysize hash = 0;
+	for( mysize i = 0; i < key.length(); ++i ) {
+		hash = 2*(hash * HashParameter2 + key[i]) % (table.size()-1)+1;
+	}
+	return hash;*/
 }
 
-int COpenAddressHashTable::setNextBucket( int hash1, int hash2, int & probe ) const
+int COpenAddressHashTable::setNextBucket( int hash1, int hash2, int &probe ) const
 {
 #ifdef MY_DOUBLE_HASHING
-	return (hash1 + (probe++) * hash2) % table.size();
+	return abs( mysize( (hash1 + (probe++) * hash2) % table.size() ) );
 #else
 	massert( false, "Fix me" );
 	//return (bucket = (bucket + probe++) % table.size());
 #endif
 }
 
-COpenAddressHashTable::CTableNode* COpenAddressHashTable::deleted = new CTableNode( "" );
+COpenAddressHashTable::CNode *COpenAddressHashTable::deleted = new CNode( "" );
+
