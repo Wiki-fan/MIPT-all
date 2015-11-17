@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "Heap.h"
+#include "MinMaxHeap.h"
 
-int HeapTest()
+int MinMaxHeapTest()
 {
 	my::CHeap<int> h1;
 	h1.Push( 4 );

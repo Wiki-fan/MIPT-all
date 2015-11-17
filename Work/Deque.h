@@ -162,12 +162,12 @@ public:
 	CConstIterator cend() const { return CConstIterator( *this, last, l + 1 ); };
 	CReverseIterator rbegin() { return std::reverse_iterator<CIterator>( end() ); };
 	CReverseIterator rbegin() const { return std::reverse_iterator<CIterator>( end() ); };
-	CReverseConstIterator crbegin() { return std::reverse_iterator<CConstIterator>( end() ); };
-	CReverseConstIterator crbegin() const { return std::reverse_iterator<CConstIterator>( end() ); };
+	CReverseConstIterator crbegin() { return std::reverse_iterator<CConstIterator>( cend()); };
+	CReverseConstIterator crbegin() const { return std::reverse_iterator<CConstIterator>( cend()); };
 	CReverseIterator rend() { return std::reverse_iterator<CIterator>( begin() ); };
 	CReverseIterator rend() const { return std::reverse_iterator<CIterator>( begin() ); };
-	CReverseConstIterator crend() { return std::reverse_iterator<CConstIterator>( begin() ); };
-	CReverseConstIterator crend() const { return std::reverse_iterator<CConstIterator>( begin() ); };
+	CReverseConstIterator crend() { return std::reverse_iterator<CConstIterator>( cbegin()); };
+	CReverseConstIterator crend() const { return std::reverse_iterator<CConstIterator>( cbegin()); };
 
 private:
 	// Нода, имеющая ссылки на предыдущую и следующую ноды, а также массив с элементами.
@@ -322,7 +322,8 @@ CDeque<T>::CMetaIterator<is_const_iterator>::CMetaIterator( CDeque<T>& _parent, 
 
 template<typename T>
 template <bool is_const_iterator>
-typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is_const_iterator>::operator++()
+typename CDeque<T>::template CMetaIterator<is_const_iterator>
+CDeque<T>::CMetaIterator<is_const_iterator>::operator++()
 {
 	if( iBuf + 1 >= DequeFragmentSize ) {
 		node = node->next;
@@ -336,7 +337,8 @@ typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is
 
 template<typename T>
 template <bool is_const_iterator>
-typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is_const_iterator>::operator--()
+typename CDeque<T>::template CMetaIterator<is_const_iterator>
+CDeque<T>::CMetaIterator<is_const_iterator>::operator--()
 {
 	if( iBuf - 1 < 0 ) {
 		node = node->prev;
@@ -350,31 +352,33 @@ typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is
 
 template<typename T>
 template <bool is_const_iterator>
-typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is_const_iterator>::operator+( difference_type a ) const
+typename CDeque<T>::template CMetaIterator<is_const_iterator>
+CDeque<T>::CMetaIterator<is_const_iterator>::operator+( difference_type a ) const
 {
 	CNode* temp = node;
 	while( iBuf + a >= DequeFragmentSize ) {
 		temp = temp->next;
 		a -= DequeFragmentSize;
 	}
-	return CIterator( *parent, temp, iBuf + a );
+	return CMetaIterator( *parent, temp, iBuf + a );
 }
 
 template<typename T>
 template <bool is_const_iterator>
-typename CDeque<T>::CMetaIterator<is_const_iterator> CDeque<T>::CMetaIterator<is_const_iterator>::operator-( difference_type a ) const
+typename CDeque<T>::template CMetaIterator<is_const_iterator>
+CDeque<T>::CMetaIterator<is_const_iterator>::operator-( difference_type a ) const
 {
 	CNode* temp = node;
 	while( iBuf - a < 0 ) {
 		temp = temp->prev;
 		a -= DequeFragmentSize;
 	}
-	return CIterator( *parent, temp, iBuf - a );
+	return CMetaIterator( *parent, temp, iBuf - a );
 }
 
 template <typename T>
 template <bool is_const_iterator>
-typename CDeque<T>::CMetaIterator<is_const_iterator>::difference_type 
+typename CDeque<T>::template CMetaIterator<is_const_iterator>::difference_type
 CDeque<T>::CMetaIterator<is_const_iterator>::operator-( const self_type& other )
 {
 	massert( parent == other.parent );

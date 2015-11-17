@@ -3,6 +3,7 @@
 #include "OpenAddressHashTable.h"
 #include <map>
 
+// Случайным образом производит действия с хеш-таблицей и сравнивает результат с результатом std::map.
 void AutoTestOpenAddressHashTable()
 {
 	COpenAddressHashTable hashTable;

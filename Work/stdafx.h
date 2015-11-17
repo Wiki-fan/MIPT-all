@@ -20,15 +20,17 @@
 #include <istream>
 #include <sstream>
 #include <vector>
+#include <list>
 #include <string>
 #include <algorithm>
 #include <iterator>
+#include <functional>
 
 typedef long long int mysize;
 typedef long long int type;
 // Подставляемая функция assert'а, выводящая файл, номер строки и (если есть) сообщение об ошибке, 
 // задерживающая окно консоли и после выходящая с кодом 1.
-void mfassert( char* file, unsigned int line, bool check, char *format = "", ... );
+void mfassert( const char* file, unsigned int line, bool check, char* format = "", ... );
 // Подставляемая функция assert'а, выводящая "error" и выходящая с кодом 1.
 void mfrassert( bool check, ... );
 

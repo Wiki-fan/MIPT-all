@@ -3,10 +3,9 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/Brackets.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/BinomialHeap.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Calc.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Calc.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/CalcJudge.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/CalcTests.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/ChainHashTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Deque.h" isTestSource="false" />
@@ -18,12 +17,12 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/File.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/File.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/HashTable.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/Heap.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/HeapForMerge.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/HeapForMerge.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/HeapTests.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/main.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/main_contest.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/HeapTests.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/MeldableHeap.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/MinMaxHeap.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.h" isTestSource="false" />
@@ -32,29 +31,37 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/SortedListFromFile.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Sorts.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Stack.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/stdafx.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/stdafx.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Table.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/TestBracketSequence.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/TestBracketSequence.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Vector.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/VectorTests.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/main_contest.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/stdafx.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/stdafx.h" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library name="Header Search Paths">
         <CLASSES>
-          <root url="file://C:/MinGW/include" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include-fixed" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/c++" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/ssp" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include/cilk" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include/objc" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include/sanitizer" />
+          <root url="file:///usr/local/include" />
         </CLASSES>
         <SOURCES>
-          <root url="file://C:/MinGW/include" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include-fixed" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/c++" />
-          <root url="file://C:/MinGW/lib/gcc/mingw32/4.8.1/include/ssp" />
+          <root url="file:///usr/include" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include-fixed" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include/cilk" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include/objc" />
+          <root url="file:///usr/lib/gcc/x86_64-unknown-linux-gnu/5.2.0/include/sanitizer" />
+          <root url="file:///usr/local/include" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -4,7 +4,10 @@
 // Начальный размер хеш-таблицы. Взаимнопрост с параметром хеш-функции.
 const int initialOpenAddressHashTableSize = 8;
 
-class COpenAddressHashTable : public CHashTable {
+// Хеш-таблица, написанная методом открытой адресации с разрешением коллизий двойным хешированием.
+// TODO: есть баг, вызывающий runtime error на некотором наборе данных.
+// Повторить баг при помощи AutoTestOpenAddressHashTable() не удалось.
+class COpenAddressHashTable : public IHashTable {
 
 public:
 	COpenAddressHashTable();
@@ -187,5 +190,6 @@ int COpenAddressHashTable::setNextBucket( int hash1, int hash2, int &probe ) con
 #endif
 }
 
+// Если элемент был удалён, указатель CNode будет указывать на этот элемент. Так можно сэкономить память на bool.
 COpenAddressHashTable::CNode *COpenAddressHashTable::deleted = new CNode( "" );
 

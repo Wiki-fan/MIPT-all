@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include "stdafx.h"
 #include "Smth.h"
 
@@ -21,7 +22,7 @@ public:
 	CVector( mysize _size, const T* items );
 	// Копирующий конструктор.
 	CVector( const CVector& other );
-	// Деструктор. 
+	// Деструктор.
 	virtual ~CVector();
 
 	// Ссылка на элемент на позиции n.
@@ -35,24 +36,24 @@ public:
 	// Перевыделяет память так, чтобы не было лишней неиспользуемой памяти.
 	void shrink_to_fit();
 	// Проверка пустоты вектора.
-	bool empty() const { return (count == 0); }
+	bool empty() const { return ( count == 0 ); }
 	// Указатель на начало.
 	T* begin() const { return items; }
 	// Указатель на элемент, следующий за последним элементом вектора.
-	T* end() const { return &(items[count]); }
+	T* end() const { return &( items[count] ); }
 	// Первый элемент.
 	T& front() const
 	{
-		massert( !empty() );
+		massert( !empty());
 		return items[0];
 	}
 	// Последний элемент.
 	T& back() const
 	{
-		massert( !empty() );
+		massert( !empty());
 		return items[count - 1];
 	}
-	
+
 	// Возвращает размер вектора.
 	const mysize size() const { return count; }
 	// Возвращает количество памяти, отведённое в данный момент под элементы.
@@ -66,7 +67,7 @@ private:
 	T* items; // Указатель на элементы.
 
 	// Копирование элементов вектора из буфера from в буфер to.
-	static void copy( mysize _size, const T *from, T *to );
+	static void copy( mysize _size, const T* from, T* to );
 	// Должна как-нибудь перевыделить память. Пока что не нужна.
 	// void realloc( mysize& count, mysize otherCount, T* items, T* otherItems );
 };
@@ -85,16 +86,16 @@ CVector<T>::CVector( mysize _count )
 	items = new T[count];
 }
 
-template <typename T>
+template<typename T>
 CVector<T>::CVector( mysize _count, const T* _items ) :
-	count( _count ),
-	maxCount( count ),
-	items( new T[count] )
+		count( _count ),
+		maxCount( count ),
+		items( new T[count] )
 {
 	copy( count, _items, items );
 }
 
-template <typename T>
+template<typename T>
 CVector<T>::CVector( const CVector& other )
 {
 	if( maxCount < other.count ) {
@@ -106,7 +107,7 @@ CVector<T>::CVector( const CVector& other )
 	copy( count, other.items, items );
 }
 
-template <typename T>
+template<typename T>
 CVector<T>::~CVector()
 {
 	delete[] items;
@@ -129,15 +130,15 @@ CVector<T>& my::CVector<T>::operator=( const CVector& other )
 	return *this;
 }
 
-template <typename T>
-const T& CVector<T>::operator[] ( mysize n ) const
+template<typename T>
+const T& CVector<T>::operator[]( mysize n ) const
 {
 	massert( n >= 0 && n < count );
 	return items[n];
 }
 
-template <typename T>
-T& CVector<T>::operator[] ( mysize n )
+template<typename T>
+T& CVector<T>::operator[]( mysize n )
 {
 	massert( n >= 0 && n < count );
 	return items[n];
@@ -173,7 +174,7 @@ T CVector<T>::pop_back()
 }
 
 template<typename T>
-void CVector<T>::copy( mysize _count, const T *from, T *to )
+void CVector<T>::copy( mysize _count, const T* from, T* to )
 {
 	for( int i = 0; i < _count; ++i ) {
 		to[i] = from[i];

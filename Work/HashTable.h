@@ -5,11 +5,11 @@
 const int HashParameter1 = 91;
 const int HashParameter2 = 31;
 
-class CHashTable {
+class IHashTable {
 
 public:
-	CHashTable() : keysCount( 0 ) {}
-	virtual ~CHashTable() {}
+	IHashTable() : keysCount( 0 ) { }
+	virtual ~IHashTable() { }
 
 	// Добавление ключа. 
 	// Если число элементов становится больше размера таблицы, то таблица расширяется.

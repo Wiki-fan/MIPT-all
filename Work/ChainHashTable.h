@@ -6,7 +6,7 @@
 const int initialSize = 4;
 
 // Хэш-таблица, разрешающая коллизии методом цепочек.
-class CChainHashTable : public CHashTable {
+class CChainHashTable : public IHashTable {
 
 public:
 	CChainHashTable();
