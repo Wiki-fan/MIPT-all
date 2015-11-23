@@ -21,7 +21,6 @@ set(SOURCE_FILES
         Work/HeapForMerge.h
         Work/HeapTests.cpp
         Work/main.cpp
-        Work/main_contest.cpp
         Work/OpenAddressHashTable.h
         Work/OpenAddressHashTableTests.cpp
         Work/Smth.h
@@ -39,6 +38,6 @@ set(SOURCE_FILES
         Work/HeapTests.h
         Work/TestBracketSequence.cpp
         Work/TestBracketSequence.h
-        Work/MeldableHeap.h Work/BinomialHeap.h)
+        Work/MeldableHeap.h Work/BinomialHeap.h Work/SingleLinkedList.cpp Work/CalcTests.h Work/PtrOwner.h Work/VectorTests.h)
 
 add_executable(didactic_woof ${SOURCE_FILES})

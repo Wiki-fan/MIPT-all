@@ -11,6 +11,6 @@ public:
 
 	virtual void Add( const T& key ) = 0;
 	virtual T ExtractTop() = 0;
-	static IMeldableHeap* Meld( IMeldableHeap& heap1, IMeldableHeap& heap2 );
+	virtual IMeldableHeap* Meld( IMeldableHeap& heap1, IMeldableHeap& heap2 ) = 0;
 
 };

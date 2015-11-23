@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "stdafx.h"
+#include "Smth.h"
 
 namespace my {
 
@@ -52,7 +54,7 @@ void qsort( int l, int r, T *a ) // start, finish и указатель на н�
 		while( a[j] > x )
 			--j;
 		if( i <= j ) {
-			swap( a[i], a[j] );
+			my::swap( a[i], a[j] );
 			++i, --j;
 		}
 	}

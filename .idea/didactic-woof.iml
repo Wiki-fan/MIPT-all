@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/Calc.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Calc.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/CalcTests.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/CalcTests.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/ChainHashTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Deque.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/DequeTests.cpp" isTestSource="false" />
@@ -26,6 +27,8 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/PtrOwner.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/SingleLinkedList.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Smth.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SortedListFromFile.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SortedListFromFile.h" isTestSource="false" />
@@ -36,8 +39,8 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/TestBracketSequence.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Vector.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/VectorTests.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/VectorTests.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/main.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/main_contest.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/stdafx.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/stdafx.h" isTestSource="false" />
     </content>

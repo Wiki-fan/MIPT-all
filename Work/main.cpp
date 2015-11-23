@@ -1,12 +1,10 @@
 ﻿#include "stdafx.h"
-//extern void TestOpenAddressHashTable();
-#include "OpenAddressHashTableTests.h"
-//#include "DequeTests.h"
+#include "CalcTests.h"
 
 int main()
 {
 	//TestDeque();
-	TestOpenAddressHashTable();
+	TestCalc();
 	std::cin.get();
 	return 0;
 }

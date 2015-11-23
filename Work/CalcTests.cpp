@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "CalcTests.h"
 #include "Calc.h"
 
 void TestCalc()

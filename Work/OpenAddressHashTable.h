@@ -21,9 +21,8 @@ private:
 	struct CNode {
 
 	public:
-		explicit CNode( const std::string &key ) : Key( new std::string( key ) )
-		{
-		}
+		explicit CNode( const std::string &key ) : Key( new std::string( key ) ) { }
+		CNode( const CNode& other ) = delete;
 
 		~CNode()
 		{
@@ -39,8 +38,6 @@ private:
 
 		std::string *Key;
 
-	private:
-		CNode( const CNode &other );
 	};
 
 	static CNode *deleted;
