@@ -76,7 +76,7 @@ void TestMyHeaps()
 				BinHeaps[i->heap1]->ExtractTop();
 				break;
 			case COperationDescr<type>::Operation::Meld:
-				BinHeaps[i->heap1] = Meld( *BinHeaps[i->heap1], *BinHeaps[i->heap2] );
+				BinHeaps[i->heap1]->Meld( *BinHeaps[i->heap2] );
 				BinHeaps[i->heap2] = BinHeaps.back();
 				BinHeaps.pop_back();
 				break;

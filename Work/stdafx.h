@@ -21,6 +21,7 @@
 #include <sstream>
 #include <vector>
 #include <list>
+#include <forward_list>
 #include <string>
 #include <algorithm>
 #include <iterator>

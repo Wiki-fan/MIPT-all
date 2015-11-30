@@ -1,10 +1,10 @@
 ﻿#include "stdafx.h"
-#include "CalcTests.h"
+#include "MeldableHeapTests.h"
 
 int main()
 {
-	//TestDeque();
-	TestCalc();
+	TestMyHeaps();
 	std::cin.get();
 	return 0;
 }
+

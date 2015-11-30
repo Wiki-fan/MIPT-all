@@ -7,32 +7,117 @@ class CBinomialHeap : public IMeldableHeap<T, Compare> {
 
 public:
 	CBinomialHeap() = default;
-	CBinomialHeap( const T& key ) : head( new CNode( key ))
-	{
-	}
+	CBinomialHeap( const T& key ) : head( new CLayer( key )) { }
 	~CBinomialHeap();
-	void Add( const T& key );
-	T ExtractTop();
-	friend typename IMeldableHeap<T, Compare>* Meld( CBinomialHeap& heap1, CBinomialHeap& heap2 );
+	void Add( const T& key ) override;
+	T ExtractTop() override;
+	bool isEmpty() override { return head->nodes.empty(); }
+	IMeldableHeap<T, Compare>* Meld( CBinomialHeap& other );
 
 private:
-	struct CNode {
-	public:
-		CNode( const T& _key ) : key( _key ), parent( 0 ), child( 0 ),
-		                         sibling( 0 ), degree( 1 ) { }
-		T key;
-		CNode* parent;
-		CNode* child;
-		CNode* sibling;
-		mysize degree;
+
+	struct CLayer {
+		CLayer( const T& _key ) : nodes( { _key } ), parent( 0 ), degree( 0 ) { }
+		~CLayer();
+		std::forward_list<CLayer> nodes;
+		CLayer* parent;
+		int degree;
+		T value;
 	};
 
-	CBinomialHeap( CNode* _head ) : head( _head ) { }
-	CNode* head; // Корневые элементы.
+	//CBinomialHeap( CNode* _head ) : head( _head ) { }
+	CLayer* head; // Корневые элементы.
 
 };
 
 template<typename T, class Compare>
+CBinomialHeap<T, Compare>::~CBinomialHeap()
+{
+	delete head;
+}
+
+template<typename T, class Compare>
+IMeldableHeap<T, Compare>* CBinomialHeap<T, Compare>::Meld( CBinomialHeap& other )
+{
+	if( other.isEmpty()) {
+		return this;
+	}
+
+	// Создание новой кучи как результата слияния корневых списков данных куч.
+	head->nodes = head->nodes;
+	head->parent = 0;
+	head->nodes.merge( other.head->nodes, Compare());
+
+	if( isEmpty()) {
+		return this;
+	}
+
+	// Сливание рядом стоящих куч одной степени.
+	CBinomialHeap::CLayer* cur = head;
+	auto layer1 = head->nodes.begin();
+	auto layer2 = head->nodes.begin();
+	++layer2;
+	for( ; layer2 != head->nodes.end(); ++layer1, ++layer2 ) {
+		if( layer1->degree == layer2->degree ) {
+			layer1->parent = layer2->parent;
+			( layer1->nodes ).insert_after( layer1->nodes.end(), layer2->nodes.begin(), layer2->nodes.end());
+			head->nodes.erase_after( layer2 );
+		}
+	}
+
+	return this;
+}
+
+template<typename T, class Compare>
+void CBinomialHeap<T, Compare>::Add( const T& key )
+{
+	CBinomialHeap tmp( key );
+	Meld( tmp );
+}
+
+template<typename T, class Compare>
+T CBinomialHeap<T, Compare>::ExtractTop()
+{
+	massert( !isEmpty());
+	// Ищем максимум.
+	T top = head->nodes.front().value;
+	auto topIter = head->nodes.begin();
+	auto iter = head->nodes.begin();
+	++iter;
+	for( ; iter != head->nodes.end(); ++iter ) {
+		if( Compare()( iter->value, top )) {
+			top = iter->value;
+			topIter = iter;
+		}
+	}
+
+	// Создаём временную пустую кучу.
+	CBinomialHeap tmp;
+	// Цепляем к ней детей удаляемой вершины.
+	tmp.head = &( *topIter );
+	// Выставляем им правильного родителя.
+	std::for_each( tmp.head->nodes.begin(), tmp.head->nodes.end(),
+	               [ tmp ]( CLayer& layer ) { layer.parent = tmp.head; } );
+	// Удаляем вершину.
+	head->nodes.erase_after( topIter );
+	// Сливаем кучи.
+	Meld( tmp );
+
+	return top;
+}
+
+/*struct CNode {
+public:
+	CNode( const T& _key ) : key( _key ), parent( 0 ), child( 0 ),
+							 sibling( 0 ), degree( 1 ) { }
+	T key;
+	CNode* parent;
+	CNode* child;
+	CNode* sibling;
+	mysize degree;
+};*/
+
+/*template<typename T, class Compare>
 CBinomialHeap<T, Compare>::~CBinomialHeap()
 {
 	// TODO: деструктор
@@ -41,14 +126,14 @@ CBinomialHeap<T, Compare>::~CBinomialHeap()
 template<typename T, class Compare>
 IMeldableHeap<T, Compare>* Meld( CBinomialHeap<T, Compare>& heap1, CBinomialHeap<T, Compare>& heap2 )
 {
-	if( heap1.head == 0 ) {
+	if( head == 0 ) {
 		return &heap2;
 	}
 	if( heap2.head == 0 ) {
 		return &heap1;
 	}
 	CBinomialHeap<type, std::greater<type>>::CNode* res = 0;
-	CBinomialHeap<type, std::greater<type>>::CNode* iRes = res, * iHeap1 = heap1.head, * iHeap2 = heap2.head;
+	CBinomialHeap<type, std::greater<type>>::CNode* iRes = res, * iHeap1 = head, * iHeap2 = heap2.head;
 	while( iHeap1 != 0 && iHeap2 != 0 ) {
 		if( iHeap1->degree < iHeap2->degree ) {
 			iRes->sibling = iHeap1;
@@ -130,3 +215,4 @@ T CBinomialHeap<T, Compare>::ExtractTop()
 	return topKey;
 }
 
+*/
