@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "MeldableHeap.h"
 #include "BinomialHeap.h"
+#include "LeftistHeap.h"
+#include "SkewHeap.h"
 
 template<typename T>
 struct COperationDescr {
@@ -11,7 +13,8 @@ public:
 		AddHeap, Insert, ExtractTop, Meld
 	};
 
-	COperationDescr( Operation _oper, mysize heap1, mysize heap2, T key )
+	COperationDescr( Operation _oper, mysize _heap1, mysize _heap2, T _key )
+			: oper( _oper ), heap1( _heap1 ), heap2( _heap2 ), key( _key )
 	{
 	}
 
@@ -27,7 +30,11 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 	ret.reserve( N );
 	mysize heap1, heap2;
 	type key;
-	for( int i = 0; i < N; ++i ) {
+	for( int i = 10; i < N - 10; ++i ) {
+		key = rand() % 30000;
+		ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( COperationDescr<type>::Operation::AddHeap ), 0, 0, key ));
+	}
+	for( int i = 10; i < N - 10; ++i ) {
 		int oper = rand() % 4;
 		switch( oper ) {
 			case COperationDescr<type>::Operation::AddHeap:
@@ -54,14 +61,16 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 		}
 
 	}
+	return ret;
 }
 
 void TestMyHeaps()
 {
 	const int N = 1000; // Число куч
-	std::vector<IMeldableHeap<type, std::greater<type>>*> LeftHeaps, BinHeaps;
+	std::vector<IMeldableHeap<type, std::greater<type>>*> LeftHeaps, BinHeaps, SkewHeaps;
 	LeftHeaps.reserve( N );
 	BinHeaps.reserve( N );
+	SkewHeaps.reserve( N );
 	std::vector<COperationDescr<type>> TestSequence( GenerateTestSequence());
 
 	for( auto i = TestSequence.begin(); i != TestSequence.end(); ++i ) {
@@ -76,7 +85,8 @@ void TestMyHeaps()
 				BinHeaps[i->heap1]->ExtractTop();
 				break;
 			case COperationDescr<type>::Operation::Meld:
-				BinHeaps[i->heap1]->Meld( *BinHeaps[i->heap2] );
+				dynamic_cast<CBinomialHeap<type, std::greater<type>>*>(BinHeaps[i->heap1])->
+						Meld( dynamic_cast<CBinomialHeap<type, std::greater<type>>&>(*BinHeaps[i->heap2]));
 				BinHeaps[i->heap2] = BinHeaps.back();
 				BinHeaps.pop_back();
 				break;
@@ -88,4 +98,16 @@ void TestMyHeaps()
 	for( int i = 0; i < N; ++i ) {
 
 	}
+}
+
+void ManualTest()
+{
+	CLeftistHeap<int, std::greater<int>> lh;
+	for( int i = 0; i < 10; ++i ) {
+		lh.Add( i );
+	}
+	for( int i = 0; i < 10; ++i ) {
+		std::cout << lh.ExtractTop() << std::endl;
+	}
+
 }

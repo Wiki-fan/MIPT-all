@@ -6,34 +6,40 @@ template<typename T, class Compare>
 class CBinomialHeap : public IMeldableHeap<T, Compare> {
 
 public:
-	CBinomialHeap() = default;
-	CBinomialHeap( const T& key ) : head( new CLayer( key )) { }
+	// Конструктор по умолчанию, создаёт пустую кучу.
+	CBinomialHeap() : head() { }
+	// Конструктор, создающий кучу с единственным элементом с ключом key.
+	CBinomialHeap( const T& key ) : head( { CLayer( key ) } ) { }
 	~CBinomialHeap();
 	void Add( const T& key ) override;
 	T ExtractTop() override;
-	bool isEmpty() override { return head->nodes.empty(); }
+	bool isEmpty() override { return head.empty(); }
 	IMeldableHeap<T, Compare>* Meld( CBinomialHeap& other );
 
 private:
 
 	struct CLayer {
-		CLayer( const T& _key ) : nodes( { _key } ), parent( 0 ), degree( 0 ) { }
-		~CLayer();
-		std::forward_list<CLayer> nodes;
-		CLayer* parent;
-		int degree;
-		T value;
+		CLayer() { }
+		CLayer( const T& _key ) : nodes(), key( _key ), parent( 0 ), degree( 0 ) { }
+		~CLayer() = default;
+		bool operator>( const CLayer& other ) const { return Compare()( key, other.key ); }
+
+		std::forward_list<CLayer> nodes; // Список детей.
+		CLayer* parent; // Родитель.
+		int degree; // Высота.
+		T key; // Ключ.
 	};
 
-	//CBinomialHeap( CNode* _head ) : head( _head ) { }
-	CLayer* head; // Корневые элементы.
+	//CLayer* head; // Корневые элементы.
+	std::forward_list<CLayer> head; // Список корневых элементов.
 
 };
 
 template<typename T, class Compare>
 CBinomialHeap<T, Compare>::~CBinomialHeap()
 {
-	delete head;
+	// По сути, всё должно удалиться само.
+	//delete head; 
 }
 
 template<typename T, class Compare>
@@ -43,25 +49,23 @@ IMeldableHeap<T, Compare>* CBinomialHeap<T, Compare>::Meld( CBinomialHeap& other
 		return this;
 	}
 
-	// Создание новой кучи как результата слияния корневых списков данных куч.
-	head->nodes = head->nodes;
-	head->parent = 0;
-	head->nodes.merge( other.head->nodes, Compare());
+	// Упорядоченное слияние корневых списков данных куч.
+	head.merge( other.head, std::greater<CLayer>());
 
-	if( isEmpty()) {
-		return this;
-	}
-
-	// Сливание рядом стоящих куч одной степени.
-	CBinomialHeap::CLayer* cur = head;
-	auto layer1 = head->nodes.begin();
-	auto layer2 = head->nodes.begin();
-	++layer2;
-	for( ; layer2 != head->nodes.end(); ++layer1, ++layer2 ) {
+	// Слияние рядом стоящих куч одной степени.
+	auto layer1 = head.begin();
+	auto layer2 = head.begin();
+	++layer2; // Костыль.
+	for( ; layer2 != head.end(); ++layer1, ++layer2 ) {
 		if( layer1->degree == layer2->degree ) {
-			layer1->parent = layer2->parent;
-			( layer1->nodes ).insert_after( layer1->nodes.end(), layer2->nodes.begin(), layer2->nodes.end());
-			head->nodes.erase_after( layer2 );
+			//Цепляем layer2 к layer1.
+			/*layer1->parent = layer2->parent;
+			layer1->nodes.insert_after( layer1->nodes.end(), layer2->nodes.begin(), layer2->nodes.end());
+			head.nodes.erase_after( layer2 ); // Удаляем пустой*/
+			auto tmp = layer2;
+			layer2->parent = &( *layer1 );
+			layer1->nodes.insert_after( layer1->nodes.begin(), *layer2 );
+			head.erase_after( layer1 ); // Удаляем layer2.
 		}
 	}
 
@@ -71,7 +75,7 @@ IMeldableHeap<T, Compare>* CBinomialHeap<T, Compare>::Meld( CBinomialHeap& other
 template<typename T, class Compare>
 void CBinomialHeap<T, Compare>::Add( const T& key )
 {
-	CBinomialHeap tmp( key );
+	CBinomialHeap<T, Compare> tmp( key );
 	Meld( tmp );
 }
 
@@ -80,26 +84,26 @@ T CBinomialHeap<T, Compare>::ExtractTop()
 {
 	massert( !isEmpty());
 	// Ищем максимум.
-	T top = head->nodes.front().value;
-	auto topIter = head->nodes.begin();
-	auto iter = head->nodes.begin();
-	++iter;
-	for( ; iter != head->nodes.end(); ++iter ) {
-		if( Compare()( iter->value, top )) {
-			top = iter->value;
-			topIter = iter;
+	T top = head.front().key;
+	auto iter1 = head.before_begin();
+	auto beforeTop = iter1;
+	auto iter2 = head.begin();
+	for( ; iter2 != head.end(); ++iter2 ) {
+		if( Compare()( iter2->key, top )) {
+			top = iter2->key;
+			beforeTop = iter1;
 		}
 	}
 
 	// Создаём временную пустую кучу.
 	CBinomialHeap tmp;
 	// Цепляем к ней детей удаляемой вершины.
-	tmp.head = &( *topIter );
+	tmp.head = iter1->nodes;
 	// Выставляем им правильного родителя.
-	std::for_each( tmp.head->nodes.begin(), tmp.head->nodes.end(),
-	               [ tmp ]( CLayer& layer ) { layer.parent = tmp.head; } );
+	std::for_each( tmp.head.begin(), tmp.head.end(),
+	               [ &tmp ]( CLayer& layer ) mutable { layer.parent = 0; } );
 	// Удаляем вершину.
-	head->nodes.erase_after( topIter );
+	head.erase_after( iter1 ); // выстрел в ногу? на что теперь указывает tmp?
 	// Сливаем кучи.
 	Meld( tmp );
 
@@ -182,7 +186,7 @@ void CBinomialHeap<T, Compare>::Add( const T& key )
 template<typename T, class Compare>
 T CBinomialHeap<T, Compare>::ExtractTop()
 {
-	T topKey = head->key;
+	T topKey = head.key;
 	CNode* top = 0, * topPrev = 0;
 	CNode* iCur = head, * iPrev = 0; // Будет одно лишнее сравнение, ну и ладно.
 	while( iCur != 0 ) {

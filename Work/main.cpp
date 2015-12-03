@@ -3,7 +3,8 @@
 
 int main()
 {
-	TestMyHeaps();
+	//TestMyHeaps();
+	ManualTest();
 	std::cin.get();
 	return 0;
 }

@@ -20,10 +20,12 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/HashTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/HeapForMerge.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/HeapForMerge.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/LeftistHeap.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/MeldableHeap.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/MeldableHeapTests.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/MeldableHeapTests.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/MinMaxHeap.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/MinMaxHeapTests.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/MinMaxHeapTests.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTable.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.h" isTestSource="false" />
@@ -32,6 +34,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/SingleLinkedList.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SingleLinkedList.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SingleLinkedListTests.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/SkewHeap.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/Smth.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SortedListFromFile.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SortedListFromFile.h" isTestSource="false" />

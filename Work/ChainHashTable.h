@@ -109,7 +109,7 @@ int CChainHashTable::myHash( const std::string& key ) const
 {
 	int hash = 0;
 	for( size_t i = 0; i < key.length(); ++i ) {
-		hash = (hash*HashParameter + key[i]) % table.size();
+		hash = ( hash * HashParameter1 + key[i] ) % table.size();
 	}
 	return hash;
 }

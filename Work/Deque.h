@@ -189,8 +189,8 @@ private:
 		T* buf; // Элементы.
 
 	private:
-		// Копирующий конструктор не нужен и не должен вызываться, посему описан в private,
-		CNode( const CNode& other );
+		// Копирующий конструктор не нужен и не должен вызываться.
+		CNode( const CNode& other ) = delete;
 	};
 
 	CNode* first; // Первая нода.
@@ -423,11 +423,7 @@ bool CDeque<T>::CMetaIterator<is_const_iterator>::operator>( const self_type& ot
 	massert( parent == other.parent );
 	// Если они указывают на элементы в одном подмассиве, просто сравниваем индексы.
 	if( other.node == node ) {
-		if( iBuf > other.iBuf ) {
-			return true;
-		} else {
-			return false;
-		}
+		return iBuf > other.iBuf ? true : false;
 	}
 	// Проматываем от подмассива other'а до конца. Если найдём подмассив *this'а, то он действительно больше.
 	CNode* temp = other.node;

@@ -36,9 +36,9 @@ private:
 	mysize index; // Индекс текущего элемента.
 	mysize chunkend; // Верхняя граница нужного чанка в файле.
 	mysize offset; // Текущая позиция piece'а в chunk'е. 
-	
-	// Копирующий конструктор в private, потому что он не нужен и не должен вызываться.
-	CSortedListFromFile( const CSortedListFromFile& other );
+
+	// Не нужен и не должен вызываться.
+	CSortedListFromFile( const CSortedListFromFile& other ) = delete;
 };
 
 } // namespace my

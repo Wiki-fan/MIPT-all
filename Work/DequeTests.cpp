@@ -77,18 +77,18 @@ void TestDeque()
 		//massert( *test == *stest );
 	}
 
-	// Проверка компилируемости CConstIterator.
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ CConstIterator.
 	//const my::CDeque<int> cdeque = deque;
 	//my::CDeque<int>::CConstIterator citer;
 	//citer = (deque.cbegin());
 	//citer++; 
-	// Ошибка — не может присвоить константе. Работает!
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!
 	// (*citer) = 13;
 
 	std::cout << "Testing linearity..." << std::endl;
 	printf( "N           push_back_t   push_front_t  operator_br_t pop_back_t    pop_front_t  \n" );
 	double push_back_t, pop_back_t, push_front_t, pop_front_t, operator_br_t;
-	for( int i = 10; i <= 1000000; i *= 10 ) {
+	for( i = 10; i <= 1000000; i *= 10 ) {
 
 		t = clock();
 		for( int j = 0; j < i; ++j ) {

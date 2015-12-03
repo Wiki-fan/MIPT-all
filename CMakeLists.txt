@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.3)
 project(didactic_woof)
 
+#list(APPEND CMAKE_CONFIGURATION_TYPES MyDebug)
+#set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "" FORCE)
+set(CMAKE_CONFIGURATION_TYPES "Release;Debug;MyDebug" CACHE STRING "" FORCE)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+SET(CMAKE_CXX_FLAGS_MYDEBUG "-Wall -Wabi -g -p" CACHE STRING
+		"My debug, lol."
+		FORCE)
 
 set(SOURCE_FILES
 		Work/Calc.cpp
@@ -19,7 +26,6 @@ set(SOURCE_FILES
 		Work/MinMaxHeap.h
 		Work/HeapForMerge.cpp
 		Work/HeapForMerge.h
-		Work/MeldableHeapTests.cpp
 		Work/main.cpp
 		Work/OpenAddressHashTable.h
 		Work/OpenAddressHashTableTests.cpp
@@ -35,10 +41,8 @@ set(SOURCE_FILES
 		Work/VectorTests.cpp
 		Work/MeldableHeap.h
 		Work/MeldableHeapTests.h
-		Work/MeldableHeapTests.h
 		Work/TestBracketSequence.cpp
 		Work/TestBracketSequence.h
-		Work/MeldableHeap.h
 		Work/BinomialHeap.h
 		Work/SingleLinkedList.cpp
 		Work/CalcTests.h
@@ -46,7 +50,11 @@ set(SOURCE_FILES
 		Work/VectorTests.h
 		Work/SingleLinkedList.h
 		Work/SingleLinkedListTests.h
-		Work/SilgleLinkedListTests.cpp)
+		Work/SilgleLinkedListTests.cpp
+		Work/MinMaxHeapTests.cpp
+		Work/MinMaxHeapTests.h
+		Work/LeftistHeap.h
+		Work/SkewHeap.h)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

@@ -2,26 +2,28 @@
 #include "stdafx.h"
 #include "Smth.h"
 
-namespace my {
+namespace my
+{
 
 //Сортировка слиянием. Принимает указатели на начало, конец, дополнительный буфер соответствующего размера.
 template<typename T>
-void MergeSort( T *start, T *finish, T* buffer )
+void MergeSort( T* start, T* finish, T* buffer )
 {
-	if( start + 1 == finish )
+	if( start + 1 == finish ) {
 		return;
+	}
 
-	T *mid = start + (finish - start + 1) / 2;
+	T* mid = start + ( finish - start + 1 ) / 2;
 	MergeSort( start, mid, buffer );
 	MergeSort( mid, finish, buffer );
 
-	T *start1 = buffer;
-	T *mid1 = start1 + (mid - start);
-	T *finish1 = start1 + (finish - start);
-	for( T *i1 = start, *i2 = start1; i1 != mid; ++i1, ++i2 ) {
+	T* start1 = buffer;
+	T* mid1 = start1 + ( mid - start );
+	T* finish1 = start1 + ( finish - start );
+	for( T* i1 = start, * i2 = start1; i1 != mid; ++i1, ++i2 ) {
 		*i2 = *i1;
 	}
-	for( T *i1 = mid, *i2 = mid1; i1 != finish; ++i1, ++i2 ) {
+	for( T* i1 = mid, * i2 = mid1; i1 != finish; ++i1, ++i2 ) {
 		*i2 = *i1;
 	}
 
@@ -29,8 +31,8 @@ void MergeSort( T *start, T *finish, T* buffer )
 	// ::memcpy(start1, start, (mid1 - start1)*sizeof(int));
 	// ::memcpy(mid1, mid, (finish1 - mid1)*sizeof(int));
 
-	for( T *i = start, *i1 = start1, *i2 = mid1; i != finish; ++i ) {
-		if( i1 != mid1 && (!(*i2 < *i1) || i2 == finish1) ) {
+	for( T* i = start, * i1 = start1, * i2 = mid1; i != finish; ++i ) {
+		if( i1 != mid1 && ( !( *i2 < *i1 ) || i2 == finish1 )) {
 			*i = *i1;
 			++i1;
 		} else /*if( (*i1 > *i2 && i2 != finish1) || i1 == mid1)*/ {
@@ -42,24 +44,27 @@ void MergeSort( T *start, T *finish, T* buffer )
 
 // Быстрая сортировка с выбором пивота по методу Хоара.
 template<typename T>
-void qsort( int l, int r, T *a ) // start, finish и указатель на начало массива.
+void qsort( int l, int r, T* a ) // start, finish и указатель на начало массива.
 {
-	if( l >= r )
+	if( l >= r ) {
 		return;
-	int x = a[(l + r) / 2];
+	}
+	int x = a[( l + r ) / 2];
 	int i = l, j = r;
 	while( i <= j ) {
-		while( a[i] < x )
+		while( a[i] < x ) {
 			++i;
-		while( a[j] > x )
+		}
+		while( a[j] > x ) {
 			--j;
+		}
 		if( i <= j ) {
 			my::swap( a[i], a[j] );
 			++i, --j;
 		}
 	}
-	qsort( a, l, j );
-	qsort( a, i, r );
+	qsort( l, j, a );
+	qsort( i, r, a );
 }
 
 
