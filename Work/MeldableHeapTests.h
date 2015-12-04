@@ -94,20 +94,20 @@ void TestMyHeaps()
 				massert( false );
 		}
 	}
-
-	for( int i = 0; i < N; ++i ) {
-
-	}
 }
 
 void ManualTest()
 {
 	CLeftistHeap<int, std::greater<int>> lh;
-	for( int i = 0; i < 10; ++i ) {
+	CSkewHeap<int, std::greater<int>> sh;
+	CBinomialHeap<int, std::greater<int>> bh;
+	for( int i = 10; i >= 1; --i ) {
 		lh.Add( i );
+		sh.Add( i );
+		bh.Add( i );
 	}
 	for( int i = 0; i < 10; ++i ) {
-		std::cout << lh.ExtractTop() << std::endl;
+		std::cout << lh.ExtractTop() << ' ' << sh.ExtractTop() << ' ' << bh.ExtractTop() << std::endl;
 	}
 
 }

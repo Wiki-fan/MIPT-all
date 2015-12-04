@@ -1,11 +1,9 @@
 #pragma once
 #include "stdafx.h"
 #include "MeldableHeap.h"
-#include "LeftistHeap.h"
 
-
-/*template<typename T, class Compare>
-class CSkewHeap : public CLeftistHeap<T, Compare> {
+template<typename T, class Compare>
+class CSkewHeap : public IMeldableHeap<T, Compare> {
 
 public:
 	// Конструктор по умолчанию, создаёт пустую кучу.
@@ -13,9 +11,9 @@ public:
 	// Конструктор, создающий кучу с единственным элементом с ключом key.
 	CSkewHeap( const T& key ) : head( new CNode( key )) { }
 	~CSkewHeap() { delete head; }
-	void Add( const T& key ) { CLeftistHeap::Add(key); }
-	T ExtractTop(){return CLeftistHeap::ExtractTop(); }
-	bool isEmpty(){return CLeftistHeap::isEmpty(); }
+	void Add( const T& key );
+	T ExtractTop();
+	bool isEmpty() { return head == nullptr; }
 	IMeldableHeap<T, Compare>* Meld( CSkewHeap& other );
 
 private:
@@ -23,10 +21,11 @@ private:
 		// Конструктор по умолчанию.
 		CNode() { }
 		// Вершина, являющаяся вершиной дерева из одного элемента с ключом _key.
-		CNode( T& _key ) : key( _key ), parent( 0 ), left( 0 ), right( 0 ), dist( 0 ) { }
+		CNode( const T& _key ) : key( _key ), parent( 0 ), left( 0 ), right( 0 ) { }
 		// Рекурсивный деструктор. Удаляет детей.
 		~CNode()
 		{
+			std::cout << "Oppa, delete " << key << std::endl;
 			delete left;
 			delete right;
 		}
@@ -34,8 +33,6 @@ private:
 		CNode* parent;
 		// Левый и правый дети.
 		CNode* left, * right;
-		// Расстояние до ближайшей свободной позиции (для листьев - 0).
-		int dist;
 		// Ключ вершины.
 		T key;
 	};
@@ -47,14 +44,54 @@ private:
 };
 
 template<typename T, class Compare>
-CSkewHeap::CNode* CSkewHeap::subMeld( CSkewHeap::CNode* x, CSkewHeap::CNode* y )
+void CSkewHeap<T, Compare>::Add( const T& key )
 {
-	return nullptr;
+	// Создаём дерево из одной вершины.
+	CNode* tmp = new CNode( key );
+	// Сливаем его с данным.
+	CNode* node = subMeld( head, tmp );
+	head = node;
+	//delete tmp;
 }
 
+// Извлекает вершину кучи и возвращает её ключ.
 template<typename T, class Compare>
-IMeldableHeap<T, Compare>* CSkewHeap::Meld( CSkewHeap& other )
+T CSkewHeap<T, Compare>::ExtractTop()
 {
-	return nullptr;
+	T top = head->key;
+	// Сливаем детей и пишем результат на место корня.
+	CNode* tmp = subMeld( head->left, head->right );
+	head->left = head->right = 0;
+	delete head;
+	head = tmp;
+	return top;
 }
-*/
+
+// Сливает кучу с данной. Другая куча становится пустой.
+// Возвращает указатель на данную кучу.
+template<typename T, class Compare>
+IMeldableHeap<T, Compare>* CSkewHeap<T, Compare>::Meld( CSkewHeap& other )
+{
+	head = subMeld( head, other.head );
+	return this;
+}
+
+// Подпрограмма слияния поддеревьев узла.
+template<typename T, class Compare>
+typename CSkewHeap<T, Compare>::CNode* CSkewHeap<T, Compare>::subMeld( CSkewHeap::CNode* x, CSkewHeap::CNode* y )
+{
+	if( x == 0 ) {
+		return y;
+	}
+	if( y == 0 ) {
+		return x;
+	}
+	if( Compare()( x->key, y->key )) {
+		CNode* tmp = x->right;
+		x->right = x->left;
+		x->left = subMeld( y, tmp );
+		return x;
+	} else {
+		return subMeld( y, x );
+	}
+}

@@ -25,6 +25,7 @@ private:
 		// Рекурсивный деструктор. Удаляет детей.
 		~CNode()
 		{
+			std::cout << "Oppa, delete leftist " << key << std::endl;
 			delete left;
 			delete right;
 		}
@@ -62,6 +63,7 @@ T CLeftistHeap<T, Compare>::ExtractTop()
 	T top = head->key;
 	// Сливаем детей и пишем результат на место корня.
 	CNode* tmp = subMeld( head->left, head->right );
+	head->left = head->right = 0;
 	delete head;
 	head = tmp;
 	return top;
@@ -86,16 +88,18 @@ typename CLeftistHeap<T, Compare>::CNode* CLeftistHeap<T, Compare>::subMeld( CLe
 	if( y == 0 ) {
 		return x;
 	}
-	if( y->key < x->key ) {
+	if( Compare()( y->key, x->key )) {
 		std::swap( x, y );
 	}
 	// Сливаем правое поддерево x с y, ибо правая ветка самая короткая в силу левостороннести кучи.
 	x->right = subMeld( x->right, y );
 	// Восстанавливаем (если нарушилась) левостороннесть кучи - меняем детей местами.
-	if( x->right->dist > x->left->dist ) {
-		std::swap( x->left, x->right );
+	if( x->right != 0 && x->left != 0 ) {
+		if( x->right->dist > x->left->dist ) {
+			std::swap( x->left, x->right );
+		}
+		// Пересчитываем расстояние.
+		x->dist = std::min( x->left->dist, x->right->dist ) + 1;
 	}
-	// Пересчитываем расстояние.
-	x->dist = std::min( x->left->dist, x->right->dist ) + 1;
 	return x;
 }
