@@ -30,7 +30,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/OpenAddressHashTableTests.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/PtrOwner.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Work/SilgleLinkedListTests.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Work/SingleLinkedListTests.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SingleLinkedList.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SingleLinkedList.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Work/SingleLinkedListTests.h" isTestSource="false" />

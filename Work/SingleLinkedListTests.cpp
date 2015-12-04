@@ -1,7 +1,7 @@
 #include "SingleLinkedListTests.h"
 #include "SingleLinkedList.h"
 
-int TestSingleLinkedList( int argc, const char* argv[] )
+void TestSingleLinkedList()
 {
 	CSingleLinkedListTester tester;
 
@@ -18,18 +18,17 @@ int TestSingleLinkedList( int argc, const char* argv[] )
 	} else {
 		std::cout << "reverse failed" << std::endl;
 	}
-	return 0;
 }
 
 bool CSingleLinkedListTester::TestReverse()
 {
 	std::vector<int> testElem( N, rand());
-	CSingleLinkedList lst;
+	CSingleLinkedList<int> lst;
 	for( int i = 0; i < N; ++i ) {
 		lst.AddFirst( testElem[i] );
 	}
 	lst.Reverse();
-	CSingleLinkedList::CNode* node = lst.First();
+	CSingleLinkedList<int>::CNode* node = lst.First();
 	for( int i = N - 1; i >= 0; --i ) {
 		if( node->Value != testElem[i] ) {
 			return false;
@@ -42,11 +41,11 @@ bool CSingleLinkedListTester::TestReverse()
 bool CSingleLinkedListTester::TestAddAndList()
 {
 	std::vector<int> testElem( N, rand());
-	CSingleLinkedList lst;
+	CSingleLinkedList<int> lst;
 	for( int i = 0; i < N; ++i ) {
 		lst.AddFirst( testElem[i] );
 	}
-	CSingleLinkedList::CNode* node = lst.First();
+	CSingleLinkedList<int>::CNode* node = lst.First();
 	for( int i = 0; i < N; ++i ) {
 		if( node->Value != testElem[i] ) {
 			return false;

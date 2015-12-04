@@ -50,11 +50,11 @@ set(SOURCE_FILES
 		Work/VectorTests.h
 		Work/SingleLinkedList.h
 		Work/SingleLinkedListTests.h
-		Work/SilgleLinkedListTests.cpp
+		Work/SingleLinkedListTests.cpp
 		Work/MinMaxHeapTests.cpp
 		Work/MinMaxHeapTests.h
 		Work/LeftistHeap.h
-		Work/SkewHeap.h)
+		Work/SkewHeap.h Work/SingleLinkedListTests.cpp)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

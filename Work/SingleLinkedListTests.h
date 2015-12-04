@@ -12,11 +12,11 @@ public:
 
 	// Тестируем добавление и просмотр некоторого количества элементов
 	// true если удачно
-	// Заполняет список случайными числами, запоминает их и проверяет что числа те же
+	// Заполняет список случайными числами, запоминает их и проверяет, что числа те же
 	bool TestAddAndList();
 
 private:
 	const int N = 101;
 };
 
-int TestSingleLinkedList( int argc, const char* argv[] );
+void TestSingleLinkedList();

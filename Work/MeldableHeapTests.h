@@ -64,31 +64,56 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 	return ret;
 }
 
+void AddHeap( std::vector<IMeldableHeap<type, std::greater<type>>*>& heaps, const COperationDescr<type>& op )
+{
+	heaps.push_back( new CBinomialHeap<type, std::greater<type>>( op.key ));
+}
+
+void Insert( std::vector<IMeldableHeap<type, std::greater<type>>*>& heaps, const COperationDescr<type>& op )
+{
+	heaps[op.heap1]->Add( op.key );
+}
+
+type ExtractTop( std::vector<IMeldableHeap<type, std::greater<type>>*>& heaps, const COperationDescr<type>& op )
+{
+	return heaps[op.heap1]->ExtractTop();
+}
+
+void Meld( std::vector<IMeldableHeap<type, std::greater<type>>*>& heaps, const COperationDescr<type>& op )
+{
+	dynamic_cast<CBinomialHeap<type, std::greater<type>>*>(heaps[op.heap1])->
+			Meld( dynamic_cast<CBinomialHeap<type, std::greater<type>>&>(*heaps[op.heap2]));
+	heaps[op.heap2] = heaps.back();
+	heaps.pop_back();
+}
 void TestMyHeaps()
 {
 	const int N = 1000; // Число куч
-	std::vector<IMeldableHeap<type, std::greater<type>>*> LeftHeaps, BinHeaps, SkewHeaps;
+	std::vector<IMeldableHeap<type, std::greater<type>>*> LeftHeaps/*, BinHeaps*/, SkewHeaps;
 	LeftHeaps.reserve( N );
-	BinHeaps.reserve( N );
+	//BinHeaps.reserve( N );
 	SkewHeaps.reserve( N );
 	std::vector<COperationDescr<type>> TestSequence( GenerateTestSequence());
 
 	for( auto i = TestSequence.begin(); i != TestSequence.end(); ++i ) {
 		switch( i->oper ) {
 			case COperationDescr<type>::Operation::AddHeap:
-				BinHeaps.push_back( new CBinomialHeap<type, std::greater<type>>( i->key ));
+				//AddHeap(BinHeaps, *i);
+				AddHeap( LeftHeaps, *i );
+				AddHeap( SkewHeaps, *i );
 				break;
 			case COperationDescr<type>::Operation::Insert:
-				BinHeaps[i->heap1]->Add( i->key );
+				//Insert(BinHeaps, *i);
+				Insert( LeftHeaps, *i );
+				Insert( SkewHeaps, *i );
 				break;
 			case COperationDescr<type>::Operation::ExtractTop:
-				BinHeaps[i->heap1]->ExtractTop();
+				massert(/*ExtractTop(BinHeaps, *i) == */ExtractTop( LeftHeaps, *i ) == ExtractTop( SkewHeaps, *i ));
 				break;
 			case COperationDescr<type>::Operation::Meld:
-				dynamic_cast<CBinomialHeap<type, std::greater<type>>*>(BinHeaps[i->heap1])->
-						Meld( dynamic_cast<CBinomialHeap<type, std::greater<type>>&>(*BinHeaps[i->heap2]));
-				BinHeaps[i->heap2] = BinHeaps.back();
-				BinHeaps.pop_back();
+				//Meld(BinHeaps, *i);
+				Meld( LeftHeaps, *i );
+				Meld( SkewHeaps, *i );
 				break;
 			default:
 				massert( false );

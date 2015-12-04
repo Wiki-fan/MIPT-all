@@ -25,7 +25,7 @@ private:
 		// Рекурсивный деструктор. Удаляет детей.
 		~CNode()
 		{
-			std::cout << "Oppa, delete " << key << std::endl;
+			std::cout << "Delete skew " << key << std::endl;
 			delete left;
 			delete right;
 		}
@@ -86,12 +86,19 @@ typename CSkewHeap<T, Compare>::CNode* CSkewHeap<T, Compare>::subMeld( CSkewHeap
 	if( y == 0 ) {
 		return x;
 	}
-	if( Compare()( x->key, y->key )) {
+	/*if( Compare()( x->key, y->key )) {
 		CNode* tmp = x->right;
 		x->right = x->left;
 		x->left = subMeld( y, tmp );
 		return x;
 	} else {
 		return subMeld( y, x );
+	}*/
+	if( Compare()( x->key, y->key )) {
+		std::swap( x, y );
 	}
+	CNode* tmp = x->right;
+	x->right = x->left;
+	x->left = subMeld( y, tmp );
+	return x;
 }
