@@ -6,14 +6,14 @@ template<typename T>
 class CSingleLinkedList {
 public:
 	// Конcтруируем пустой список
-	CSingleLinkedList();
-	CSingleLinkedList( const T& key ) : first( new CNode( key )) { }
+	CSingleLinkedList() : first( nullptr ) {}
+	explicit CSingleLinkedList( const T& key ) : first( new CNode( key )) { }
 	~CSingleLinkedList();
 
 	// Элемент списка
 	struct CNode {
 		// Конструирует ни с чем не связный node
-		CNode( const T& newVal ) : Value( newVal ), next( nullptr ) { }
+		explicit CNode( const T& newVal ) : Value( newVal ), next( nullptr ) { }
 		CNode( const T& newVal, CNode* _next ) : Value( newVal ), next( _next ) { }
 
 		// Хранимое значение
@@ -35,7 +35,8 @@ public:
 	// Возвращает первый элемент списка, nullptr если список пуст
 	CNode* First() const;
 	// Добавляет новый элемент в список
-	void AddFirst( const T& newVal );
+	void AddFirst( T& newVal );
+	void AddFirst( T* newVal );
 
 	// Удаляет элемент из списка, но не вызывает его деструктор.
 	CNode* DeleteAfter( CNode*& node )
@@ -62,18 +63,15 @@ private:
 };
 
 template<typename T>
-CSingleLinkedList<T>::CSingleLinkedList() : first( nullptr )
-{
-}
-
-template<typename T>
 CSingleLinkedList<T>::~CSingleLinkedList()
 {
-	while( CNode* temp = first->Next()) {
+	if (first != 0) {
+		while( CNode* temp = first->Next()) {
+			delete first;
+			first = temp;
+		}
 		delete first;
-		first = temp;
 	}
-	delete first;
 }
 
 template<typename T>
@@ -97,9 +95,15 @@ typename CSingleLinkedList<T>::CNode* CSingleLinkedList<T>::First() const
 }
 
 template<typename T>
-void CSingleLinkedList<T>::AddFirst( const T& newVal )
+void CSingleLinkedList<T>::AddFirst( T& newVal )
 {
 	CNode* temp = new CNode( newVal, first );
+	first = temp;
+}
+template<typename T>
+void CSingleLinkedList<T>::AddFirst( T* newVal )
+{
+	CNode* temp = new CNode( *newVal, first );
 	first = temp;
 }
 
@@ -118,16 +122,20 @@ CSingleLinkedList<T>* CSingleLinkedList<T>::Merge( CSingleLinkedList& other )
 	CNode* iter2 = other.first;
 	while( iter1 != 0 && iter2 != 0 ) {
 		if(/*Compare()(iter1, iter2)*/iter1 < iter2 ) {
-			ret.AddFirst( iter1++->Value );
+			ret.AddFirst( iter1->Value );
+			iter1 = iter1->Next();
 		} else {
-			ret.AddFirst( iter2++->Value );
+			ret.AddFirst( iter2->Value );
+			iter2 = iter2->Next();
 		}
 	}
 	while( iter1 != 0 ) {
-		ret.AddFirst( iter1++->Value );
+		ret.AddFirst( iter1->Value );
+		iter1 = iter1->Next();
 	}
 	while( iter2 != 0 ) {
-		ret.AddFirst( iter2++->Value );
+		ret.AddFirst( iter2->Value );
+		iter2 = iter2->Next();
 	}
 	other.first = 0;
 	first = ret.first;

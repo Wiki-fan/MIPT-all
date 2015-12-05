@@ -38,7 +38,6 @@ private:
 	};
 
 	CNode* subMeld( CNode* x, CNode* y );
-
 	CNode* head; // Указатель на корневой элемент.
 
 };
@@ -80,6 +79,9 @@ IMeldableHeap<T, Compare>* CSkewHeap<T, Compare>::Meld( CSkewHeap& other )
 template<typename T, class Compare>
 typename CSkewHeap<T, Compare>::CNode* CSkewHeap<T, Compare>::subMeld( CSkewHeap::CNode* x, CSkewHeap::CNode* y )
 {
+	if (x == y) {
+		return x;
+	}
 	if( x == 0 ) {
 		return y;
 	}
@@ -94,7 +96,7 @@ typename CSkewHeap<T, Compare>::CNode* CSkewHeap<T, Compare>::subMeld( CSkewHeap
 	} else {
 		return subMeld( y, x );
 	}*/
-	if( Compare()( x->key, y->key )) {
+	if( Compare()( y->key, x->key )) {
 		std::swap( x, y );
 	}
 	CNode* tmp = x->right;

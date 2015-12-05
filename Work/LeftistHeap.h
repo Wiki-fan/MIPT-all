@@ -14,7 +14,7 @@ public:
 	virtual void Add( const T& key ) override;
 	virtual T ExtractTop() override;
 	virtual bool isEmpty() override { return head == nullptr; }
-	IMeldableHeap<T, Compare>* Meld( CLeftistHeap& other );
+	virtual IMeldableHeap<T, Compare>* Meld( CLeftistHeap& other );
 
 private:
 	struct CNode {
@@ -60,6 +60,7 @@ void CLeftistHeap<T, Compare>::Add( const T& key )
 template<typename T, class Compare>
 T CLeftistHeap<T, Compare>::ExtractTop()
 {
+	massert(head != 0);
 	T top = head->key;
 	// Сливаем детей и пишем результат на место корня.
 	CNode* tmp = subMeld( head->left, head->right );
@@ -72,9 +73,11 @@ T CLeftistHeap<T, Compare>::ExtractTop()
 // Сливает кучу с данной. Другая куча становится пустой.
 // Возвращает указатель на данную кучу.
 template<typename T, class Compare>
+//IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( IMeldableHeap& other )
 IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( CLeftistHeap& other )
 {
-	head = subMeld( head, other.head );
+	CLeftistHeap* lh = dynamic_cast<CLeftistHeap*>(&other);
+	head = subMeld( head, lh->head );
 	return this;
 }
 
@@ -82,6 +85,9 @@ IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( CLeftistHeap& other )
 template<typename T, class Compare>
 typename CLeftistHeap<T, Compare>::CNode* CLeftistHeap<T, Compare>::subMeld( CLeftistHeap::CNode* x, CLeftistHeap::CNode* y )
 {
+	if (x == y) {
+		return x;
+	}
 	if( x == 0 ) {
 		return y;
 	}
