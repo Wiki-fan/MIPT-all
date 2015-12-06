@@ -109,14 +109,16 @@ T CBinomialHeap<T, Compare>::ExtractTop()
 	return top;
 }*/
 
-/*template<typename T, class Compare>
+// На указателях.
+template<typename T, class Compare>
 class CBinomialHeap : public IMeldableHeap<T, Compare> {
 
 	struct CNode {
 	public:
-		CNode() : parent(0), child(0), sibling(0) {}
+		CNode() : parent( 0 ), child( 0 ), sibling( 0 ) { }
 		explicit CNode( const T& _key ) : key( _key ), parent( 0 ), child( 0 ),
-		                         sibling( 0 ), degree( 1 ) { }
+		                                  sibling( 0 ), degree( 0 ) { }
+		~CNode() { delete sibling; delete child; }
 		T key;
 		CNode* parent;
 		CNode* child;
@@ -126,7 +128,7 @@ class CBinomialHeap : public IMeldableHeap<T, Compare> {
 
 public:
 	// Конструктор по умолчанию, создаёт пустую кучу.
-	CBinomialHeap() : head(0) { }
+	CBinomialHeap() : head( 0 ) { }
 	// Конструктор, создающий кучу с единственным элементом с ключом key.
 	explicit CBinomialHeap( const T& key ) : head( new CNode( key )) { }
 	~CBinomialHeap() { delete head; }
@@ -134,21 +136,37 @@ public:
 	T ExtractTop() override;
 	bool isEmpty() override { return head == 0; }
 	IMeldableHeap<T, Compare>* Meld( CBinomialHeap& other );
-	CNode* subMeld( CNode* heap1, CNode* heap2 );
+
 
 	CNode* head;
+private:
+	CNode* subMeld( CNode* heap1, CNode* heap2 );
+	CNode* link( CNode* heap1, CNode* heap2 );
 };
 
 template<typename T, class Compare>
 IMeldableHeap<T, Compare>* CBinomialHeap<T, Compare>::Meld( CBinomialHeap& other )
 {
 	head = subMeld( head, other.head );
+	other.head = 0;
 	return this;
 }
 
 template<typename T, class Compare>
-typename CBinomialHeap<T,Compare>::CNode* CBinomialHeap<T, Compare>::subMeld( CNode* heap1, CNode* heap2 )
+typename CBinomialHeap<T, Compare>::CNode* CBinomialHeap<T, Compare>::link( CNode* y, CNode* z )
 {
+	y->parent = z;
+	y->sibling = z->child;
+	z->child = y;
+	++(z->degree);
+}
+
+template<typename T, class Compare>
+typename CBinomialHeap<T, Compare>::CNode* CBinomialHeap<T, Compare>::subMeld( CNode* heap1, CNode* heap2 )
+{
+	if (heap1 == heap2) {
+		return heap1;
+	}
 	if( heap1 == 0 ) {
 		return heap2;
 	}
@@ -158,7 +176,7 @@ typename CBinomialHeap<T,Compare>::CNode* CBinomialHeap<T, Compare>::subMeld( CN
 	CNode* res = new CNode;
 	CNode* iRes = res, * iHeap1 = heap1, * iHeap2 = heap2;
 	while( iHeap1 != 0 && iHeap2 != 0 ) {
-		if( iHeap1->degree < iHeap2->degree ) {
+		if( iHeap1->degree > iHeap2->degree ) {
 			iRes->sibling = iHeap1;
 			iRes = iHeap1;
 			iHeap1 = iHeap1->sibling;
@@ -171,30 +189,64 @@ typename CBinomialHeap<T,Compare>::CNode* CBinomialHeap<T, Compare>::subMeld( CN
 
 	while( iHeap2 != 0 ) {
 		iRes->sibling = iHeap2;
+		iRes = iHeap2;
 		iHeap2 = iHeap2->sibling;
 	}
 	while( iHeap1 != 0 ) {
 		iRes->sibling = iHeap1;
+		iRes = iHeap1;
 		iHeap1 = iHeap1->sibling;
 	}
 
-	iRes = res;
+	CNode* prevx = 0;
+	CNode* x = res->sibling;
+	delete res;
+	res = x;
+	CNode* nextx = x->sibling;
+	while (nextx != 0) {
+		// Либо степень разная, либо это первые два дерева в цепочке из трёх одинаковой степени. Просто передвигаем указатель.
+		if (x->degree != nextx->degree || (nextx->sibling != 0 && nextx->sibling->degree == x->degree)) {
+			prevx = x;
+			x = nextx;
+		} else {
+			//
+			if( Compare()(x->key, nextx->key) || x->key == nextx->key) {
+				x->sibling = nextx->sibling;
+				link( nextx, x );
+			} else {
+				if( prevx == 0 ) {
+					res = nextx;
+				} else {
+					prevx->sibling = nextx;
+				}
+				link(x, nextx);
+				x = nextx;
+			}
+		}
+		nextx = x->sibling;
+	}
+
+	/*iRes = res;
 	while( iRes->sibling != 0 ) {
 		if( iRes->degree == iRes->sibling->degree ) {
-			iRes->sibling->degree += iRes->degree;
-			iRes->parent = iRes->sibling;
+
+			iRes->degree += 1;
+			iRes->sibling->parent = iRes;
 			CNode* tmp = iRes->sibling;
-			iRes->sibling = iRes->sibling->child;
-			iRes = tmp;
+			iRes->sibling = iRes->sibling->sibling;
+			tmp->sibling = iRes->child;
+			iRes->child = tmp;
 			continue;
 		}
-		iRes = iRes->sibling;
-	}
+		else {
+			iRes = iRes->sibling;
+		}
+	}*/
 	return res;
 }
 
 template<typename T, class Compare>
-void CBinomialHeap<T,Compare>::Add( const T& key )
+void CBinomialHeap<T, Compare>::Add( const T& key )
 {
 	CNode* tmp = new CNode( key );
 	head = subMeld( head, tmp );
@@ -203,42 +255,49 @@ void CBinomialHeap<T,Compare>::Add( const T& key )
 template<typename T, class Compare>
 T CBinomialHeap<T, Compare>::ExtractTop()
 {
+	// Ищем в корневом списке вершину с наибольшим ключом.
 	T topKey = head->key;
-	CNode* top = 0, * topPrev = 0;
-	CNode* iCur = head, * iPrev = 0; // Будет одно лишнее сравнение, ну и ладно.
-	while( iCur != 0 ) {
-		if( Compare()( iCur->key, topKey )) {
-			topKey = iCur->key;
-			top = iCur;
+	CNode* top = head, * topPrev = 0;
+	CNode* i = head, * iPrev = 0;
+	while( i != 0 ) {
+		if( Compare()( i->key, topKey )) {
+			topKey = i->key;
+			top = i;
 			topPrev = iPrev;
 		}
-		iPrev = iCur;
-		iCur = iCur->sibling;
+		iPrev = i;
+		i = i->sibling;
 	}
 
-	massert(top != 0);
-	// Удаление корня.
+	massert( top != 0 );
+	// Удаление этой вершины.
 	if( topPrev == 0 ) {
 		head = top->sibling;
 	} else {
 		topPrev->sibling = top->sibling;
 	}
 
-
-	CNode* ret = iCur->child;
-	iCur = iCur->child;
-
-	while( iCur != 0 ) {
-		iCur->parent = 0;
-		iCur = iCur->sibling;
+	i = top->child;
+	//CNode* ret = i->child;
+	// Реверсим список детей (если дети есть).
+	if( i != 0 ) {
+		CNode* temp;
+		CNode* ret = nullptr;
+		while( i ) {
+			temp = i->sibling;
+			i->sibling = ret;
+			ret = i;
+			i = temp;
+		}
+		head = subMeld( head, ret );
 	}
-	head = subMeld( head, ret );
+
 
 	return topKey;
-}*/
+}
 
 
-#include "SingleLinkedList.h"
+/*#include "SingleLinkedList.h"
 
 template<typename T, class Compare>
 class CBinomialHeap : public IMeldableHeap<T, Compare> {
@@ -247,7 +306,7 @@ public:
 	// Конструктор по умолчанию, создаёт пустую кучу.
 	CBinomialHeap() { }
 	// Конструктор, создающий кучу с единственным элементом с ключом key.
-	explicit CBinomialHeap( const T& key ) : head( CLayer(key) ) { }
+	explicit CBinomialHeap( const T& key ) : head( CLayer( key )) { }
 	~CBinomialHeap();
 
 	void Add( const T& key ) override;
@@ -258,12 +317,14 @@ public:
 private:
 
 	struct CLayer {
-		CLayer() :parent( 0 ), degree( 0 ) { }
+		CLayer() : parent( 0 ), degree( 0 ) { }
 		explicit CLayer( const T& _key ) : key( _key ), parent( 0 ), degree( 1 ) { }
-		CLayer(const CLayer& other) :nodes(other.nodes), parent(other.parent), degree(other.degree), key(other.key) {}
-		~CLayer() { std::cout <<"Delete binomial "<<key <<std::endl; }
+		CLayer( const CLayer& other )
+				: nodes( other.nodes ), parent( other.parent ), degree( other.degree ), key( other.key ) { }
+		~CLayer() { std::cout << "Delete binomial " << key << std::endl; }
 		//= default;
-		bool operator<( const CLayer& other ) const { return degree< other.degree ; }
+		bool operator<( const CLayer& other ) const { return degree >
+					other.degree; }
 
 		CSingleLinkedList<CLayer> nodes; // Список детей.
 		CLayer* parent; // Родитель.
@@ -313,11 +374,22 @@ CSingleLinkedList<typename CBinomialHeap<T, Compare>::CLayer>* CBinomialHeap<T, 
 		auto iter2 = x->First()->Next();
 		for( ; iter2 != 0; ) {
 			if( iter1->Value.degree == iter2->Value.degree ) {
-				iter2->Value.parent = &iter1->Value;
-				iter1->Value.nodes.AddFirst( iter2->Value );
-				iter1->Value.degree += iter2->Value.degree;
-				x->DeleteAfter( iter1 );
-				iter2 = iter1->Next();
+				if( Compare()( iter2->Value.key, iter1->Value.key )) {
+					// Цепляем iter2  к iter1.
+					iter2->Value.parent = &iter1->Value;
+					iter1->Value.nodes.AddFirst( iter2->Value );
+					iter1->Value.degree += 1;
+					x->DeleteAfter( iter1 );
+					iter2 = iter1->Next();
+				} else {
+					// Цепляем iter1  к iter2.
+					iter1->Value.parent = &iter2->Value;
+					iter2->Value.nodes.AddFirst( iter1->Value );
+					iter2->Value.degree += 1;
+					x->DeleteAfter( iter2 );
+					iter1 = iter2->Next();
+				}
+
 			} else {
 				iter1 = iter1->Next();
 				iter2 = iter2->Next();
@@ -334,7 +406,7 @@ void CBinomialHeap<T, Compare>::Add( const T& key )
 	//CBinomialHeap<T, Compare> tmp( key );
 	//Meld( tmp );
 	CSingleLinkedList<CLayer>* tmp = new CSingleLinkedList<CLayer>;
-	tmp->AddFirst(new CLayer(key));
+	tmp->AddFirst( new CLayer( key ));
 	head = *subMeld( &head, tmp );
 }
 
@@ -363,10 +435,10 @@ T CBinomialHeap<T, Compare>::ExtractTop()
 		iter->Value.parent = 0;
 	}
 	// Удаляем вершину.
-	delete head.DeleteAfter( beforeTop );
+	head.DeleteAfter( beforeTop );
 
 	// Сливаем кучи.
 	head.Merge( tmp );
 
 	return top;
-}
+}*/

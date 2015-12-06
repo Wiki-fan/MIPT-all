@@ -80,22 +80,25 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 	return ret;
 }
 
-void AddHeaps( std::vector<IMeldableHeap<type, std::greater<type>>*>& binHeaps,
-               std::vector<IMeldableHeap<type, std::greater<type>>*>& leftHeaps,
-               std::vector<IMeldableHeap<type, std::greater<type>>*>& skewHeaps,
+typedef IMeldableHeap<type, std::greater<type>> TestableHeap;
+typedef std::vector<TestableHeap*> TestableHeaps;
+
+void AddHeaps( TestableHeaps& binHeaps,
+               TestableHeaps& leftHeaps,
+               TestableHeaps& skewHeaps,
                const COperationDescr<type>& op )
 {
-	//binHeaps.push_back( new CBinomialHeap<type, std::greater<type>>( op.key ));
+	binHeaps.push_back( new CBinomialHeap<type, std::greater<type>>( op.key ));
 	leftHeaps.push_back( new CLeftistHeap<type, std::greater<type>>( op.key ));
 	skewHeaps.push_back( new CSkewHeap<type, std::greater<type>>( op.key ));
 }
 
-void Insert( std::vector<IMeldableHeap<type, std::greater<type>>*>& heaps, const COperationDescr<type>& op )
+void Insert( TestableHeaps& heaps, const COperationDescr<type>& op )
 {
 	heaps[op.heap1]->Add( op.key );
 }
 
-type ExtractTop( std::vector<IMeldableHeap<type, std::greater<type>>*>& heaps, const COperationDescr<type>& op )
+type ExtractTop( TestableHeaps& heaps, const COperationDescr<type>& op )
 {
 	return heaps[op.heap1]->ExtractTop();
 }
@@ -112,9 +115,10 @@ void TestMyHeaps()
 {
 	const int N = 1000; // Число куч
 	//std::vector<IMeldableHeap<type, std::greater<type>>*> LeftHeaps, BinHeaps, SkewHeaps;
-	std::vector<CLeftistHeap<type, std::greater<type>>*> LeftHeaps;
-	std::vector<CSkewHeap<type, std::greater<type>>*> SkewHeaps;
-	std::vector<CBinomialHeap<type, std::greater<type>>*> BinHeaps;
+	//std::vector<CLeftistHeap<type, std::greater<type>>*> LeftHeaps;
+	TestableHeaps LeftHeaps;
+	TestableHeaps SkewHeaps;
+	TestableHeaps BinHeaps;
 	LeftHeaps.reserve( N );
 	//BinHeaps.reserve( N );
 	SkewHeaps.reserve( N );
@@ -129,13 +133,15 @@ void TestMyHeaps()
 				//AddHeaps( LeftHeaps, SkewHeaps, BinHeaps, *i );
 				LeftHeaps.push_back( new CLeftistHeap<type, std::greater<type>>( i->key ));
 				SkewHeaps.push_back( new CSkewHeap<type, std::greater<type>>( i->key ));
+				BinHeaps.push_back( new CBinomialHeap<type, std::greater<type>>( i->key ));
 				break;
 			case COperationDescr<type>::Operation::Insert:
 				//Insert(BinHeaps, *i);
-				//Insert( LeftHeaps, *i );
-				//Insert( SkewHeaps, *i );
-				LeftHeaps[i->heap1]->Add( i->key );
-				SkewHeaps[i->heap1]->Add( i->key );
+				Insert( LeftHeaps, *i );
+				Insert( SkewHeaps, *i );
+				//LeftHeaps[i->heap1]->Add( i->key );
+				//SkewHeaps[i->heap1]->Add( i->key );
+				//BinHeaps[i->heap1]->Add( i->key );
 				break;
 			case COperationDescr<type>::Operation::ExtractTop:
 				//left = ExtractTop( LeftHeaps, *i );
@@ -143,7 +149,11 @@ void TestMyHeaps()
 				//bin = ExtractTop(BinHeaps, *i);
 				left = LeftHeaps[i->heap1]->ExtractTop();
 				skew = SkewHeaps[i->heap1]->ExtractTop();
-				massert( left == skew );
+				bin = BinHeaps[i->heap1]->ExtractTop();
+
+			std::cout <<left <<' ' <<skew <<' ' <<bin<<std::endl;
+				//massert( left == skew == bin);
+				massert(left == skew && left == bin);
 				break;
 			case COperationDescr<type>::Operation::Meld:
 				//Meld(BinHeaps, *i);
@@ -153,6 +163,9 @@ void TestMyHeaps()
 				SkewHeaps[i->heap1]->Meld( *SkewHeaps[i->heap2]);
 				SkewHeaps[i->heap2] = SkewHeaps.back();
 				SkewHeaps.pop_back();
+				BinHeaps[i->heap1]->Meld( *BinHeaps[i->heap2]);
+				BinHeaps[i->heap2] = BinHeaps.back();
+				BinHeaps.pop_back();
 				//Meld( LeftHeaps, *i );
 				//Meld( SkewHeaps, *i );
 				break;
@@ -175,9 +188,10 @@ void ManualTest()
 	CSkewHeap<int, std::greater<int>> sh;
 	CBinomialHeap<int, std::greater<int>> bh;
 	for( int i = 10; i >= 1; --i ) {
-		lh.Add( i );
-		sh.Add( i );
-		bh.Add( i );
+		int x = rand()%32;
+		lh.Add( x );
+		sh.Add( x );
+		bh.Add( x );
 	}
 	for( int i = 0; i < 10; ++i ) {
 		std::cout << lh.ExtractTop() << ' ' << sh.ExtractTop() << ' ' << bh.ExtractTop() << std::endl;

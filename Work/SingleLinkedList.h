@@ -38,14 +38,16 @@ public:
 	void AddFirst( T& newVal );
 	void AddFirst( T* newVal );
 
-	// Удаляет элемент из списка, но не вызывает его деструктор.
+	// Удаляет элемент из списка.
 	CNode* DeleteAfter( CNode*& node )
 	{
 		if( node != 0 ) {
 			CNode* tmp = node->Next();
 			if( tmp != 0 ) {
 				node->SetNext( node->Next()->Next());
+				tmp->SetNext(0);
 			}
+
 			return tmp;
 		}
 		return 0;
@@ -117,28 +119,28 @@ template<typename T>
 //template<class Compare>
 CSingleLinkedList<T>* CSingleLinkedList<T>::Merge( CSingleLinkedList& other )
 {
-	CSingleLinkedList<T> ret;
+	CSingleLinkedList<T>* ret = new CSingleLinkedList<T>;
 	CNode* iter1 = first;
 	CNode* iter2 = other.first;
 	while( iter1 != 0 && iter2 != 0 ) {
 		if(/*Compare()(iter1, iter2)*/iter1 < iter2 ) {
-			ret.AddFirst( iter1->Value );
+			ret->AddFirst( iter1->Value );
 			iter1 = iter1->Next();
 		} else {
-			ret.AddFirst( iter2->Value );
+			ret->AddFirst( iter2->Value );
 			iter2 = iter2->Next();
 		}
 	}
 	while( iter1 != 0 ) {
-		ret.AddFirst( iter1->Value );
+		ret->AddFirst( iter1->Value );
 		iter1 = iter1->Next();
 	}
 	while( iter2 != 0 ) {
-		ret.AddFirst( iter2->Value );
+		ret->AddFirst( iter2->Value );
 		iter2 = iter2->Next();
 	}
 	other.first = 0;
-	first = ret.first;
-	ret.first = 0;
+	first = ret->first;
+	ret->first = 0;
 	return this;
 }

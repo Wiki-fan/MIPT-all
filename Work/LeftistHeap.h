@@ -25,7 +25,7 @@ private:
 		// Рекурсивный деструктор. Удаляет детей.
 		~CNode()
 		{
-			std::cout << "Delete leftist " << key << std::endl;
+			//std::cout << "Delete leftist " << key << std::endl;
 			delete left;
 			delete right;
 		}
