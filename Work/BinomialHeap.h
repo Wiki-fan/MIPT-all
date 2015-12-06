@@ -118,7 +118,11 @@ class CBinomialHeap : public IMeldableHeap<T, Compare> {
 		CNode() : parent( 0 ), child( 0 ), sibling( 0 ) { }
 		explicit CNode( const T& _key ) : key( _key ), parent( 0 ), child( 0 ),
 		                                  sibling( 0 ), degree( 0 ) { }
-		~CNode() { delete sibling; delete child; }
+		~CNode()
+		{
+			delete sibling;
+			delete child;
+		}
 		T key;
 		CNode* parent;
 		CNode* child;
@@ -132,12 +136,10 @@ public:
 	// Конструктор, создающий кучу с единственным элементом с ключом key.
 	explicit CBinomialHeap( const T& key ) : head( new CNode( key )) { }
 	~CBinomialHeap() { delete head; }
-	void Add( const T& key ) override;
-	T ExtractTop() override;
-	bool isEmpty() override { return head == 0; }
-	//IMeldableHeap<T, Compare>* Meld( CBinomialHeap& other );
+	virtual void Add( const T& key ) override;
+	virtual T ExtractTop() override;
+	virtual bool isEmpty() override { return head == 0; }
 	virtual IMeldableHeap<T, Compare>* Meld( IMeldableHeap<T, Compare>& other ) override;
-
 
 	CNode* head;
 private:
@@ -160,13 +162,13 @@ typename CBinomialHeap<T, Compare>::CNode* CBinomialHeap<T, Compare>::link( CNod
 	y->parent = z;
 	y->sibling = z->child;
 	z->child = y;
-	++(z->degree);
+	++( z->degree );
 }
 
 template<typename T, class Compare>
 typename CBinomialHeap<T, Compare>::CNode* CBinomialHeap<T, Compare>::subMeld( CNode* heap1, CNode* heap2 )
 {
-	if (heap1 == heap2) {
+	if( heap1 == heap2 ) {
 		return heap1;
 	}
 	if( heap1 == 0 ) {
@@ -175,6 +177,7 @@ typename CBinomialHeap<T, Compare>::CNode* CBinomialHeap<T, Compare>::subMeld( C
 	if( heap2 == 0 ) {
 		return heap1;
 	}
+	// Сливаем корневой список в соответствии со степенями.
 	CNode* res = new CNode;
 	CNode* iRes = res, * iHeap1 = heap1, * iHeap2 = heap2;
 	while( iHeap1 != 0 && iHeap2 != 0 ) {
@@ -206,45 +209,28 @@ typename CBinomialHeap<T, Compare>::CNode* CBinomialHeap<T, Compare>::subMeld( C
 	delete res;
 	res = x;
 	CNode* nextx = x->sibling;
-	while (nextx != 0) {
+	while( nextx != 0 ) {
 		// Либо степень разная, либо это первые два дерева в цепочке из трёх одинаковой степени. Просто передвигаем указатель.
-		if (x->degree != nextx->degree || (nextx->sibling != 0 && nextx->sibling->degree == x->degree)) {
+		if( x->degree != nextx->degree || ( nextx->sibling != 0 && nextx->sibling->degree == x->degree )) {
 			prevx = x;
 			x = nextx;
 		} else {
-			//
-			if( Compare()(x->key, nextx->key) || x->key == nextx->key) {
+			if( Compare()( x->key, nextx->key ) || x->key == nextx->key ) { // nextx подцепить к x
 				x->sibling = nextx->sibling;
 				link( nextx, x );
-			} else {
-				if( prevx == 0 ) {
+			} else { // x подцепить к nextx
+				if( prevx == 0 ) { // Если x - первый элемент.
 					res = nextx;
-				} else {
+				} else { // Если x - не первый элемент.
 					prevx->sibling = nextx;
 				}
-				link(x, nextx);
+				link( x, nextx );
 				x = nextx;
 			}
 		}
 		nextx = x->sibling;
 	}
 
-	/*iRes = res;
-	while( iRes->sibling != 0 ) {
-		if( iRes->degree == iRes->sibling->degree ) {
-
-			iRes->degree += 1;
-			iRes->sibling->parent = iRes;
-			CNode* tmp = iRes->sibling;
-			iRes->sibling = iRes->sibling->sibling;
-			tmp->sibling = iRes->child;
-			iRes->child = tmp;
-			continue;
-		}
-		else {
-			iRes = iRes->sibling;
-		}
-	}*/
 	return res;
 }
 
@@ -274,15 +260,21 @@ T CBinomialHeap<T, Compare>::ExtractTop()
 
 	massert( top != 0 );
 	// Удаление этой вершины.
+	i = top->child;
+	CNode* toDelete;
 	if( topPrev == 0 ) {
+		toDelete = top;
 		head = top->sibling;
 	} else {
+		toDelete = topPrev->sibling;
 		topPrev->sibling = top->sibling;
 	}
+	if( toDelete != 0 ) {
+		toDelete->sibling = toDelete->child = 0;
+		delete toDelete;
+	}
 
-	i = top->child;
-	//CNode* ret = i->child;
-	// Реверсим список детей (если дети есть).
+	// Реверсим список детей (если дети есть) и сливаем его с head.
 	if( i != 0 ) {
 		CNode* temp;
 		CNode* ret = nullptr;
@@ -295,10 +287,8 @@ T CBinomialHeap<T, Compare>::ExtractTop()
 		head = subMeld( head, ret );
 	}
 
-
 	return topKey;
 }
-
 
 /*#include "SingleLinkedList.h"
 

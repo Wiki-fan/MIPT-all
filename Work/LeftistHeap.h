@@ -22,7 +22,7 @@ private:
 		// Конструктор по умолчанию.
 		CNode() { }
 		// Вершина, являющаяся вершиной дерева из одного элемента с ключом _key.
-		CNode( const T& _key ) : key( _key ), parent( 0 ), left( 0 ), right( 0 ), dist( 0 ) { }
+		CNode( const T& _key ) : key( _key ), left( 0 ), right( 0 ), dist( 0 ) { }
 		// Рекурсивный деструктор. Удаляет детей.
 		~CNode()
 		{
@@ -30,8 +30,6 @@ private:
 			delete left;
 			delete right;
 		}
-		// Родитель.
-		CNode* parent;
 		// Левый и правый дети.
 		CNode* left, * right;
 		// Расстояние до ближайшей свободной позиции (для листьев - 0).

@@ -43,13 +43,13 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 		int oper = rand() % 4;
 		switch( oper ) {
 			case COperationDescr<type>::Operation::AddHeap:
-				key = rand();
+				key = rand() % 30000;
 				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), 0, 0, key ));
 				numberOfElementsInHeaps.push_back( 0 );
 				++heapCount;
 				break;
 			case COperationDescr<type>::Operation::Insert:
-				key = rand();
+				key = rand() % 30000;
 				heap1 = rand() % heapCount;
 				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), heap1, 0, key ));
 				numberOfElementsInHeaps[heap1]++;

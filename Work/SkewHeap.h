@@ -22,7 +22,7 @@ private:
 		// Конструктор по умолчанию.
 		CNode() { }
 		// Вершина, являющаяся вершиной дерева из одного элемента с ключом _key.
-		CNode( const T& _key ) : key( _key ), parent( 0 ), left( 0 ), right( 0 ) { }
+		CNode( const T& _key ) : key( _key ), left( 0 ), right( 0 ) { }
 		// Рекурсивный деструктор. Удаляет детей.
 		~CNode()
 		{
@@ -30,8 +30,6 @@ private:
 			delete left;
 			delete right;
 		}
-		// Родитель.
-		CNode* parent;
 		// Левый и правый дети.
 		CNode* left, * right;
 		// Ключ вершины.
@@ -51,7 +49,6 @@ void CSkewHeap<T, Compare>::Add( const T& key )
 	// Сливаем его с данным.
 	CNode* node = subMeld( head, tmp );
 	head = node;
-	//delete tmp;
 }
 
 // Извлекает вершину кучи и возвращает её ключ.
@@ -91,14 +88,6 @@ typename CSkewHeap<T, Compare>::CNode* CSkewHeap<T, Compare>::subMeld( CSkewHeap
 	if( y == 0 ) {
 		return x;
 	}
-	/*if( Compare()( x->key, y->key )) {
-		CNode* tmp = x->right;
-		x->right = x->left;
-		x->left = subMeld( y, tmp );
-		return x;
-	} else {
-		return subMeld( y, x );
-	}*/
 	if( Compare()( y->key, x->key )) {
 		std::swap( x, y );
 	}
