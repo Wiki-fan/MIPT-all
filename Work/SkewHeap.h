@@ -14,7 +14,8 @@ public:
 	void Add( const T& key );
 	T ExtractTop();
 	bool isEmpty() { return head == nullptr; }
-	IMeldableHeap<T, Compare>* Meld( CSkewHeap& other );
+	//IMeldableHeap<T, Compare>* Meld( CSkewHeap& other );
+	virtual IMeldableHeap<T, Compare>* Meld( IMeldableHeap<T, Compare>& other ) override;
 
 private:
 	struct CNode {
@@ -69,9 +70,11 @@ T CSkewHeap<T, Compare>::ExtractTop()
 // Сливает кучу с данной. Другая куча становится пустой.
 // Возвращает указатель на данную кучу.
 template<typename T, class Compare>
-IMeldableHeap<T, Compare>* CSkewHeap<T, Compare>::Meld( CSkewHeap& other )
+//IMeldableHeap<T, Compare>* CSkewHeap<T, Compare>::Meld( CSkewHeap& other )
+IMeldableHeap<T, Compare>* CSkewHeap<T, Compare>::Meld( IMeldableHeap<T, Compare>& other )
 {
-	head = subMeld( head, other.head );
+	CSkewHeap& sh = dynamic_cast<CSkewHeap&>(other);
+	head = subMeld( head, sh.head );
 	return this;
 }
 

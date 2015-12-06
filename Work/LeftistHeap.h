@@ -14,7 +14,8 @@ public:
 	virtual void Add( const T& key ) override;
 	virtual T ExtractTop() override;
 	virtual bool isEmpty() override { return head == nullptr; }
-	virtual IMeldableHeap<T, Compare>* Meld( CLeftistHeap& other );
+	//virtual IMeldableHeap<T, Compare>* Meld( CLeftistHeap& other );
+	virtual IMeldableHeap<T, Compare>* Meld( IMeldableHeap<T, Compare>& other ) override;
 
 private:
 	struct CNode {
@@ -74,10 +75,10 @@ T CLeftistHeap<T, Compare>::ExtractTop()
 // Возвращает указатель на данную кучу.
 template<typename T, class Compare>
 //IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( IMeldableHeap& other )
-IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( CLeftistHeap& other )
+IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( IMeldableHeap<T, Compare>& other )
 {
-	CLeftistHeap* lh = dynamic_cast<CLeftistHeap*>(&other);
-	head = subMeld( head, lh->head );
+	CLeftistHeap& lh = dynamic_cast<CLeftistHeap&>(other);
+	head = subMeld( head, lh.head );
 	return this;
 }
 

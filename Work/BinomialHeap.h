@@ -135,7 +135,8 @@ public:
 	void Add( const T& key ) override;
 	T ExtractTop() override;
 	bool isEmpty() override { return head == 0; }
-	IMeldableHeap<T, Compare>* Meld( CBinomialHeap& other );
+	//IMeldableHeap<T, Compare>* Meld( CBinomialHeap& other );
+	virtual IMeldableHeap<T, Compare>* Meld( IMeldableHeap<T, Compare>& other ) override;
 
 
 	CNode* head;
@@ -145,10 +146,11 @@ private:
 };
 
 template<typename T, class Compare>
-IMeldableHeap<T, Compare>* CBinomialHeap<T, Compare>::Meld( CBinomialHeap& other )
+IMeldableHeap<T, Compare>* CBinomialHeap<T, Compare>::Meld( IMeldableHeap<T, Compare>& other )
 {
-	head = subMeld( head, other.head );
-	other.head = 0;
+	CBinomialHeap& bh = dynamic_cast<CBinomialHeap&> (other);
+	head = subMeld( head, bh.head );
+	bh.head = 0;
 	return this;
 }
 
@@ -200,6 +202,7 @@ typename CBinomialHeap<T, Compare>::CNode* CBinomialHeap<T, Compare>::subMeld( C
 
 	CNode* prevx = 0;
 	CNode* x = res->sibling;
+	res->sibling = 0;
 	delete res;
 	res = x;
 	CNode* nextx = x->sibling;
