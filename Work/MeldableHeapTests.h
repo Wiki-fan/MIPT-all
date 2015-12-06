@@ -25,8 +25,8 @@ public:
 
 std::vector<COperationDescr<type>> GenerateTestSequence()
 {
-	const int N = 1000; // Число тестов
-	const int AddN = 100;
+	const int N = 1000000; // Число тестов
+	const int AddN = 10000;
 	std::vector<COperationDescr<type>> ret;
 	std::vector<int> numberOfElementsInHeaps;
 	//ret.reserve( N );
@@ -34,7 +34,7 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 	type key;
 	int heapCount = 0;
 	for( int i = 0; i < AddN; ++i ) {
-		key = rand() % 30000;
+		key = rand();
 		ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( COperationDescr<type>::Operation::AddHeap ), 0, 0, key ));
 		numberOfElementsInHeaps.push_back( 0 );
 		++heapCount;
@@ -43,13 +43,13 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 		int oper = rand() % 4;
 		switch( oper ) {
 			case COperationDescr<type>::Operation::AddHeap:
-				key = rand() % 30000;
+				key = rand();
 				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), 0, 0, key ));
 				numberOfElementsInHeaps.push_back( 0 );
 				++heapCount;
 				break;
 			case COperationDescr<type>::Operation::Insert:
-				key = rand() % 30000;
+				key = rand();
 				heap1 = rand() % heapCount;
 				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), heap1, 0, key ));
 				numberOfElementsInHeaps[heap1]++;
@@ -65,8 +65,8 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 			case COperationDescr<type>::Operation::Meld:
 				key = rand();
 				heap1 = rand() % heapCount;
-				numberOfElementsInHeaps[heap1] += numberOfElementsInHeaps[heap2];
 				heap2 = rand() % heapCount;
+				numberOfElementsInHeaps[heap1] += numberOfElementsInHeaps[heap2];
 				numberOfElementsInHeaps[heap2] = numberOfElementsInHeaps.back();
 				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), heap1, heap2, key ));
 				numberOfElementsInHeaps.pop_back();
@@ -82,18 +82,6 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 
 typedef IMeldableHeap<type, std::greater<type>> TestableHeap;
 typedef std::vector<TestableHeap*> TestableHeaps;
-
-void AddHeaps( TestableHeaps& binHeaps,
-               TestableHeaps& leftHeaps,
-               TestableHeaps& skewHeaps,
-               const COperationDescr<type>& op )
-{
-	binHeaps.push_back( new CBinomialHeap<type, std::greater<type>>( op.key ));
-	leftHeaps.push_back( new CLeftistHeap<type, std::greater<type>>( op.key ));
-	skewHeaps.push_back( new CSkewHeap<type, std::greater<type>>( op.key ));
-	/*leftHeaps.push_back( new CLeftistHeap<type, std::greater<type>>( op.key ));
-	SkewHeaps.push_back( new CSkewHeap<type, std::greater<type>>( i->key ));*/
-}
 
 void Insert( TestableHeaps& heaps, const COperationDescr<type>& op )
 {
@@ -112,56 +100,73 @@ void Meld( std::vector<IMeldableHeap<type, std::greater<type>>*>& heaps, const C
 	heaps.pop_back();
 }
 
-void TestMyHeaps()
-{
-	const int N = 1000; // Число куч
-	TestableHeaps LeftHeaps, SkewHeaps, BinHeaps;
-	LeftHeaps.reserve( N );
-	BinHeaps.reserve( N );
-	SkewHeaps.reserve( N );
-	std::vector<COperationDescr<type>> TestSequence( GenerateTestSequence());
+enum HeapType {
+	Binomial, Leftist, Skew
+};
 
-	type left, skew, bin;
+std::vector<type> TestMyHeap( TestableHeaps& heaps, int heapType, std::vector<COperationDescr<type>>& TestSequence )
+{
 	int cnt = 0;
+	std::vector<type> ret;
 	for( auto i = TestSequence.begin(); i != TestSequence.end(); ++i, ++cnt ) {
 		switch( i->oper ) {
 			case COperationDescr<type>::Operation::AddHeap:
-				//AddHeaps( LeftHeaps, SkewHeaps, BinHeaps, *i );
-				LeftHeaps.push_back( new CLeftistHeap<type, std::greater<type>>( i->key ));
-				SkewHeaps.push_back( new CSkewHeap<type, std::greater<type>>( i->key ));
-				BinHeaps.push_back( new CBinomialHeap<type, std::greater<type>>( i->key ));
+				switch( heapType ) {
+					case HeapType::Binomial:
+						heaps.push_back( new CBinomialHeap<type, std::greater<type>>( i->key ));
+						break;
+					case HeapType::Leftist:
+						heaps.push_back( new CLeftistHeap<type, std::greater<type>>( i->key ));
+						break;
+					case HeapType::Skew:
+						heaps.push_back( new CSkewHeap<type, std::greater<type>>( i->key ));
+						break;
+					default:
+						massert( false );
+				}
 				break;
 			case COperationDescr<type>::Operation::Insert:
-				Insert( BinHeaps, *i );
-				Insert( LeftHeaps, *i );
-				Insert( SkewHeaps, *i );
+				Insert( heaps, *i );
 				break;
 			case COperationDescr<type>::Operation::ExtractTop:
-				left = ExtractTop( LeftHeaps, *i );
-				skew = ExtractTop( SkewHeaps, *i );
-				bin = ExtractTop( BinHeaps, *i );
-				std::cout << left << ' ' << skew << ' ' << bin << std::endl;
-				//massert( left == skew == bin);
-				massert( left == skew && left == bin );
+				ret.push_back( ExtractTop( heaps, *i ));
+				//std::cout << ret << std::endl;
+				//massert( left == skew && left == bin );
 				break;
 			case COperationDescr<type>::Operation::Meld:
-				Meld( BinHeaps, *i );
-				Meld( LeftHeaps, *i );
-				Meld( SkewHeaps, *i );
+				Meld( heaps, *i );
 				break;
 			default:
 				massert( false );
 		}
 	}
-	for( auto i = LeftHeaps.begin(); i != LeftHeaps.end(); ++i ) {
+	for( auto i = heaps.begin(); i != heaps.end(); ++i ) {
 		delete *i;
 	}
-	for( auto i = SkewHeaps.begin(); i != SkewHeaps.end(); ++i ) {
-		delete *i;
-	}
-	for( auto i = BinHeaps.begin(); i != BinHeaps.end(); ++i ) {
-		delete *i;
-	}
+	return ret;
+}
+void TestMyHeaps()
+{
+	TestableHeaps LeftHeaps, SkewHeaps, BinHeaps;
+	std::vector<COperationDescr<type>> TestSequence( GenerateTestSequence());
+
+	//type left, skew, bin;
+	clock_t t;
+	t = clock();
+	std::vector<type> BinomialRet = TestMyHeap( BinHeaps, HeapType::Binomial, TestSequence );
+	double BinTime = double( clock() - t ) / CLOCKS_PER_SEC;
+
+	t = clock();
+	std::vector<type> LeftistRet = TestMyHeap( LeftHeaps, HeapType::Leftist, TestSequence );
+	double LeftTime = double( clock() - t ) / CLOCKS_PER_SEC;
+
+	t = clock();
+	std::vector<type> SkewRet = TestMyHeap( SkewHeaps, HeapType::Skew, TestSequence );
+	double SkewTime = double( clock() - t ) / CLOCKS_PER_SEC;
+
+	massert( BinomialRet == SkewRet && BinomialRet == LeftistRet );
+	printf( "%13f %13f %13f\n", BinTime, LeftTime, SkewTime );
+
 	std::cout << "Testing completed." << std::endl;
 }
 
