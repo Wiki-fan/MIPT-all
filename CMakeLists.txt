@@ -54,7 +54,7 @@ set(SOURCE_FILES
 		Work/MinMaxHeapTests.cpp
 		Work/MinMaxHeapTests.h
 		Work/LeftistHeap.h
-		Work/SkewHeap.h Work/SingleLinkedListTests.cpp)
+		Work/SkewHeap.h Work/SingleLinkedListTests.cpp Work/XMLParser.h)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

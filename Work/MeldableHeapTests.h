@@ -25,8 +25,8 @@ public:
 
 std::vector<COperationDescr<type>> GenerateTestSequence()
 {
-	const int N = 1000000; // Число тестов
-	const int AddN = 10000;
+	const int N = 10000000; // Число тестов
+	const int AddN = 100000;
 	std::vector<COperationDescr<type>> ret;
 	std::vector<int> numberOfElementsInHeaps;
 	//ret.reserve( N );
