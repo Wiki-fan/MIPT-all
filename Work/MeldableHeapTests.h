@@ -25,8 +25,8 @@ public:
 
 std::vector<COperationDescr<type>> GenerateTestSequence()
 {
-	const int N = 10000000; // Число тестов
-	const int AddN = 100000;
+	const int N = 1000000; // Число тестов
+	const int AddN = 1000;
 	std::vector<COperationDescr<type>> ret;
 	std::vector<int> numberOfElementsInHeaps;
 	//ret.reserve( N );
@@ -36,7 +36,7 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 	for( int i = 0; i < AddN; ++i ) {
 		key = rand();
 		ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( COperationDescr<type>::Operation::AddHeap ), 0, 0, key ));
-		numberOfElementsInHeaps.push_back( 0 );
+		numberOfElementsInHeaps.push_back( 1 );
 		++heapCount;
 	}
 	for( int i = AddN; i < N - AddN; ++i ) {
@@ -45,14 +45,14 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 			case COperationDescr<type>::Operation::AddHeap:
 				key = rand();
 				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), 0, 0, key ));
-				numberOfElementsInHeaps.push_back( 0 );
+				numberOfElementsInHeaps.push_back( 1 );
 				++heapCount;
 				break;
 			case COperationDescr<type>::Operation::Insert:
 				key = rand();
 				heap1 = rand() % heapCount;
 				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), heap1, 0, key ));
-				numberOfElementsInHeaps[heap1]++;
+				++numberOfElementsInHeaps[heap1];
 				break;
 			case COperationDescr<type>::Operation::ExtractTop:
 				heap1 = rand() % heapCount;
@@ -68,8 +68,9 @@ std::vector<COperationDescr<type>> GenerateTestSequence()
 				heap2 = rand() % heapCount;
 				numberOfElementsInHeaps[heap1] += numberOfElementsInHeaps[heap2];
 				numberOfElementsInHeaps[heap2] = numberOfElementsInHeaps.back();
-				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), heap1, heap2, key ));
 				numberOfElementsInHeaps.pop_back();
+				ret.push_back( COperationDescr<type>( COperationDescr<type>::Operation( oper ), heap1, heap2, key ));
+
 				--heapCount;
 				break;
 			default:
@@ -165,6 +166,7 @@ void TestMyHeaps()
 	double SkewTime = double( clock() - t ) / CLOCKS_PER_SEC;
 
 	massert( BinomialRet == SkewRet && BinomialRet == LeftistRet );
+	std::cout << "Binomial, Leftist, Skew" << std::endl;
 	printf( "%13f %13f %13f\n", BinTime, LeftTime, SkewTime );
 
 	std::cout << "Testing completed." << std::endl;
