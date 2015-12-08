@@ -129,40 +129,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Calc.cpp" />
-    <ClCompile Include="CalcTests.cpp" />
-    <ClCompile Include="DequeTests.cpp" />
-    <ClCompile Include="ExternalSort.cpp" />
-    <ClCompile Include="ExternalSortTests.cpp" />
-    <ClCompile Include="File.cpp" />
-    <ClCompile Include="HeapForMerge.cpp" />
-    <ClCompile Include="HeapTests.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="OpenAddressHashTableTests.cpp" />
-    <ClCompile Include="SortedListFromFile.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="VectorTests.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Calc.h" />
-    <ClInclude Include="Deque.h" />
-    <ClInclude Include="DequeTests.h" />
-    <ClInclude Include="File.h" />
-    <ClInclude Include="ExternalSort.h" />
-    <ClInclude Include="ChainHashTable.h" />
-    <ClInclude Include="HashTable.h" />
-    <ClInclude Include="Heap.h" />
-    <ClInclude Include="HeapForMerge.h" />
-    <ClInclude Include="OpenAddressHashTable.h" />
-    <ClInclude Include="OpenAddressHashTableTests.h" />
-    <ClInclude Include="PtrOwner.h" />
-    <ClInclude Include="Smth.h" />
-    <ClInclude Include="SortedListFromFile.h" />
-    <ClInclude Include="Stack.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Table.h" />
-    <ClInclude Include="Vector.h" />
-    <ClInclude Include="Sorts.h" />
+    <ClInclude Include="XMLParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

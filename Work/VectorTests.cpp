@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "VectorTests.h"
 #include "Vector.h"
 

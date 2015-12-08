@@ -1,6 +1,19 @@
+SomeUselessText;
 <body>
     Text1.
     <tag1>
         TextInTag1.
     </tag1>
+	<tag2>
+		TextInTag2.
+		<Level3>
+			<Level4>
+				parser 4 lvl!
+			</Level4>
+		</Level3>
+	</tag2>
+	Text2.
 </body>
+SomeOtherUselessText.
+<oh_that_tag_again>
+</oh_that_tag_again>
