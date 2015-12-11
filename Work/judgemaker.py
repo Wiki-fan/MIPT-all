@@ -1,3 +1,4 @@
+#!/bin/python3
 #main_file_name = input("Main file:\n>")
 main_file_name = "main.cpp"
 outf = open("result.cpp", "w")

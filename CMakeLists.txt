@@ -44,7 +44,6 @@ set(SOURCE_FILES
 		Work/TestBracketSequence.cpp
 		Work/TestBracketSequence.h
 		Work/BinomialHeap.h
-		Work/SingleLinkedList.cpp
 		Work/CalcTests.h
 		Work/PtrOwner.h
 		Work/VectorTests.h
@@ -54,7 +53,8 @@ set(SOURCE_FILES
 		Work/MinMaxHeapTests.cpp
 		Work/MinMaxHeapTests.h
 		Work/LeftistHeap.h
-		Work/SkewHeap.h Work/SingleLinkedListTests.cpp Work/XMLParser.h)
+		Work/SkewHeap.h
+		Work/XMLParser.h Work/BinarySearchTree.h Work/CartesianTree.h Work/AVLTree.h)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
