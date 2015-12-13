@@ -3,22 +3,31 @@
 
 class CAVLTree {
 public:
-	CAVLTree() : head( 0 ) { }
+	CAVLTree() : head( 0 ) {}
 	~CAVLTree() { delete head; }
 
-	void Print()
+	void Print() const
 	{
 		inorderWalk( head );
 	}
 
-	void Insert( int key )
+	bool Insert( int key )
 	{
+		fl = 1;
 		head = subInsert( head, key );
+		return fl;
 	}
 
-	void Remove( int key )
+	bool Search( int key ) const
 	{
+		return subSearch( head, key );
+	}
+
+	bool Remove( int key )
+	{
+		fl = 1;
 		head = subRemove( head, key );
+		return fl;
 	}
 
 	int getStatictics( int k ) const
@@ -26,14 +35,16 @@ public:
 		CNode* p = head;
 		for( ; p != 0; ) {
 			if( p->left != 0 && getLeftChildCount( p ) > k ) {
+				k -= /*getRightChildCount( p ) +*/ 1;
 				p = p->left;
 			} else if( p->right != 0 && getLeftChildCount( p ) < k ) {
+				k -= getLeftChildCount( p ) + 1;
 				p = p->right;
 			} else {
 				return p->key;
 			}
 		}
-		return 13;
+		return 0;
 	}
 
 private:
@@ -45,7 +56,9 @@ private:
 		CNode* left;
 		CNode* right;
 		explicit CNode( int _key )
-				: key( _key ), left( 0 ), right( 0 ), height( 1 ), childLeft( 0 ), childRight( 0 ) { }
+			: key( _key ), left( 0 ), right( 0 ), height( 1 ), childLeft( 0 ), childRight( 0 )
+		{
+		}
 		~CNode()
 		{
 			delete left;
@@ -54,6 +67,7 @@ private:
 	};
 
 	CNode* head;
+	mutable bool fl;
 
 	static unsigned char getHeight( CNode* node )
 	{
@@ -64,23 +78,39 @@ private:
 	{
 		return node ? node->childLeft : 0;
 	}
+
+	static void setLeftChildCount( CNode* node, int count )
+	{
+		if( node != 0 ) {
+			node->childLeft = count;
+		}
+	}
+	static void setRightChildCount( CNode* node, int count )
+	{
+		if( node != 0 ) {
+			node->childRight = count;
+		}
+	}
 	static int getRightChildCount( CNode* node )
 	{
 		return node ? node->childRight : 0;
 	}
 
-	static unsigned char recalcHeight( CNode* node )
+	static void recalcHeight( CNode* node )
 	{
 		unsigned char hl = getHeight( node->left );
 		unsigned char hr = getHeight( node->right );
 		node->height = std::max( hl, hr ) + 1;
 	}
 
-	static unsigned char recalcChildCount( CNode* node )
+	static void recalcChildCount( CNode* node )
 	{
-		node->childLeft = getLeftChildCount( node->left ) + getRightChildCount( node->left ) + node->left == 0 ? 0 : 1;
-		node->childRight = getLeftChildCount( node->right ) + getRightChildCount( node->right ) + node->right == 0 ? 0
-		                                                                                                           : 1;
+		node->childLeft = getLeftChildCount( node->left )
+			+ getRightChildCount( node->left )
+			+ (node->left == 0 ? 0 : 1);
+		node->childRight = getLeftChildCount( node->right )
+			+ getRightChildCount( node->right )
+			+ (node->right == 0 ? 0 : 1);
 	}
 
 	static int balanceFactor( CNode* p )
@@ -88,16 +118,18 @@ private:
 		return getHeight( p->right ) - getHeight( p->left );
 	}
 
-	CNode* rotateRight( CNode* p )
+	static CNode* rotateRight( CNode* p )
 	{
 		CNode* q = p->left;
-		/*int A = getChildCount( q->left ),
-				B = getChildCount( q->right ),
-				C = getChildCount( p->right );*/
+		/*int A = getLeftChildCount( q ),
+				B = getRightChildCount( q ),
+				C = getRightChildCount( p );*/
 		p->left = q->right;
 		q->right = p;
-		/*setChildCount( p, B + C );
-		setChildCount( q, A );*/
+		/*setLeftChildCount( p, B);
+		setRightChildCount( p, C );
+		setLeftChildCount( q, A );
+		setRightChildCount( q, getLeftChildCount( p ) + getRightChildCount( p ) + p == 0 ? 0 : 1 );*/
 		recalcHeight( p );
 		recalcHeight( q );
 		recalcChildCount( p );
@@ -105,16 +137,23 @@ private:
 		return q;
 	}
 
-	CNode* rotateLeft( CNode* q ) // левый поворот вокруг q
+	static CNode* rotateLeft( CNode* q ) // левый поворот вокруг q
 	{
 		CNode* p = q->right;
 		/*int A = getChildCount( q->left ),
 				B = getChildCount( p->left ),
 				C = getChildCount( p->right );*/
+				/*int A = getLeftChildCount( q ),
+					B = getLeftChildCount( p ),
+					C = getRightChildCount( p );*/
 		q->right = p->left;
 		p->left = q;
 		/*setChildCount( q, B + C );
 		setChildCount( p, getChildCount( q ) + A );*/
+		/*setLeftChildCount( q, A );
+		setRightChildCount( q, B );
+		setLeftChildCount( p, C );
+		setRightChildCount( p, getLeftChildCount( q ) + getRightChildCount( q ) + q == 0 ? 0 : 1 );*/
 		recalcHeight( q );
 		recalcHeight( p );
 		recalcChildCount( q );
@@ -122,7 +161,7 @@ private:
 		return p;
 	}
 
-	CNode* balance( CNode* p ) // балансировка узла p
+	static CNode* balance( CNode* p ) // балансировка узла p
 	{
 		recalcHeight( p );
 		recalcChildCount( p );
@@ -148,21 +187,23 @@ private:
 			return q;
 		}
 		if( k < p->key ) {
-			++( p->childLeft );
+			++(p->childLeft);
 			p->left = subInsert( p->left, k );
-		} else {
-			++( p->childRight );
+		} else if( k>=p->key ) {
+			++(p->childRight);
 			p->right = subInsert( p->right, k );
+		} else {
+			fl = false;
 		}
 		return balance( p );
 	}
 
-	CNode* findMin( CNode* p ) // поиск узла с минимальным ключом в дереве p
+	static CNode* findMin( CNode* p ) // поиск узла с минимальным ключом в дереве p
 	{
 		return p->left ? findMin( p->left ) : p;
 	}
 
-	CNode* removeMin( CNode* p ) // удаление узла с минимальным ключом из дерева p
+	static CNode* removeMin( CNode* p ) // удаление узла с минимальным ключом из дерева p
 	{
 		if( p->left == 0 ) {
 			return p->right;
@@ -174,7 +215,7 @@ private:
 	CNode* subRemove( CNode* p, int k ) // удаление ключа k из дерева p
 	{
 
-		if( !p ) { return 0; }
+		if( !p ) { fl = 0; return 0; }
 		if( k < p->key ) {
 			p->left = subRemove( p->left, k );
 		} else if( k > p->key ) {
@@ -183,6 +224,7 @@ private:
 		{
 			CNode* q = p->left;
 			CNode* r = p->right;
+			p->left = p->right = 0;
 			delete p;
 			if( !r ) { return q; }
 			CNode* min = findMin( r );
@@ -194,6 +236,21 @@ private:
 			return balance( min );
 		}
 		return balance( p );
+	}
+
+	static bool subSearch( CNode* node, int key )
+	{
+		bool ret = 0;
+		if( node != 0 ) {
+			if( node->key < key ) {
+				ret = subSearch( node->right, key );
+			} else if( node->key > key ) {
+				ret = subSearch( node->right, key );
+			} else {
+				ret = 1;
+			}
+		}
+		return ret;
 	}
 
 	void inorderWalk( CNode* n ) const

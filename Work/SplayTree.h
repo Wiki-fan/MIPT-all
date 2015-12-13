@@ -5,6 +5,22 @@ class CSplayTree {
 public:
 	CSplayTree() : head( 0 ) { }
 	~CSplayTree() { delete head; }
+
+	bool Search( int key )
+	{
+		return 0;
+	}
+
+	bool Insert( int key)
+	{
+		return 0;
+	}
+
+	bool Remove(int key)
+	{
+		return 0;
+	}
+	
 private:
 	struct CNode {
 		int key;
@@ -23,14 +39,14 @@ private:
 
 	CNode* head;
 
-	CNode* rightRotate( CNode* k2 )
+	static CNode* rightRotate( CNode* k2 )
 	{
 		CNode* k1 = k2->left;
 		k2->left = k1->left;
 		k1->right = k2;
 		return k1;
 	}
-	CNode* leftRotate( CNode* k2 )
+	static CNode* leftRotate( CNode* k2 )
 	{
 		CNode* k1 = k2->right;
 		k2->right = k1->left;
@@ -38,7 +54,7 @@ private:
 		return k1;
 	}
 
-	CNode* splay( int key, CNode* root )
+	static CNode* splay( int key, CNode* root )
 	{
 		if( !root ) {
 			return 0;
@@ -87,7 +103,7 @@ private:
 		return root;
 	}
 
-	CNode* subInsert( int key, CNode* root )
+	static CNode* subInsert( int key, CNode* root )
 	{
 		static CNode* p_node = NULL;
 		if( !p_node ) {
@@ -122,7 +138,7 @@ private:
 		return root;
 	}
 
-	CNode* Delete( int key, CNode* root )
+	static CNode* subRemove( int key, CNode* root )
 	{
 		CNode* temp;
 		if( !root ) {
@@ -148,4 +164,6 @@ private:
 			return root;
 		}
 	}
+
+	
 };

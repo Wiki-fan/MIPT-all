@@ -133,6 +133,8 @@
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AVLTree.h" />
+    <ClInclude Include="SplayTree.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="XMLParser.h" />
   </ItemGroup>

@@ -8,6 +8,7 @@ def work(main_file_name, outf):
     try:
         mf = open(main_file_name, encoding="utf-8-sig", mode="r")
     except OSError:
+        print ("No such file")
         return
     for s in mf.readlines():
         #print (s)

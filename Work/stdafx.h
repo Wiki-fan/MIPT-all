@@ -22,6 +22,7 @@
 #include <vector>
 #include <list>
 #include <forward_list>
+#include <set>
 #include <string>
 #include <algorithm>
 #include <iterator>
