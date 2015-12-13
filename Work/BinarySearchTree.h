@@ -1,8 +1,9 @@
 #pragma once
 #include "stdafx.h"
+#include "TreeBase.h"
 
 template<typename T>
-class CBinarySearchTree {
+class CBinarySearchTree : public CTreeBase<T> {
 
 public:
 	CBinarySearchTree() : head( 0 ), height( 0 ), curHeight( 0 ) { }

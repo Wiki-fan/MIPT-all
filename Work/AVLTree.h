@@ -1,10 +1,15 @@
 #pragma once
 #include "stdafx.h"
 
-class AVLTree {
+class CAVLTree {
 public:
-	AVLTree() : head( 0 ) { }
-	~AVLTree() { delete head; }
+	CAVLTree() : head( 0 ) { }
+	~CAVLTree() { delete head; }
+
+	void Print()
+	{
+		inorderWalk( head );
+	}
 
 	void Insert( int key )
 	{
@@ -13,32 +18,34 @@ public:
 
 	void Remove( int key )
 	{
-		subRemove( head, key );
+		head = subRemove( head, key );
 	}
 
-	int getStatictics( int k )
+	int getStatictics( int k ) const
 	{
-		/*CNode* p = head;
+		CNode* p = head;
 		for( ; p != 0; ) {
-			if( p->left != 0 && getChildCount(p->left) > k ) {
-				p = p->right;
-			} else if( p->right != 0 && getChildCount(p->left) < k ) {
+			if( p->left != 0 && getLeftChildCount( p ) > k ) {
+				p = p->left;
+			} else if( p->right != 0 && getLeftChildCount( p ) < k ) {
 				p = p->right;
 			} else {
 				return p->key;
 			}
-		}*/
+		}
+		return 13;
 	}
 
 private:
 
 	struct CNode {
 		int key;
-		int childCount;
+		int childLeft, childRight;
 		unsigned char height;
 		CNode* left;
 		CNode* right;
-		explicit CNode( int _key ) : key( _key ), left( 0 ), right( 0 ), height( 1 ), childCount( 0 ) { }
+		explicit CNode( int _key )
+				: key( _key ), left( 0 ), right( 0 ), height( 1 ), childLeft( 0 ), childRight( 0 ) { }
 		~CNode()
 		{
 			delete left;
@@ -48,29 +55,35 @@ private:
 
 	CNode* head;
 
-	unsigned char getHeight( CNode* node )
+	static unsigned char getHeight( CNode* node )
 	{
 		return node ? node->height : 0;
 	}
 
-	int getChildCount( CNode* node )
+	static int getLeftChildCount( CNode* node )
 	{
-		return node ? node->childCount : 0;
+		return node ? node->childLeft : 0;
+	}
+	static int getRightChildCount( CNode* node )
+	{
+		return node ? node->childRight : 0;
 	}
 
-	void setChildCount( CNode* node, int childCount )
-	{
-		if( node != 0 ) { node->childCount = childCount; }
-	}
-
-	unsigned char recalcHeight( CNode* node )
+	static unsigned char recalcHeight( CNode* node )
 	{
 		unsigned char hl = getHeight( node->left );
 		unsigned char hr = getHeight( node->right );
 		node->height = std::max( hl, hr ) + 1;
 	}
 
-	int balanceFactor( CNode* p )
+	static unsigned char recalcChildCount( CNode* node )
+	{
+		node->childLeft = getLeftChildCount( node->left ) + getRightChildCount( node->left ) + node->left == 0 ? 0 : 1;
+		node->childRight = getLeftChildCount( node->right ) + getRightChildCount( node->right ) + node->right == 0 ? 0
+		                                                                                                           : 1;
+	}
+
+	static int balanceFactor( CNode* p )
 	{
 		return getHeight( p->right ) - getHeight( p->left );
 	}
@@ -78,36 +91,41 @@ private:
 	CNode* rotateRight( CNode* p )
 	{
 		CNode* q = p->left;
-		int A = getChildCount( q->left ),
+		/*int A = getChildCount( q->left ),
 				B = getChildCount( q->right ),
-				C = getChildCount( p->right );
+				C = getChildCount( p->right );*/
 		p->left = q->right;
 		q->right = p;
-		setChildCount( p, B + C );
-		setChildCount( q, A );
+		/*setChildCount( p, B + C );
+		setChildCount( q, A );*/
 		recalcHeight( p );
 		recalcHeight( q );
+		recalcChildCount( p );
+		recalcChildCount( q );
 		return q;
 	}
 
 	CNode* rotateLeft( CNode* q ) // левый поворот вокруг q
 	{
 		CNode* p = q->right;
-		int A = getChildCount( q->left ),
+		/*int A = getChildCount( q->left ),
 				B = getChildCount( p->left ),
-				C = getChildCount( p->right );
+				C = getChildCount( p->right );*/
 		q->right = p->left;
 		p->left = q;
-		setChildCount( q, B + C );
-		setChildCount( p, getChildCount( q ) + A );
+		/*setChildCount( q, B + C );
+		setChildCount( p, getChildCount( q ) + A );*/
 		recalcHeight( q );
 		recalcHeight( p );
+		recalcChildCount( q );
+		recalcChildCount( p );
 		return p;
 	}
 
 	CNode* balance( CNode* p ) // балансировка узла p
 	{
 		recalcHeight( p );
+		recalcChildCount( p );
 		if( balanceFactor( p ) == 2 ) {
 			if( balanceFactor( p->right ) < 0 ) {
 				p->right = rotateRight( p->right );
@@ -130,10 +148,10 @@ private:
 			return q;
 		}
 		if( k < p->key ) {
-			++( p->childCount );
+			++( p->childLeft );
 			p->left = subInsert( p->left, k );
 		} else {
-			++( p->childCount );
+			++( p->childRight );
 			p->right = subInsert( p->right, k );
 		}
 		return balance( p );
@@ -170,9 +188,22 @@ private:
 			CNode* min = findMin( r );
 			min->right = removeMin( r );
 			min->left = q;
+			/*recalcChildCount(min->right);
+			recalcChildCount(min->left);
+			recalcChildCount(min);*/
 			return balance( min );
 		}
 		return balance( p );
+	}
+
+	void inorderWalk( CNode* n ) const
+	{
+		if( n != 0 ) {
+			inorderWalk( n->left );
+			std::cout << n->key << ' ' << ' ' << n->childLeft << ' ' << n->childRight << std::endl;
+			inorderWalk( n->right );
+		}
+
 	}
 
 

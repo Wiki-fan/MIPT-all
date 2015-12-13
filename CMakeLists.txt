@@ -6,7 +6,7 @@ project(didactic_woof)
 set(CMAKE_CONFIGURATION_TYPES "Release;Debug;MyDebug" CACHE STRING "" FORCE)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-SET(CMAKE_CXX_FLAGS_MYDEBUG "-Wall -Wabi -g -p" CACHE STRING
+SET(CMAKE_CXX_FLAGS_MYDEBUG "-gdwarf-2 -Wall -Wabi -g -p" CACHE STRING
 		"My debug, lol."
 		FORCE)
 
@@ -54,7 +54,7 @@ set(SOURCE_FILES
 		Work/MinMaxHeapTests.h
 		Work/LeftistHeap.h
 		Work/SkewHeap.h
-		Work/XMLParser.h Work/BinarySearchTree.h Work/CartesianTree.h Work/AVLTree.h)
+		Work/XMLParser.h Work/BinarySearchTree.h Work/CartesianTree.h Work/AVLTree.h Work/TreeBase.h Work/SplayTree.h)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

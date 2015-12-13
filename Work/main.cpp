@@ -21,7 +21,7 @@ void Task1()
 
 void Task2()
 {
-	AVLTree t;
+	CAVLTree t;
 
 	int N;
 	scanf( "%d", &N );
@@ -34,9 +34,36 @@ void Task2()
 			t.Remove( -a );
 		}
 		printf( "%d\n", t.getStatictics( k ));
+		t.Print();
+		std::cout << std::endl;
 	}
+	std::cout << "Stay here!";
 
 }
+
+/*void Task3()
+{
+	CSplayTree t;
+	char command = 0;
+	while( std::cin >> command ) {
+		std::string key;
+		std::cin >> key;
+		switch( command ) {
+			case '?':
+				std::cout << (t.s( key ) ? "OK" : "FAIL") << std::endl;
+				break;
+			case '+':
+				std::cout << (t.Insert( key ) ? "OK" : "FAIL") << std::endl;
+				break;
+			case '-':
+				std::cout << (hashTable.Remove( key ) ? "OK" : "FAIL") << std::endl;
+				break;
+			default:
+				//massert( false );
+				continue;
+		}
+	}
+}*/
 
 int main()
 {
