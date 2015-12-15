@@ -38,5 +38,23 @@
     <ClInclude Include="SplayTree.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="BinarySearchTree.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CartesianTree.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="AVLTreeTests.h">
+      <Filter>Тесты</Filter>
+    </ClInclude>
+    <ClInclude Include="ITree.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CartesianTreeTests.h">
+      <Filter>Тесты</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseTable.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

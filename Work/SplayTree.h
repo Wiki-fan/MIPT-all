@@ -1,35 +1,63 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
+#include "ITree.h"
 
-class CSplayTree {
+class CSplayTree : public ITree<int> {
+
 public:
-	CSplayTree() : head( 0 ) { }
+	CSplayTree() : head( 0 ) {}
 	~CSplayTree() { delete head; }
 
-	bool Search( int key )
+	// Вставка элемента с ключом key.
+	bool Insert( const int& key )
 	{
-		return 0;
+		//Разбиваем дерево по ключу.
+		CNode* l, *r;
+		split( head, key, l, r );
+		// Цепляем получившиеся поддеревья к новой вершине.
+		head = new CNode( key, l, r, 0 );
+		setParent( l, head );
+		setParent( r, head );
 	}
 
-	bool Insert( int key)
+	// Поиск элемента с ключом key.
+	bool Search( const int& key ) const
 	{
-		return 0;
+		return subSearch( head, key );
 	}
 
-	bool Remove(int key)
+	// Удаление элемента с ключом key.
+	bool Remove( const int& key )
 	{
-		return 0;
+		// Ищем нужный элемент и заодно тянем его в вершину.
+		head = subSearch( head, key );
+		setParent( head->left, 0 );
+		setParent( head->right, 0 );
+		
+		// Сливаем его детей.
+		head = Merge( head->left, head->right );
+		// Удаляем ненужный элемент.
+		CNode* tmp = head;
+		tmp->left = tmp->right = 0;
+		delete tmp;
+		return true;
 	}
-	
+
 private:
 	struct CNode {
 		int key;
 		CNode* parent;
 		CNode* left;
 		CNode* right;
-		CNode() { }
+		CNode() {}
 		explicit CNode( int _key )
-				: key( _key ), left( 0 ), right( 0 ), parent( 0 ) { }
+			: key( _key ), left( 0 ), right( 0 ), parent( 0 )
+		{
+		}
+		CNode(int _key, CNode* _left, CNode* _right, CNode* _parent)
+			: key( _key ), left( _left ), right( _right ), parent( _parent )
+		{
+		}
 		~CNode()
 		{
 			delete left;
@@ -38,27 +66,135 @@ private:
 	};
 
 	CNode* head;
+	bool fl;
 
-	static CNode* rightRotate( CNode* k2 )
+	static CNode* rotateRight( CNode* p )
 	{
-		CNode* k1 = k2->left;
-		k2->left = k1->left;
-		k1->right = k2;
-		return k1;
-	}
-	static CNode* leftRotate( CNode* k2 )
-	{
-		CNode* k1 = k2->right;
-		k2->right = k1->left;
-		k1->left = k2;
-		return k1;
+		CNode* q = p->left;
+		p->left = q->right;
+		q->right = p;
+		return q;
 	}
 
-	static CNode* splay( int key, CNode* root )
+	static CNode* rotateLeft( CNode* q ) // левый поворот вокруг q
+	{
+		CNode* p = q->right;
+		q->right = p->left;
+		p->left = q;
+		return p;
+	}
+
+	static CNode * rotate( CNode*& p, CNode*& parent )
+	{
+		CNode* gparent = parent->parent;
+		if( gparent != 0 ) {
+			if( parent->left == p ) {
+				parent = rotateRight( parent );
+			} else {
+				parent = rotateRight( parent );
+			}
+		}
+
+	}
+
+	static CNode* splay( CNode* p )
+	{
+		if( p == 0 ) {
+			return 0;
+		}
+		// p уже в корне, некуда тянуть.
+		if( p->parent == 0 ) {
+			return p;
+		}
+		CNode* parent = p->parent;
+		CNode* gparent = parent->parent;
+		// zig
+		if( gparent == 0 ) {
+			rotate( p, parent );
+			return parent;
+		} else {
+			bool zigzig = (gparent->left == parent) == (parent->left == p);
+			// zigzig
+			if( zigzig ) {
+				rotate( parent, gparent );
+				rotate( p, parent );
+			} else { // zigzag
+				rotate( p, parent ); 
+				rotate( parent, gparent );
+			}
+		}
+		return splay( p );
+	}
+
+	static CNode* subSearch(CNode* node, int key )
+	{
+		if( node == 0 ) {
+			return 0; // Если не нашли.
+		} else {
+			if( node->key < key ) {
+				return subSearch( node->right, key );
+			} else if( node->key > key ) {
+				return subSearch( node->right, key );
+			} else {
+				return node; // Если нашли.
+			}
+		}
+		return splay( node ); // Тащим вверх.
+	}
+
+	static void split(CNode* p, int key, CNode*& l, CNode*& r)
+	{
+		if (p == 0 ) {
+			l = r = 0;
+			return;
+		}
+		p = subSearch( p, key );
+		if (p->key == key ) {
+			setParent( p->left, 0 );
+			setParent( p->right, 0 );
+			l = p->left;
+			r = p->right;
+		} else if ( p->key < key) {
+			r = p->right;
+			p->right = 0;
+			setParent( r, 0 );
+			l = p;
+		} else {
+			l = p->left;
+			p->left = 0;
+			setParent( l, 0 );
+			r = p;
+		}
+	}
+
+	static void setParent(CNode* p, CNode* parent)
+	{
+		if (p != 0 ) {
+			p->parent = parent;
+		}
+	}
+
+	// Сливает два поддерева. Гарантируется, что l->key < r->key.
+	static CNode* Merge(CNode* l, CNode* r)
+	{
+		if (r == 0 ) {
+			return l;
+		}
+		if (l == 0 ) {
+			return r;
+		}
+		r = subSearch( r, l->key ); // Ищем элемент с наименьшим ключом
+		r->left = l;
+		l->parent = r;
+		return r;
+	}
+
+	/*static CNode* splay( int key, CNode* root )
 	{
 		if( !root ) {
 			return 0;
 		}
+		if ( )
 		CNode header;
 		CNode* LeftTreeMax = &header;
 		CNode* RightTreeMin = &header;
@@ -117,8 +253,6 @@ private:
 			return root;
 		}
 		root = splay( key, root );
-		/* This is BST that, all keys <= root->key is in root->left, all keys > 
-		   root->key is in root->right. (This BST doesn't allow duplicate keys.) */
 		if( key < root->key ) {
 			p_node->left = root->left;
 			p_node->right = root;
@@ -154,16 +288,13 @@ private:
 			}
 			else {
 				temp = root;
-				/*Note: Since key == root->key, so after Splay(key, root->left), 
-				  the tree we get will have no right child tree. (key > any key in 
-				  root->left)*/
 				root = splay( key, root->left );
 				root->right = temp->right;
 			}
 			delete temp;
 			return root;
 		}
-	}
+	}*/
 
-	
+
 };

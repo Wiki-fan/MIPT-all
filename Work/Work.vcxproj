@@ -134,8 +134,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AVLTree.h" />
+    <ClInclude Include="AVLTreeTests.h" />
+    <ClInclude Include="BinarySearchTree.h" />
+    <ClInclude Include="CartesianTree.h" />
+    <ClInclude Include="CartesianTreeTests.h" />
+    <ClInclude Include="SparseTable.h" />
     <ClInclude Include="SplayTree.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="ITree.h" />
     <ClInclude Include="XMLParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

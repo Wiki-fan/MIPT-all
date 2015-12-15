@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "BinarySearchTree.h"
 
+// Декартово дерево.
 template<typename T>
 class CCartesianTree {
 
@@ -9,8 +10,9 @@ public:
 	CCartesianTree() : head( 0 ), curHeight( 0 ), maxHeight( 0 ) { }
 	~CCartesianTree() { delete head; }
 
+	// Вставка ключа x с приоритутом y.
 	void Insert( const T& x, const T& y );
-
+	// Высота дерева.
 	int calcHeight() const;
 
 private:
@@ -25,7 +27,6 @@ private:
 		T key, prior;
 		CNode* left;
 		CNode* right;
-		//CNode* parent;
 
 	};
 
@@ -69,7 +70,8 @@ void CCartesianTree<T>::Insert( const T& x, const T& y )
 
 }
 
-
+// Подпрограмма разбиения дерева.
+// Проматывает до вершины с ключом key и режет. Результат пишет в l и r.
 template<typename T>
 void CCartesianTree<T>::subSplit( CCartesianTree::CNode* t, T key, CCartesianTree::CNode*& l, CCartesianTree::CNode*& r )
 {
@@ -93,6 +95,7 @@ int CCartesianTree<T>::calcHeight() const
 	return maxHeight;
 }
 
+// Обход, который считает высоту.
 template<typename T>
 void CCartesianTree<T>::inorderTraversal( CCartesianTree::CNode* node ) const
 {
@@ -107,15 +110,16 @@ void CCartesianTree<T>::inorderTraversal( CCartesianTree::CNode* node ) const
 	}
 }
 
+// Подпрограмма вставки it в дерево t.
 template<typename T>
 void CCartesianTree<T>::subInsert( CCartesianTree::CNode*& t, CCartesianTree::CNode* it )
 {
-	if( t == 0 ) {
+	if( t == 0 ) { // Если доходим до листа, то вставляем.
 		t = it;
-	} else if( it->prior > t->prior ) {
-		subSplit( t, it->key, it->left, it->right );
-		t = it;
+	} else if( it->prior > t->prior ) { // Если доходим до первой вершины с меньшим приоритетом
+		subSplit( t, it->key, it->left, it->right ); // Разбиваем от этой вершины.
+		t = it; 
 	} else {
-		subInsert( it->key < t->key ? t->left : t->right, it );
+		subInsert( it->key < t->key ? t->left : t->right, it ); //Иначе идём дальше.
 	}
 }
