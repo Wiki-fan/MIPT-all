@@ -56,5 +56,17 @@
     <ClInclude Include="SparseTable.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="SegmentTree.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseTableTests.h">
+      <Filter>Тесты</Filter>
+    </ClInclude>
+    <ClInclude Include="SplayTreeTests.h">
+      <Filter>Тесты</Filter>
+    </ClInclude>
+    <ClInclude Include="SegmentTreeTests.h">
+      <Filter>Тесты</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,9 +1,9 @@
 SomeUselessText;
 <body>
-    Text1.
-    <tag1>
-        TextInTag1.
-    </tag1>
+	Text1.
+	<tag1>
+	TextInTag1.
+	</tag1>
 	<tag2>
 		TextInTag2.
 		<Level3>

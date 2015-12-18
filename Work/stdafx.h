@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <iterator>
 #include <functional>
+#include <memory>
 
 typedef long long int mysize;
 typedef long long int type;

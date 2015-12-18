@@ -88,19 +88,17 @@ typename CBinarySearchTree<T>::CNode* CBinarySearchTree<T>::subInsert( CBinarySe
 	return node;
 }
 
+// Ищет вершину с ключом key.
 template <typename T>
 typename CBinarySearchTree<T>::CNode * CBinarySearchTree<T>::subSearch( CNode *node, T key )
 {
-	if( node == 0 ) {
-		return 0;
-	} else {
+	if( node == 0 || node->key == key ) { // Либо найдена, либо таковой не имеется.
+		return node;
+	} else { // Иначе ищем дальше.
 		if( node->key < key ) {
 			return subSearch( node->right, key );
 		} else if( node->key > key ) {
-			return subSearch( node->right, key );
-		} else {
-			return node;
+			return subSearch( node->left, key );
 		}
 	}
-	return 0;
 }

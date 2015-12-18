@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "stdafx.h"
 
 class CMatrix {
@@ -28,25 +28,25 @@ public:
 	int getWidth() const { return w; }
 
 private:
-	int** m; // Первый индекс - строка, второй - столбец.
-	int w; // Количество столбцов.
-	int h; // Количество строк.
+	int** m; // РџРµСЂРІС‹Р№ РёРЅРґРµРєСЃ - СЃС‚СЂРѕРєР°, РІС‚РѕСЂРѕР№ - СЃС‚РѕР»Р±РµС†.
+	int w; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚РѕР»Р±С†РѕРІ.
+	int h; // РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє.
 };
 class CSparseTable {
 public:
 	explicit CSparseTable( std::vector<int>& a ) :m( a.size(), roundedLog( a.size() )+1)
 	{
-		// Первая строка - исходный массив.
+		// РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° - РёСЃС…РѕРґРЅС‹Р№ РјР°СЃСЃРёРІ.
 		for( int i = 0; i < a.size(); ++i ) {
 			m( 0, i ) = a[i];
 		}
-		// Заполняем остальные.
+		// Р—Р°РїРѕР»РЅСЏРµРј РѕСЃС‚Р°Р»СЊРЅС‹Рµ.
 		for( int i = 1; i < m.getHeight(); ++i ) {
 			for( int j = 0; j < m.getWidth(); ++j ) {
 				m( i, j ) = std::min( m( i - 1, j ), m( i - 1, j + pow( 2, i - 1 ) ) );
 			}
 		}
-		// Предпросчитываем логарифмы.
+		// РџСЂРµРґРїСЂРѕСЃС‡РёС‚С‹РІР°РµРј Р»РѕРіР°СЂРёС„РјС‹.
 		for( int i = 1; i < m.getWidth()+2;++i ) {
 			logs.push_back( roundedLog( i ) );
 		}
@@ -57,7 +57,7 @@ public:
 	int RMQ(int l, int r)
 	{
 		r -= 1; l -= 1;
-		int k = logs[ r - l+1 ]; // Логарифм расстояния между краями.
+		int k = logs[ r - l+1 ]; // Р›РѕРіР°СЂРёС„Рј СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РјРµР¶РґСѓ РєСЂР°СЏРјРё.
 		return std::min( m( k,l ), m(  k,r - pow( 2, k )+1  ) );
 	}
 private:

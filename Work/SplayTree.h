@@ -11,6 +11,10 @@ public:
 	// Вставка элемента с ключом key.
 	bool Insert( const int& key )
 	{
+		// Если такой элемент уже есть, не добавляем.
+		if ( Search( key ) ) {
+			return false;
+		}
 		//Разбиваем дерево по ключу.
 		CNode* l, *r;
 		split( head, key, l, r );
@@ -18,12 +22,13 @@ public:
 		head = new CNode( key, l, r, 0 );
 		setParent( l, head );
 		setParent( r, head );
+		return true;
 	}
 
 	// Поиск элемента с ключом key.
 	bool Search( const int& key ) const
 	{
-		return subSearch( head, key );
+		return (subSearch( head, key )->key == key);
 	}
 
 	// Удаление элемента с ключом key.
@@ -31,10 +36,13 @@ public:
 	{
 		// Ищем нужный элемент и заодно тянем его в вершину.
 		head = subSearch( head, key );
+		if( head->key != key ) {
+			return false; // Не нашли нужного.
+		}
+
+		// Сливаем его детей.
 		setParent( head->left, 0 );
 		setParent( head->right, 0 );
-		
-		// Сливаем его детей.
 		head = Merge( head->left, head->right );
 		// Удаляем ненужный элемент.
 		CNode* tmp = head;
@@ -49,13 +57,14 @@ private:
 		CNode* parent;
 		CNode* left;
 		CNode* right;
-		CNode() {}
+		CNode(): key(0), parent(nullptr), left(nullptr), right(nullptr)
+		{}
 		explicit CNode( int _key )
-			: key( _key ), left( 0 ), right( 0 ), parent( 0 )
+			: key( _key ), parent( 0 ), left( 0 ), right( 0 )
 		{
 		}
 		CNode(int _key, CNode* _left, CNode* _right, CNode* _parent)
-			: key( _key ), left( _left ), right( _right ), parent( _parent )
+			: key( _key ), parent( _parent ), left( _left ), right( _right )
 		{
 		}
 		~CNode()
@@ -84,7 +93,7 @@ private:
 		return p;
 	}
 
-	static CNode * rotate( CNode*& p, CNode*& parent )
+	static void rotate( CNode*& p, CNode*& parent )
 	{
 		CNode* gparent = parent->parent;
 		if( gparent != 0 ) {
@@ -126,20 +135,21 @@ private:
 		return splay( p );
 	}
 
+	// Ищет вершину с ключом key (или ближайшую к ней по значению, если вершины с key нет), и тянет её вверх.
 	static CNode* subSearch(CNode* node, int key )
 	{
-		if( node == 0 ) {
-			return 0; // Если не нашли.
-		} else {
-			if( node->key < key ) {
+		if( node == 0  ) { // Если нужной вершины не имеется, тянем ближайшую.
+			return splay(node->parent);
+		} else { // Иначе ищем дальше.
+			if( node->key < key && node->right != 0) {
 				return subSearch( node->right, key );
-			} else if( node->key > key ) {
-				return subSearch( node->right, key );
-			} else {
-				return node; // Если нашли.
+			} else if( node->key > key && node->left != 0) {
+				return subSearch( node->left, key );
+			} else { // Если найдена нужная.
+				return splay( node );
 			}
 		}
-		return splay( node ); // Тащим вверх.
+		//return splay( node ); // Тащим вверх.
 	}
 
 	static void split(CNode* p, int key, CNode*& l, CNode*& r)

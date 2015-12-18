@@ -138,8 +138,12 @@
     <ClInclude Include="BinarySearchTree.h" />
     <ClInclude Include="CartesianTree.h" />
     <ClInclude Include="CartesianTreeTests.h" />
+    <ClInclude Include="SegmentTree.h" />
+    <ClInclude Include="SegmentTreeTests.h" />
     <ClInclude Include="SparseTable.h" />
+    <ClInclude Include="SparseTableTests.h" />
     <ClInclude Include="SplayTree.h" />
+    <ClInclude Include="SplayTreeTests.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ITree.h" />
     <ClInclude Include="XMLParser.h" />
