@@ -31,7 +31,7 @@ private:
 		CNode* left;
 		CNode* right;
 		explicit CNode( int _key )
-			: key( _key ), left( 0 ), right( 0 ), height( 1 ), childLeft( 0 ), childRight( 0 )
+			: key( _key ), childLeft( 0 ), childRight( 0 ), height( 1 ), left( 0 ), right( 0 )
 		{
 		}
 		~CNode()

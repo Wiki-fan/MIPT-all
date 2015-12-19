@@ -144,7 +144,7 @@ public:
 	CNode* head;
 private:
 	CNode* subMeld( CNode* heap1, CNode* heap2 );
-	CNode* link( CNode* heap1, CNode* heap2 );
+	void link( CNode* heap1, CNode* heap2 );
 };
 
 template<typename T, class Compare>
@@ -157,7 +157,7 @@ IMeldableHeap<T, Compare>* CBinomialHeap<T, Compare>::Meld( IMeldableHeap<T, Com
 }
 
 template<typename T, class Compare>
-typename CBinomialHeap<T, Compare>::CNode* CBinomialHeap<T, Compare>::link( CNode* y, CNode* z )
+void CBinomialHeap<T, Compare>::link( CNode* y, CNode* z )
 {
 	y->parent = z;
 	y->sibling = z->child;

@@ -72,6 +72,10 @@
     <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Program Files %28x86%29\Visual Leak Detector\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -138,6 +142,8 @@
     <ClInclude Include="BinarySearchTree.h" />
     <ClInclude Include="CartesianTree.h" />
     <ClInclude Include="CartesianTreeTests.h" />
+    <ClInclude Include="MeldableHeap.h" />
+    <ClInclude Include="MeldableHeapTests.h" />
     <ClInclude Include="SegmentTree.h" />
     <ClInclude Include="SegmentTreeTests.h" />
     <ClInclude Include="SparseTable.h" />

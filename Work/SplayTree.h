@@ -5,14 +5,14 @@
 class CSplayTree : public ITree<int> {
 
 public:
-	CSplayTree() : head( 0 ) {}
+	CSplayTree() : head( 0 ), fl(0) {}
 	~CSplayTree() { delete head; }
 
 	// Вставка элемента с ключом key.
-	bool Insert( const int& key )
+	bool Insert( const int& key ) override
 	{
 		// Если такой элемент уже есть, не добавляем.
-		if ( Search( key ) ) {
+		if( !Search( key ) ) {
 			return false;
 		}
 		//Разбиваем дерево по ключу.
@@ -26,17 +26,17 @@ public:
 	}
 
 	// Поиск элемента с ключом key.
-	bool Search( const int& key ) const
+	bool Search( const int& key ) const override
 	{
-		return (subSearch( head, key )->key == key);
+		return subSearch( head, key );
 	}
 
 	// Удаление элемента с ключом key.
-	bool Remove( const int& key )
+	bool Remove( const int& key ) override
 	{
 		// Ищем нужный элемент и заодно тянем его в вершину.
 		head = subSearch( head, key );
-		if( head->key != key ) {
+		if( head == 0) {
 			return false; // Не нашли нужного.
 		}
 
@@ -57,13 +57,14 @@ private:
 		CNode* parent;
 		CNode* left;
 		CNode* right;
-		CNode(): key(0), parent(nullptr), left(nullptr), right(nullptr)
-		{}
+		CNode() : key( 0 ), parent( nullptr ), left( nullptr ), right( nullptr )
+		{
+		}
 		explicit CNode( int _key )
 			: key( _key ), parent( 0 ), left( 0 ), right( 0 )
 		{
 		}
-		CNode(int _key, CNode* _left, CNode* _right, CNode* _parent)
+		CNode( int _key, CNode* _left, CNode* _right, CNode* _parent )
 			: key( _key ), parent( _parent ), left( _left ), right( _right )
 		{
 		}
@@ -93,7 +94,7 @@ private:
 		return p;
 	}
 
-	static void rotate( CNode*& p, CNode*& parent )
+	static void rotate2( CNode*& p, CNode*& parent )
 	{
 		CNode* gparent = parent->parent;
 		if( gparent != 0 ) {
@@ -102,6 +103,27 @@ private:
 			} else {
 				parent = rotateRight( parent );
 			}
+		}
+
+	}
+	static void rotate( CNode* p, CNode* parent )
+	{
+		// Нужен только для подцепления результата.
+		CNode* gparent = parent->parent;
+		// Встраиваем результат поворота в исходное дерево.
+		if( gparent != 0 ) {
+			// p будет новой верхушкой.
+			if( gparent->left == parent ) {
+				gparent->left = p;
+			} else {
+				gparent->right = p;
+			}
+		}
+		// Крутим влево или вправо.
+		if( parent->left == p ) {
+			p = rotateRight( parent );
+		} else {
+			p = rotateLeft( parent );
 		}
 
 	}
@@ -128,7 +150,7 @@ private:
 				rotate( parent, gparent );
 				rotate( p, parent );
 			} else { // zigzag
-				rotate( p, parent ); 
+				rotate( p, parent );
 				rotate( parent, gparent );
 			}
 		}
@@ -136,14 +158,14 @@ private:
 	}
 
 	// Ищет вершину с ключом key (или ближайшую к ней по значению, если вершины с key нет), и тянет её вверх.
-	static CNode* subSearch(CNode* node, int key )
+	static CNode* subSearch( CNode* node, int key )
 	{
-		if( node == 0  ) { // Если нужной вершины не имеется, тянем ближайшую.
-			return splay(node->parent);
+		if( node == 0 ) { // Если нужной вершины не имеется.
+			return 0;
 		} else { // Иначе ищем дальше.
-			if( node->key < key && node->right != 0) {
+			if( node->key < key && node->right != 0 ) {
 				return subSearch( node->right, key );
-			} else if( node->key > key && node->left != 0) {
+			} else if( node->key > key && node->left != 0 ) {
 				return subSearch( node->left, key );
 			} else { // Если найдена нужная.
 				return splay( node );
@@ -152,19 +174,19 @@ private:
 		//return splay( node ); // Тащим вверх.
 	}
 
-	static void split(CNode* p, int key, CNode*& l, CNode*& r)
+	static void split( CNode* p, int key, CNode*& l, CNode*& r )
 	{
-		if (p == 0 ) {
+		if( p == 0 ) {
 			l = r = 0;
 			return;
 		}
 		p = subSearch( p, key );
-		if (p->key == key ) {
+		if( p->key == key ) {
 			setParent( p->left, 0 );
 			setParent( p->right, 0 );
 			l = p->left;
 			r = p->right;
-		} else if ( p->key < key) {
+		} else if( p->key < key ) {
 			r = p->right;
 			p->right = 0;
 			setParent( r, 0 );
@@ -177,20 +199,20 @@ private:
 		}
 	}
 
-	static void setParent(CNode* p, CNode* parent)
+	static void setParent( CNode* p, CNode* parent )
 	{
-		if (p != 0 ) {
+		if( p != 0 ) {
 			p->parent = parent;
 		}
 	}
 
 	// Сливает два поддерева. Гарантируется, что l->key < r->key.
-	static CNode* Merge(CNode* l, CNode* r)
+	static CNode* Merge( CNode* l, CNode* r )
 	{
-		if (r == 0 ) {
+		if( r == 0 ) {
 			return l;
 		}
-		if (l == 0 ) {
+		if( l == 0 ) {
 			return r;
 		}
 		r = subSearch( r, l->key ); // Ищем элемент с наименьшим ключом

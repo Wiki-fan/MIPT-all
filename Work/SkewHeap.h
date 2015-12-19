@@ -77,7 +77,7 @@ IMeldableHeap<T, Compare>* CSkewHeap<T, Compare>::Meld( IMeldableHeap<T, Compare
 
 // Подпрограмма слияния поддеревьев узла.
 template<typename T, class Compare>
-typename CSkewHeap<T, Compare>::CNode* CSkewHeap<T, Compare>::subMeld( CSkewHeap::CNode* x, CSkewHeap::CNode* y )
+typename CSkewHeap<T, Compare>::CNode* CSkewHeap<T, Compare>::subMeld( typename CSkewHeap::CNode* x, typename CSkewHeap::CNode* y )
 {
 	if (x == y) {
 		return x;

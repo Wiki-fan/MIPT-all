@@ -82,7 +82,7 @@ IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( IMeldableHeap<T, Comp
 
 // Подпрограмма слияния поддеревьев узла.
 template<typename T, class Compare>
-typename CLeftistHeap<T, Compare>::CNode* CLeftistHeap<T, Compare>::subMeld( CLeftistHeap::CNode* x, CLeftistHeap::CNode* y )
+typename CLeftistHeap<T, Compare>::CNode* CLeftistHeap<T, Compare>::subMeld( typename CLeftistHeap::CNode* x, typename CLeftistHeap::CNode* y )
 {
 	if (x == y) {
 		return x;

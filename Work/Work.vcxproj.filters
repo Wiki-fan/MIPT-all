@@ -68,5 +68,11 @@
     <ClInclude Include="SegmentTreeTests.h">
       <Filter>Тесты</Filter>
     </ClInclude>
+    <ClInclude Include="MeldableHeap.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="MeldableHeapTests.h">
+      <Filter>Тесты</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
