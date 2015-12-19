@@ -54,7 +54,15 @@ set(SOURCE_FILES
 		Work/MinMaxHeapTests.h
 		Work/LeftistHeap.h
 		Work/SkewHeap.h
-		Work/XMLParser.h Work/BinarySearchTree.h Work/CartesianTree.h Work/AVLTree.h Work/TreeBase.h Work/SplayTree.h)
+		Work/XMLParser.h
+		Work/BinarySearchTree.h
+		Work/CartesianTree.h
+		Work/AVLTree.h
+		Work/TreeBase.h
+		Work/SplayTree.h
+		Work/SplayTreeTests.h
+		Work/SegmentTree.h
+		Work/SegmentTreeTests.h)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

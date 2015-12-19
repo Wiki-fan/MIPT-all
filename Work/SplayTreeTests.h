@@ -18,6 +18,7 @@ public:
 	std::vector<bool> TestTree( ITree<T>& tree )
 	{
 		std::vector<bool> res;
+		int cnt = 0;
 		for( auto i = opers.begin(); i != opers.end(); ++i ) {
 			switch( i->oper ) {
 				case COperationDescr<T>::Insert:
@@ -28,7 +29,11 @@ public:
 					break;
 				case COperationDescr<T>::Remove:
 					res.push_back( tree.Remove( i->key ) );
+					break;
+				default:
+					massert( false );
 			}
+			++cnt;
 		}
 		return res;
 	}
@@ -54,11 +59,11 @@ private:
 
 	template<typename T>
 	void GetRandKey( T& key ) {}
-	/*template<>
+	template<>
 	void GetRandKey<int>( int& key )
 	{
-		key = rand();
-	}*/
+		key = abs( rand() );
+	}
 
 	std::vector<COperationDescr<T>> opers;
 };
@@ -84,21 +89,36 @@ public:
 		return StdSet.erase( key );
 	}
 };
+
 void Task3()
 {
 	TreeTester<int> treeTester;
-	treeTester.PrepareTests( 1000 );
+	treeTester.PrepareTests( 1000000 );
+
 	CSplayTree SplayTree;
 	CAVLTree AvlTree;
 	CStdSetWrapper<int> StdSet;
+	clock_t t;
 
+	t = clock();
 	std::vector<bool> SplayRes( treeTester.TestTree( SplayTree ) );
+	double SplayTime = double( clock() - t ) / CLOCKS_PER_SEC;
+
+	t = clock();
 	std::vector<bool> AvlRes( treeTester.TestTree( AvlTree ) );
+	double AvlTime = double( clock() - t ) / CLOCKS_PER_SEC;
+
+	t = clock();
 	std::vector<bool> StdSetRes( treeTester.TestTree( StdSet ) );
-	massert( SplayRes == StdSetRes /*&& AvlRes == StdSetRes */);
+	double StdSetTime = double( clock() - t ) / CLOCKS_PER_SEC;
+
+	massert( SplayRes == StdSetRes && AvlRes == StdSetRes );
 	std::cout << "Testing completed." << std::endl;
+	std::cout << "Splay, AVL, std::set" << std::endl;
+	printf( "%13f %13f %13f\n", SplayTime, AvlTime, StdSetTime );
 }
-void Task3Old()
+
+void AutoTestSplayTree()
 {
 	CSplayTree SplayTree;
 	CAVLTree AvlTree;
@@ -121,20 +141,54 @@ void Task3Old()
 		}
 
 		int key = rand();
-		std::cout << command << ' ' << key << std::endl;
+		bool SetRes, SplayRes, AvlRes;
+		//std::cout << command << ' ' << key << std::endl;
 		switch( command ) {
 			case '?':
-				massert( StdSet.count( key ) == AvlTree.Search( key ) && StdSet.count( key ) == SplayTree.Search( key ) );
+				SetRes = StdSet.count( key );
+				SplayRes = SplayTree.Search( key );
+				AvlRes = AvlTree.Search( key );
+				massert( /*SetRes == AvlRes  &&*/ SetRes == SplayRes );
 				break;
 			case '+':
-				massert( StdSet.insert( key ).second == AvlTree.Insert( key ) && StdSet.insert( key ).second == SplayTree.Insert( key ) );
+				SetRes = StdSet.insert( key ).second;
+				SplayRes = SplayTree.Insert( key );
+				AvlRes = AvlTree.Insert( key );
+				massert(/* SetRes == AvlRes  &&*/ SetRes == SplayRes );
 				break;
 			case '-':
-				massert( StdSet.erase( key ) == AvlTree.Remove( key ) && StdSet.erase( key ) == SplayTree.Remove( key ) );
+				SetRes = StdSet.erase( key );
+				SplayRes = SplayTree.Remove( key );
+				AvlRes = AvlTree.Remove( key );
+				massert( /*SetRes == AvlRes  && */SetRes == SplayRes );
 				break;
 			default:
 				massert( false );
 		}
 
+	}
+}
+
+void ManualTestSplayTree()
+{
+	CSplayTree SplayTree;
+	char command;
+	int key;
+	while( std::cin >> command >> key ) {
+		//std::cout << command << ' ' << key << std::endl;
+		switch( command ) {
+			case '?':
+				std::cout << (SplayTree.Search( key ) ? "OK" : "FAIL");
+				break;
+			case '+':
+				std::cout << (SplayTree.Insert( key ) ? "OK" : "FAIL");
+				break;
+			case '-':
+				std::cout << (SplayTree.Remove( key ) ? "OK" : "FAIL");
+				break;
+			default:
+				massert( false );
+		}
+		std::cout << std::endl;
 	}
 }

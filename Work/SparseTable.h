@@ -4,7 +4,7 @@
 template<typename T>
 class CMatrix {
 public:
-	CMatrix(int _w, int _h) :w(_w), h(_h)
+	CMatrix( int _w, int _h ) :w( _w ), h( _h )
 	{
 		m = new T*[h];
 		for( int i = 0; i < h; ++i ) {
@@ -37,7 +37,7 @@ private:
 template<class T>
 class CSparseTable {
 public:
-	explicit CSparseTable( std::vector<T>& a ) :m( a.size(), log2( a.size() )+1)
+	explicit CSparseTable( std::vector<T>& a ) :m( a.size(), log2( a.size() ) + 1 )
 	{
 		// Первая строка - исходный массив.
 		for( int i = 0; i < a.size(); ++i ) {
@@ -50,26 +50,26 @@ public:
 			}
 		}
 		// Предпросчитываем логарифмы.
-		for( int i = 1; i < m.getWidth()+2;++i ) {
+		for( int i = 1; i < m.getWidth() + 2; ++i ) {
 			logs.push_back( log2( i ) );
 		}
 	}
 
 	~CSparseTable() {}
 
-	int RMQ(int l, int r)
+	int RMQ( int l, int r )
 	{
-		//r -= 1; l -= 1;
-		int k = logs[ r - l+1 ]; // Логарифм расстояния между краями.
-		return std::min( m( k,l-1 ).s1, m(  k,r - pow( 2, k )+1-1  ).s1 );
+		r -= 1; l -= 1;
+		int k = logs[r - l + 1]; // Логарифм расстояния между краями.
+		return std::min( m( k, l ).s1, m( k, r - pow( 2, k ) + 1 ).s1 );
 	}
 private:
 	CMatrix<T> m;
 	std::vector<int> logs;
 
-	static int roundedLog(int x)
+	static int roundedLog( int x )
 	{
-		if (x == 1 ) {
+		if( x == 1 ) {
 			return 0;
 		} else {
 			return roundedLog( x / 2 ) + 1;

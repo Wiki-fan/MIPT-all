@@ -8,7 +8,7 @@ void AutoTestAVLTree()
 	std::set<int> set;
 
 	while( true ) {
-		char command = rand() % 2;
+		char command = rand() % 3;
 		switch( command ) {
 			case 0://case 3:case 4:case 5:case 6:case 7:case 8:case 9:
 				command = '+';
@@ -16,9 +16,9 @@ void AutoTestAVLTree()
 			case 1:
 				command = '-';
 				break;
-				/*case 2:
+			case 2:
 				command = '?';
-				break;*/
+				break;
 			default:
 				massert( false );
 		}
@@ -26,11 +26,11 @@ void AutoTestAVLTree()
 		int key = rand();
 		std::cout << command << key;
 		switch( command ) {
-			/*case '?':
-			if( set.count( key ) != avlTree.Search( key ) ) {
-			massert( false );
-			}
-			break;*/
+			case '?':
+				if( set.count( key ) != avlTree.Search( key ) ) {
+					massert( false );
+				}
+				break;
 			case '+':
 				if( set.insert( key ).second != avlTree.Insert( key ) ) {
 					massert( false );
@@ -52,9 +52,6 @@ void Task2()
 {
 	CAVLTree t;
 
-	/*std::ifstream ifs( "D:\\dev\\code\\didactic-woof\\Work\\in.txt", std::ios_base::in );
-	std::streambuf* cinbuf = std::cin.rdbuf();
-	std::cin.rdbuf( ifs.rdbuf() );*/
 	int N;
 	scanf( "%d", &N );
 	int a, k;
@@ -69,8 +66,5 @@ void Task2()
 		//t.Print();
 		//std::cout << std::endl;
 	}
-	//std::cin.rdbuf( cinbuf );
-	//std::cin.get();
-	//ifs.close();
 
 }

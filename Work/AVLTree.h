@@ -5,19 +5,19 @@
 class CAVLTree : public ITree<int> {
 
 public:
-	CAVLTree() : head( 0 ) {}
+	CAVLTree() : head( 0 ), fl(false) {}
 	~CAVLTree() { delete head; }
 
 	void Print() const;
 
 	// Вставка элемента с ключом key.
-	bool Insert( const int &key );
+	bool Insert( const int &key ) override;
 
 	// Поиск элемента с ключом key.
-	bool Search( const int &key ) const;
+	bool Search( const int &key ) const override;
 
 	// Удаление элемента с ключом key.
-	bool Remove( const int &key );
+	bool Remove( const int &key ) override;
 
 	// Поиск k-й порядковой статистики.
 	int getStatictics( int k ) const;
@@ -220,6 +220,9 @@ CAVLTree::CNode * CAVLTree::rotateLeft( CNode *q )
 // Балансировка вершины p.
 CAVLTree::CNode * CAVLTree::balance( CNode *p )
 {
+	if (p == 0 ) {
+		return 0;
+	}
 	recalcHeight( p );
 	recalcChildCount( p );
 	if( balanceFactor( p ) == 2 ) { // Если фактор равен 2, то
@@ -249,13 +252,12 @@ CAVLTree::CNode * CAVLTree::subInsert( CNode *p, int k ) const
 		return q;
 	}
 	if( k < p->key ) {
-		//++(p->childLeft);
 		p->left = subInsert( p->left, k );
 	} else if( k>p->key ) {
-		//++(p->childRight);
 		p->right = subInsert( p->right, k );
 	} else {
 		fl = false; // Такой элемент уже есть, не вставляем.
+		return 0;
 	}
 
 	return balance( p ); // Балансируем, ведь высоты могли измениться при вставке.
@@ -296,17 +298,17 @@ CAVLTree::CNode * CAVLTree::subRemove( CNode *p, int k ) const
 
 bool CAVLTree::subSearch( CNode *node, int key )
 {
-	bool ret = false;
-	if( node != 0 ) {
+	if( node == 0 ) {
+		return false;
+	} else {
 		if( node->key < key ) {
-			ret = subSearch( node->right, key );
+			return subSearch( node->right, key );
 		} else if( node->key > key ) {
-			ret = subSearch( node->right, key );
+			return subSearch( node->left, key );
 		} else {
-			ret = true;
+			return true;
 		}
 	}
-	return ret;
 }
 
 void CAVLTree::inorderWalk( CNode *n ) const

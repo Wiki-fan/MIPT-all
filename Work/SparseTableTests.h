@@ -8,6 +8,7 @@ struct CPair {
 };
 
 namespace std {
+// Минимум здесь - специально созданная новая пара с минимальными двумя значениями исходных пар.
 template<>
 const CPair& min<CPair>( const CPair& p1, const CPair& p2 )
 {

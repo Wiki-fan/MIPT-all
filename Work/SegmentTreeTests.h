@@ -21,6 +21,4 @@ void TestSegmentTree()
 
 	}
 
-
-
 }
