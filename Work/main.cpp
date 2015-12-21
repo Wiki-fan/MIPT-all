@@ -3,9 +3,9 @@
 #include "AVLTreeTests.h"
 #include "SplayTreeTests.h"
 //#include "SegmentTreeTests.h"
-#include "SparseTableTests.h"
+//#include "SparseTableTests.h"
 
-#define MY_CIN_REDIR
+//#define MY_CIN_REDIR
 
 int main()
 {
@@ -16,9 +16,8 @@ int main()
 	std::cin.rdbuf( ifs.rdbuf() );
 #endif
 	//TestSegmentTree();
-	TestSparseTable();	
-
-	//ManualTest();
+	//TestSparseTable();	
+	Task3();
 #ifdef MY_CIN_REDIR
 	std::cin.rdbuf( cinbuf );
 #endif

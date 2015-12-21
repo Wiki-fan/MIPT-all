@@ -1,14 +1,35 @@
-#pragma once
+﻿#pragma once
 #include "AVLTree.h"
+
+void Task2()
+{
+	CAVLTree<int> t;
+
+	int N;
+	scanf( "%d", &N );
+	int a, k;
+	for( int i = 0; i < N; ++i ) {
+		scanf( "%d %d", &a, &k );
+		if( a > 0 ) {
+			t.Insert( a );
+		} else {
+			t.Remove( -a );
+		}
+		printf( "%d\n", t.getStatictics( k ) );
+		//t.Print();
+		//std::cout << std::endl;
+	}
+
+}
 
 void AutoTestAVLTree()
 {
 	srand( time( NULL ) );
-	CAVLTree avlTree;
+	CAVLTree<int> avlTree;
 	std::set<int> set;
 
 	while( true ) {
-		char command = rand() % 3;
+		char command = rand() % 2;
 		switch( command ) {
 			case 0://case 3:case 4:case 5:case 6:case 7:case 8:case 9:
 				command = '+';
@@ -46,25 +67,4 @@ void AutoTestAVLTree()
 		}
 
 	}
-}
-
-void Task2()
-{
-	CAVLTree t;
-
-	int N;
-	scanf( "%d", &N );
-	int a, k;
-	for( int i = 0; i < N; ++i ) {
-		scanf( "%d %d", &a, &k );
-		if( a > 0 ) {
-			t.Insert( a );
-		} else {
-			t.Remove( -a );
-		}
-		printf( "%d\n", t.getStatictics( k ) );
-		//t.Print();
-		//std::cout << std::endl;
-	}
-
 }

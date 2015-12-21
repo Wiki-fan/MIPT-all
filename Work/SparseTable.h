@@ -1,5 +1,44 @@
 ﻿#pragma once
 #include "stdafx.h"
+struct CPair {
+	CPair() = default;
+	CPair( int _s0, int _s1, int _i0, int _i1 ) : s0( _s0 ), s1( _s1 ), i0( _i0 ), i1( _i1 ) {}
+	int s0, s1;
+	int i0, i1;
+	int request() const
+	{
+		return s1;
+	}
+};
+
+// Минимум здесь - специально созданная новая пара с минимальными двумя значениями исходных пар.
+const CPair& myMin( const CPair& p1, const CPair& p2 )
+{
+	/*if( p1.s0 < p2.s0 ) {
+		return CPair( p1.s0, std::min( p1.s1, std::min( p2.s0, p2.s1 ) ) );
+	} else if( p1.s0 > p2.s0 ) {
+		return CPair( p2.s0, std::min( p1.s0, std::min( p1.s1, p2.s1 ) ) );
+	} else {
+		if( p1.s1 < p2.s1 ) {
+			return CPair( p1.s0, p1.s1 );
+		} else if( p1.s1>p2.s1 ) {
+			return CPair( p1.s0, p2.s1 );
+		} else {
+			return CPair( p1.s0, p1.s1 );
+		}
+	}*/
+	if( p1.i0 != p2.i0 && p1.i1 != p2.i1 && p1.i0 != p2.i1 && p2.i0 != p1.i1) {
+		if( p1.s0 < p2.s0 ) {
+			return CPair( p1.s0, std::min( p1.s1, std::min( p2.s0, p2.s1 ) ), p1.i0, p1.i0 );
+		} else if( p1.s0 > p2.s0 ) {
+			return CPair( p2.s0, std::min( p2.s1, std::min(p1.s0, p1.s1  ) ), p2.i0, p2.i0 );
+		} else {
+			return CPair( p1.s0, p1.s0, p1.i0, p1.i1 );
+		}
+	} else {
+		return CPair( p1.s0, std::min( p1.s1, p2.s1 ), p1.i0, p1.i0 );
+	}
+}
 
 template<typename T>
 class CMatrix {
@@ -46,7 +85,7 @@ public:
 		// Заполняем остальные.
 		for( int i = 1; i < m.getHeight(); ++i ) {
 			for( int j = 0; j < m.getWidth(); ++j ) {
-				m( i, j ) = std::min( m( i - 1, j ), m( i - 1, j + pow( 2, i - 1 ) ) );
+				m( i, j ) = myMin( m( i - 1, j ), m( i - 1, j + pow( 2, i - 1 ) ) );
 			}
 		}
 		// Предпросчитываем логарифмы.
@@ -61,7 +100,7 @@ public:
 	{
 		r -= 1; l -= 1;
 		int k = logs[r - l + 1]; // Логарифм расстояния между краями.
-		return std::min( m( k, l ).s1, m( k, r - pow( 2, k ) + 1 ).s1 );
+		return myMin( m( k, l ), m( k, r - pow( 2, k ) + 1 ) ).request();
 	}
 private:
 	CMatrix<T> m;

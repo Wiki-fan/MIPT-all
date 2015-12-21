@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "ITree.h"
 
+// Сплэй-дерево.
 class CSplayTree : public ITree<int> {
 
 public:
@@ -44,7 +45,6 @@ private:
 	mutable CNode* head;
 	bool fl;
 
-
 	static void setParent( CNode* p, CNode* parent )
 	{
 		if( p != 0 ) {
@@ -52,7 +52,7 @@ private:
 		}
 	}
 
-	static void keepParent( CNode* p )
+	static void setChildsParent( CNode* p )
 	{
 		setParent( p->left, p );
 		setParent( p->right, p );
@@ -141,6 +141,7 @@ inline bool CSplayTree::Remove( const int &key )
 	return true;
 }
 
+// Поворот p вокруг parent. Сам понимает, левый или правый.
 inline void CSplayTree::rotate( CNode *&p, CNode *&parent )
 {
 	// Нужен только для подцепления результата.
@@ -162,11 +163,12 @@ inline void CSplayTree::rotate( CNode *&p, CNode *&parent )
 		parent->right = p->left;
 		p->left = parent;
 	}
-	keepParent( p );
-	keepParent( parent );
+	setChildsParent( p );
+	setChildsParent( parent );
 	p->parent = gparent;
 }
 
+// Поднимает данную вершину в корень.
 inline CSplayTree::CNode * CSplayTree::splay( CNode *p )
 {
 	if( p == 0 ) {
@@ -196,6 +198,7 @@ inline CSplayTree::CNode * CSplayTree::splay( CNode *p )
 	return splay( p );
 }
 
+// Подпрограмма поиска, тянет в вершину и возвращает либо вершину с ключом key, либо ближайшую к ней.
 inline CSplayTree::CNode * CSplayTree::subSearch( CNode *node, int key )
 {
 	if( node == 0 ) { // Если нужной вершины не имеется...
@@ -211,6 +214,7 @@ inline CSplayTree::CNode * CSplayTree::subSearch( CNode *node, int key )
 	}
 }
 
+// Разбивает дерево с корнем p по ключу key. Результаты кладутся в l и r.
 inline void CSplayTree::split( CNode *p, int key, CNode *&l, CNode *&r )
 {
 	if( p == 0 ) {
@@ -219,6 +223,7 @@ inline void CSplayTree::split( CNode *p, int key, CNode *&l, CNode *&r )
 	}
 	// Отыскиваем нужную вершину.
 	p = subSearch( p, key );
+	// Нужным образом перенавешиваем вершины.
 	if( p->key == key ) {
 		setParent( p->left, 0 );
 		setParent( p->right, 0 );
@@ -237,6 +242,7 @@ inline void CSplayTree::split( CNode *p, int key, CNode *&l, CNode *&r )
 	}
 }
 
+// Сливает два дерева, возвращает результат.
 inline CSplayTree::CNode * CSplayTree::Merge( CNode *l, CNode *r )
 {
 	if( r == 0 ) {

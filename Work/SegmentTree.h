@@ -11,13 +11,13 @@ struct CMin {
 	}
 };
 
+// F задаёт операцию.
 template<class F>
 class CSegmentTree {
 public:
 	CSegmentTree( std::vector<int>& a )
 	{
 		BuildBottomToTop( a );
-		//t.resize( 4 * a.size() );
 		//buildTopToBottom( a, 1, 0, a.size() - 1 );
 		
 	}
@@ -35,8 +35,10 @@ public:
 	}
 
 private:
+	// TODO: Что-то не работает.
 	void buildTopToBottom( std::vector<int>& a, int v, int tl, int tr )
 	{
+		t.resize( 4 * a.size() );
 		if( tl == tr ) {
 			t[v] = a[tl];
 		} else {
@@ -52,11 +54,11 @@ private:
 		t = a;
 		int n = (1 << ((int)log( t.size() - 1 ) + 2));
 		t.resize( 4*n, INF );
-		// инициализируем листы
+		// Инициализируем листы
 		for( int i = n; i < 2 * n; i++ )
 			t[i] = t[i - n];
 
-		// и все остальные вершины
+		// И все остальные вершины
 		for( int i = n - 1; i > 0; i-- )
 			t[i] = F()( t[2 * i], t[2 * i + 1] );
 	}
@@ -138,29 +140,4 @@ private:
 	}
 
 	std::vector<int> t;
-};
-
-class CRangeSegmentTree {
-public:
-	CRangeSegmentTree( int a[], int v, int tl, int tr )
-	{
-		t.resize( tr - tl + 1 );
-		// TODO
-	}
-	~CRangeSegmentTree() {}
-
-private:
-	void build( int a[], int v, int tl, int tr )
-	{
-		if( tl == tr )
-			t[v] = std::vector<int>( 1, a[tl] );
-		else {
-			int tm = (tl + tr) / 2;
-			build( a, v * 2, tl, tm );
-			build( a, v * 2 + 1, tm + 1, tr );
-			merge( t[v * 2].begin(), t[v * 2].end(), t[v * 2 + 1].begin(), t[v * 2 + 1].end(),
-				back_inserter( t[v] ) );
-		}
-	}
-	std::vector<std::vector<int>> t;
 };

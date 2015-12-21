@@ -1,4 +1,5 @@
 #!/bin/python3
+import re
 #main_file_name = input("Main file:\n>")
 main_file_name = "main.cpp"
 outf = open("result.cpp", "w")
@@ -8,7 +9,7 @@ def work(main_file_name, outf):
     try:
         mf = open(main_file_name, encoding="utf-8-sig", mode="r")
     except OSError:
-        print ("No such file")
+        #print ("No such file")
         return
     for s in mf.readlines():
         #print (s)
@@ -23,6 +24,8 @@ def work(main_file_name, outf):
             if not name+'.cpp' in included:
                 included.add(name+'.cpp')
                 work(name+'.cpp', outf)
+        elif res.search("^.*override.$", s):
+            s.erase('override') # check
         else:
             outf.write(s)
     outf.write('\n')

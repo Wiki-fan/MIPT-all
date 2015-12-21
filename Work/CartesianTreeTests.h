@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "CartesianTree.h"
 #include "BinarySearchTree.h"
 

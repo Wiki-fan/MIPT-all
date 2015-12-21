@@ -7,15 +7,16 @@ template<typename T>
 class CBinarySearchTree : public ITree<T> {
 
 public:
-	CBinarySearchTree() : head( 0 ), height( 0 ), curHeight( 0 ) { }
+	CBinarySearchTree() : head( 0 ), height( 0 ), curHeight( 0 ), fl(false)
+	{ }
 	~CBinarySearchTree() { delete head; }
 
 	// Вставка элемента с ключом k.
-	bool Insert( const T& key );
+	bool Insert( const T& key ) override;
 	// Поиск элемента с ключом key.
-	bool Search( const int& key ) const;
+	bool Search( const int& key ) const override;
 	// Удаление элемента с ключом key.
-	bool Remove( const int& key )
+	bool Remove( const int& key ) override
 	{
 		// TODO: реализовать.
 		massert( false );

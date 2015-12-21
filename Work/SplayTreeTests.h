@@ -62,7 +62,7 @@ private:
 	template<>
 	void GetRandKey<int>( int& key )
 	{
-		key = abs( rand() );
+		key = rand();
 	}
 
 	std::vector<COperationDescr<T>> opers;
@@ -93,10 +93,10 @@ public:
 void Task3()
 {
 	TreeTester<int> treeTester;
-	treeTester.PrepareTests( 1000000 );
+	treeTester.PrepareTests( 10000000 );
 
 	CSplayTree SplayTree;
-	CAVLTree AvlTree;
+	CAVLTree<int> AvlTree;
 	CStdSetWrapper<int> StdSet;
 	clock_t t;
 
@@ -121,7 +121,7 @@ void Task3()
 void AutoTestSplayTree()
 {
 	CSplayTree SplayTree;
-	CAVLTree AvlTree;
+	CAVLTree<int> AvlTree;
 	std::set<int> StdSet;
 
 	while( true ) {
@@ -147,20 +147,20 @@ void AutoTestSplayTree()
 			case '?':
 				SetRes = StdSet.count( key );
 				SplayRes = SplayTree.Search( key );
-				AvlRes = AvlTree.Search( key );
-				massert( /*SetRes == AvlRes  &&*/ SetRes == SplayRes );
+				AvlTree.Search( key );
+				massert( SetRes == SplayRes );
 				break;
 			case '+':
 				SetRes = StdSet.insert( key ).second;
 				SplayRes = SplayTree.Insert( key );
-				AvlRes = AvlTree.Insert( key );
-				massert(/* SetRes == AvlRes  &&*/ SetRes == SplayRes );
+				AvlTree.Insert( key );
+				massert( SetRes == SplayRes );
 				break;
 			case '-':
 				SetRes = StdSet.erase( key );
 				SplayRes = SplayTree.Remove( key );
-				AvlRes = AvlTree.Remove( key );
-				massert( /*SetRes == AvlRes  && */SetRes == SplayRes );
+				AvlTree.Remove( key );
+				massert( SetRes == SplayRes );
 				break;
 			default:
 				massert( false );
