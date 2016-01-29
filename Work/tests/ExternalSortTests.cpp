@@ -1,5 +1,5 @@
-#include "stdafx.h"
-#include "ExternalSort.h"
+#include "../stdafx.h"
+#include "../ExternalSort.h"
 
 void TestExternalSort()
 {

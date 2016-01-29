@@ -11,9 +11,9 @@ public:
 	// Конструктор, создающий кучу с единственным элементом с ключом key.
 	CSkewHeap( const T& key ) : head( new CNode( key )) { }
 	~CSkewHeap() { delete head; }
-	void Add( const T& key );
-	T ExtractTop();
-	bool isEmpty() { return head == nullptr; }
+	void Add( const T& key ) override;
+	T ExtractTop() override;
+	bool isEmpty() override { return head == nullptr; }
 	//IMeldableHeap<T, Compare>* Meld( CSkewHeap& other );
 	virtual IMeldableHeap<T, Compare>* Meld( IMeldableHeap<T, Compare>& other ) override;
 

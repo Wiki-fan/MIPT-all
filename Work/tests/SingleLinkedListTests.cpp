@@ -1,6 +1,6 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "SingleLinkedListTests.h"
-#include "SingleLinkedList.h"
+#include "../SingleLinkedList.h"
 
 void TestSingleLinkedList()
 {

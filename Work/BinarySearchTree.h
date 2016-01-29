@@ -14,9 +14,9 @@ public:
 	// Вставка элемента с ключом k.
 	bool Insert( const T& key ) override;
 	// Поиск элемента с ключом key.
-	bool Search( const int& key ) const override;
+	bool Search( const T& key ) const override;
 	// Удаление элемента с ключом key.
-	bool Remove( const int& key ) override
+	bool Remove( const T& key ) override
 	{
 		// TODO: реализовать.
 		massert( false );
@@ -47,7 +47,7 @@ private:
 	bool fl;
 
 	CNode* subInsert( CNode* node, T key );
-	CNode* subSearch( CNode* node, T key );
+	static CNode* subSearch( CNode* node, T key );
 
 };
 
@@ -61,9 +61,9 @@ bool CBinarySearchTree<T>::Insert( const T& key )
 }
 
 template <typename T>
-bool CBinarySearchTree<T>::Search( const int &key ) const
+bool CBinarySearchTree<T>::Search( const T& key ) const
 {
-	return subSearch( head, key );
+	return (bool) subSearch( head, key );
 }
 
 // Подпрограмма вставки.
@@ -91,7 +91,7 @@ typename CBinarySearchTree<T>::CNode* CBinarySearchTree<T>::subInsert( CBinarySe
 
 // Ищет вершину с ключом key.
 template <typename T>
-typename CBinarySearchTree<T>::CNode * CBinarySearchTree<T>::subSearch( CNode *node, T key )
+static typename CBinarySearchTree<T>::CNode* CBinarySearchTree<T>::subSearch( CNode* node, T key )
 {
 	if( node == 0 || node->key == key ) { // Либо найдена, либо таковой не имеется.
 		return node;

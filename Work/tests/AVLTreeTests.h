@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "AVLTree.h"
+#include "../AVLTree.h"
+//#define BOOST_TEST_MODULE DequeTest
+#include <boost/test/included/unit_test.hpp>
 
 void Task2()
 {
@@ -22,13 +24,14 @@ void Task2()
 
 }
 
-void AutoTestAVLTree()
+//void AutoTestAVLTree()
+BOOST_AUTO_TEST_CASE( AVLTreeAutoTest )
 {
 	srand( time( NULL ) );
 	CAVLTree<int> avlTree;
 	std::set<int> set;
 
-	while( true ) {
+	for( int i = 0; i < 10000; ++i ) {
 		char command = rand() % 2;
 		switch( command ) {
 			case 0://case 3:case 4:case 5:case 6:case 7:case 8:case 9:

@@ -1,7 +1,7 @@
 #pragma once
-#include "stdafx.h"
-#include "Vector.h"
-#include "Sorts.h"
+#include "../stdafx.h"
+#include "../Vector.h"
+#include "../Sorts.h"
 
 struct CPoint {
 	int x;

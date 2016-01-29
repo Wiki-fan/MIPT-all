@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "SegmentTree.h"
+#include "../SegmentTree.h"
 
 void TestSegmentTree()
 {

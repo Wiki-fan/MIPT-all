@@ -6,7 +6,7 @@ template<typename T>
 class CAVLTree : public ITree<T> {
 
 public:
-	CAVLTree() : head( 0 ), fl(false) {}
+	CAVLTree() : head( 0 ), fl( false ) { }
 	~CAVLTree() { delete head; }
 
 	// Вывод дерева на экран, пригодно в основном для дебажных целей.
@@ -31,7 +31,7 @@ private:
 		CNode* left;
 		CNode* right;
 		explicit CNode( int _key )
-			: key( _key ), childLeft( 0 ), childRight( 0 ), height( 1 ), left( 0 ), right( 0 )
+				: key( _key ), childLeft( 0 ), childRight( 0 ), height( 1 ), left( 0 ), right( 0 )
 		{
 		}
 		~CNode()
@@ -78,11 +78,11 @@ private:
 	static void recalcChildCount( CNode* node )
 	{
 		node->childLeft = getLeftChildCount( node->left )
-			+ getRightChildCount( node->left )
-			+ (node->left == 0 ? 0 : 1);
+				+ getRightChildCount( node->left )
+				+ ( node->left == 0 ? 0 : 1 );
 		node->childRight = getLeftChildCount( node->right )
-			+ getRightChildCount( node->right )
-			+ (node->right == 0 ? 0 : 1);
+				+ getRightChildCount( node->right )
+				+ ( node->right == 0 ? 0 : 1 );
 	}
 
 	static int balanceFactor( CNode* p )
@@ -90,19 +90,19 @@ private:
 		return getHeight( p->right ) - getHeight( p->left );
 	}
 
-	static CNode* rotateRight( CNode *p );
-	static CNode* rotateLeft( CNode *q );
+	static CNode* rotateRight( CNode* p );
+	static CNode* rotateLeft( CNode* q );
 
-	static CNode* balance( CNode *p );
+	static CNode* balance( CNode* p );
 
-	CNode* subInsert( CNode *p, int k ) const;
+	CNode* subInsert( CNode* p, int k ) const;
 
 	static CNode* findMin( CNode* p ) // Поиск узла с минимальным ключом в дереве p
 	{
 		return p->left ? findMin( p->left ) : p;
 	}
-	static CNode* removeMin( CNode *p );
-	CNode* subRemove( CNode *p, int k ) const;
+	static CNode* removeMin( CNode* p );
+	CNode* subRemove( CNode* p, int k ) const;
 
 	// Другая, недописанная реализация subRemove.
 	/*CNode* findClosest( CNode* p, int key )
@@ -141,9 +141,9 @@ private:
 		return balance( p );
 	}*/
 
-	static bool subSearch( CNode *node, int key );
+	static bool subSearch( CNode* node, int key );
 
-	void inorderWalk( CNode *n ) const;
+	void inorderWalk( CNode* n ) const;
 
 };
 
@@ -153,19 +153,19 @@ inline void CAVLTree<T>::Print() const
 	inorderWalk( head );
 }
 template<typename T>
-inline bool CAVLTree<T>::Insert( const T &key )
+inline bool CAVLTree<T>::Insert( const T& key )
 {
 	fl = 1;
 	head = subInsert( head, key );
 	return fl;
 }
 template<typename T>
-inline bool CAVLTree<T>::Search( const T &key ) const
+inline bool CAVLTree<T>::Search( const T& key ) const
 {
 	return subSearch( head, key );
 }
 template<typename T>
-inline bool CAVLTree<T>::Remove( const T &key )
+inline bool CAVLTree<T>::Remove( const T& key )
 {
 	fl = 1;
 	head = subRemove( head, key );
@@ -190,7 +190,7 @@ int CAVLTree<T>::getStatictics( int k ) const
 
 // Правый поворот вокруг p.
 template<typename T>
-auto CAVLTree<T>::rotateRight( CNode *p ) -> CNode *
+auto CAVLTree<T>::rotateRight( CNode* p )->CNode*
 {
 	CNode* q = p->left;
 	p->left = q->right;
@@ -204,7 +204,7 @@ auto CAVLTree<T>::rotateRight( CNode *p ) -> CNode *
 
 // Левый поворот вокруг q.
 template<typename T>
-auto CAVLTree<T>::rotateLeft( CNode *q ) -> CNode *
+auto CAVLTree<T>::rotateLeft( CNode* q )->CNode*
 {
 	CNode* p = q->right;
 	q->right = p->left;
@@ -218,9 +218,9 @@ auto CAVLTree<T>::rotateLeft( CNode *q ) -> CNode *
 
 // Балансировка вершины p.
 template<typename T>
-auto CAVLTree<T>::balance( CNode *p ) -> CNode *
+auto CAVLTree<T>::balance( CNode* p )->CNode*
 {
-	if (p == 0 ) {
+	if( p == 0 ) {
 		return 0;
 	}
 	recalcHeight( p );
@@ -246,7 +246,7 @@ auto CAVLTree<T>::balance( CNode *p ) -> CNode *
 
 // Вставка ключа k в дерево с корнем p.
 template<typename T>
-auto CAVLTree<T>::subInsert( CNode *p, int k ) const -> CNode *
+auto CAVLTree<T>::subInsert( CNode* p, int k ) const->CNode*
 {
 	if( !p ) { // Если дошли до листа, вставляем.
 		CNode* q = new CNode( k );
@@ -254,7 +254,7 @@ auto CAVLTree<T>::subInsert( CNode *p, int k ) const -> CNode *
 	}
 	if( k < p->key ) {
 		p->left = subInsert( p->left, k );
-	} else if( k>p->key ) {
+	} else if( k > p->key ) {
 		p->right = subInsert( p->right, k );
 	} else {
 		fl = false; // Такой элемент уже есть, не вставляем.
@@ -266,7 +266,7 @@ auto CAVLTree<T>::subInsert( CNode *p, int k ) const -> CNode *
 
 // Отцепление узла с минимальным ключом от дерева p.
 template<typename T>
-auto CAVLTree<T>::removeMin( CNode *p ) -> CNode *
+auto CAVLTree<T>::removeMin( CNode* p )->CNode*
 {
 	if( p->left == 0 ) {
 		return p->right;
@@ -277,9 +277,12 @@ auto CAVLTree<T>::removeMin( CNode *p ) -> CNode *
 
 // Удаление ключа k из дерева p
 template<typename T>
-auto CAVLTree<T>::subRemove( CNode *p, int k ) const -> CNode *
+auto CAVLTree<T>::subRemove( CNode* p, int k ) const->CNode*
 {
-	if( !p ) { fl = 0; return 0; } // Нет нужного элемента, нечего удалять.
+	if( !p ) {
+		fl = 0;
+		return 0;
+	} // Нет нужного элемента, нечего удалять.
 	if( k < p->key ) {
 		p->left = subRemove( p->left, k );
 	} else if( k > p->key ) {
@@ -303,7 +306,7 @@ auto CAVLTree<T>::subRemove( CNode *p, int k ) const -> CNode *
 
 // Ищет узел с ключом key.
 template<typename T>
-bool CAVLTree<T>::subSearch( CNode *node, int key )
+bool CAVLTree<T>::subSearch( CNode* node, int key )
 {
 	if( node == 0 ) {
 		return false;
@@ -318,7 +321,7 @@ bool CAVLTree<T>::subSearch( CNode *node, int key )
 	}
 }
 template<typename T>
-void CAVLTree<T>::inorderWalk( CNode *n ) const
+void CAVLTree<T>::inorderWalk( CNode* n ) const
 {
 	if( n != 0 ) {
 		inorderWalk( n->left );

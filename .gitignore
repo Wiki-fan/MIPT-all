@@ -257,4 +257,6 @@ _Pvt_Extensions
 *.exe
 *.out
 *.app
+
 Work/result.cpp
+.idea/

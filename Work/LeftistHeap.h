@@ -14,7 +14,6 @@ public:
 	virtual void Add( const T& key ) override;
 	virtual T ExtractTop() override;
 	virtual bool isEmpty() override { return head == nullptr; }
-	//virtual IMeldableHeap<T, Compare>* Meld( CLeftistHeap& other );
 	virtual IMeldableHeap<T, Compare>* Meld( IMeldableHeap<T, Compare>& other ) override;
 
 private:
@@ -26,7 +25,6 @@ private:
 		// Рекурсивный деструктор. Удаляет детей.
 		~CNode()
 		{
-			//std::cout << "Delete leftist " << key << std::endl;
 			delete left;
 			delete right;
 		}
@@ -52,7 +50,6 @@ void CLeftistHeap<T, Compare>::Add( const T& key )
 	// Сливаем его с данным.
 	CNode* node = subMeld( head, tmp );
 	head = node;
-	//delete tmp;
 }
 
 // Извлекает вершину кучи и возвращает её ключ.
@@ -72,7 +69,6 @@ T CLeftistHeap<T, Compare>::ExtractTop()
 // Сливает кучу с данной. Другая куча становится пустой.
 // Возвращает указатель на данную кучу.
 template<typename T, class Compare>
-//IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( IMeldableHeap& other )
 IMeldableHeap<T, Compare>* CLeftistHeap<T, Compare>::Meld( IMeldableHeap<T, Compare>& other )
 {
 	CLeftistHeap& lh = dynamic_cast<CLeftistHeap&>(other);

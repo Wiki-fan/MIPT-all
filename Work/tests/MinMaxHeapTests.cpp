@@ -1,6 +1,5 @@
-#include "stdafx.h"
-#include "MinMaxHeapTests.h"
-#include "MinMaxHeap.h"
+#include "../stdafx.h"
+#include "../MinMaxHeap.h"
 
 int MinMaxHeapTest()
 {

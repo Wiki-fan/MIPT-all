@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "CartesianTree.h"
-#include "BinarySearchTree.h"
+#include "../CartesianTree.h"
+#include "../BinarySearchTree.h"
 
 void TestCartesianTreeDepth()
 {

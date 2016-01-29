@@ -1,12 +1,5 @@
 ﻿#include "stdafx.h"
-
-#include "AVLTreeTests.h"
-#include "SplayTreeTests.h"
-//#include "SegmentTreeTests.h"
-//#include "SparseTableTests.h"
-
 //#define MY_CIN_REDIR
-
 int main()
 {
 	srand( time( 0 ) );
@@ -15,9 +8,7 @@ int main()
 	std::streambuf* cinbuf = std::cin.rdbuf();
 	std::cin.rdbuf( ifs.rdbuf() );
 #endif
-	//TestSegmentTree();
-	//TestSparseTable();	
-	Task3();
+
 #ifdef MY_CIN_REDIR
 	std::cin.rdbuf( cinbuf );
 #endif

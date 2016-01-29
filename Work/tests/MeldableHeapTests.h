@@ -1,9 +1,9 @@
 #pragma once
-#include "stdafx.h"
-#include "MeldableHeap.h"
-#include "BinomialHeap.h"
-#include "LeftistHeap.h"
-#include "SkewHeap.h"
+#include "../stdafx.h"
+#include "../MeldableHeap.h"
+#include "../BinomialHeap.h"
+#include "../LeftistHeap.h"
+#include "../SkewHeap.h"
 
 template<typename T>
 struct COperationDescr {

@@ -58,35 +58,6 @@ private:
 		setParent( p->right, p );
 	}
 
-	/*static CNode* rotateRight( CNode* p )
-	{
-		CNode* q = p->left;
-		p->left = q->right;
-		q->right = p;
-		return q;
-	}
-
-	static CNode* rotateLeft( CNode* q ) // левый поворот вокруг q
-	{
-		CNode* p = q->right;
-		q->right = p->left;
-		p->left = q;
-		return p;
-	}*/
-
-	/*static void rotate2( CNode*& p, CNode*& parent )
-	{
-		CNode* gparent = parent->parent;
-		if( gparent != 0 ) {
-			if( parent->left == p ) {
-				parent = rotateRight( parent );
-			} else {
-				parent = rotateRight( parent );
-			}
-		}
-
-	}*/
-
 	static void rotate( CNode *&p, CNode *&parent );
 
 	static CNode* splay( CNode *p );

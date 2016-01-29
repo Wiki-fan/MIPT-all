@@ -71,7 +71,6 @@ bool COpenAddressHashTable::Add( const std::string &key )
 	int hash2 = myHash2( key );
 
 	// Проматываем до ближайшей пустой или удалённой корзины.
-//HELL:
 	int bucket = hash1;
 	CNode **toWrite = 0;
 	for( int probe = 1;
@@ -80,7 +79,7 @@ bool COpenAddressHashTable::Add( const std::string &key )
 		if( probe > table.size() ) {
 			rehash();
 			break;
-		} // HERE
+		}
 		if( *(table[bucket]->Key) == key ) {
 			return false; // Уже есть такой элемент, незачем добавлять.
 		}
@@ -108,8 +107,9 @@ bool COpenAddressHashTable::Remove( const std::string &key )
 	int bucket = hash1;
 	// Проматываем все не равные key элементы.
 	for( int probe = 1; table[bucket] != 0; bucket = setNextBucket( hash1, hash2, probe ) ) {
-		if( probe > table.size() )
-			return false; // HERE
+		if( probe > table.size()) {
+			return false;
+		}
 		if( table[bucket] != deleted && *(table[bucket]->Key) == key ) {
 			break;
 		}
@@ -122,7 +122,7 @@ bool COpenAddressHashTable::Remove( const std::string &key )
 	// Нашли нужный, удаляем.
 	table[bucket]->deleteItem();
 	table[bucket] = deleted;
-	//--keysCount; Для перехеширования не уменьшаем.
+	// Для перехеширования не уменьшаем счётчик количества элементов.
 	return true;
 }
 
@@ -134,8 +134,9 @@ bool COpenAddressHashTable::Has( const std::string &key ) const
 
 	// Ищем элемент, равный нужному. Если доходим до удалённого, ищем дальше, если доходим до пустого, не нашли.
 	for( int probe = 1; table[bucket] != 0; bucket = setNextBucket( hash1, hash2, probe ) ) {
-		if( probe > table.size() )
-			return false; // HERE
+		if( probe > table.size()) {
+			return false;
+		}
 		if( table[bucket] != deleted && *(table[bucket]->Key) == key ) {
 			return true;
 		}

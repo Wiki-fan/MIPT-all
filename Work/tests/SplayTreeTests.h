@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "SplayTree.h"
-#include "AVLTree.h"
-
+#include "../SplayTree.h"
+#include "../AVLTree.h"
+#include <boost/test/included/unit_test.hpp>
 template<typename T>
 class TreeTester {
 public:
@@ -9,8 +9,8 @@ public:
 	{
 		T key;
 		for( int i = 0; i < N; ++i ) {
-			GetRandKey<T>( key );
-			COperationDescr<T>::Operation oper = static_cast<typename COperationDescr<T>::Operation>(rand() % 2);
+			GetRandKey( key );
+			typename COperationDescr<T>::Operation oper = static_cast<typename COperationDescr<T>::Operation>(rand() % 2);
 			opers.push_back( COperationDescr<T>( oper, key ) );
 		}
 	}
@@ -21,13 +21,13 @@ public:
 		int cnt = 0;
 		for( auto i = opers.begin(); i != opers.end(); ++i ) {
 			switch( i->oper ) {
-				case COperationDescr<T>::Insert:
+				case COperationDescr<T>::Operation::Insert:
 					res.push_back( tree.Insert( i->key ) );
 					break;
-				case COperationDescr<T>::Search:
+				case COperationDescr<T>::Operation::Search:
 					res.push_back( tree.Search( i->key ) );
 					break;
-				case COperationDescr<T>::Remove:
+				case COperationDescr<T>::Operation::Remove:
 					res.push_back( tree.Remove( i->key ) );
 					break;
 				default:
@@ -40,7 +40,7 @@ public:
 
 
 private:
-	template<typename T>
+	template<typename F>
 	struct COperationDescr {
 
 	public:
@@ -48,19 +48,16 @@ private:
 			Insert, Search, Remove
 		};
 		COperationDescr() = delete;
-		COperationDescr( Operation& _oper, T& _key )
+		COperationDescr( Operation& _oper, F& _key )
 			: oper( _oper ), key( _key )
 		{
 		}
 
 		Operation oper;
-		T key;
+		F key;
 	};
 
-	template<typename T>
-	void GetRandKey( T& key ) {}
-	template<>
-	void GetRandKey<int>( int& key )
+	void GetRandKey( int& key )
 	{
 		key = rand();
 	}
@@ -118,13 +115,13 @@ void Task3()
 	printf( "%13f %13f %13f\n", SplayTime, AvlTime, StdSetTime );
 }
 
-void AutoTestSplayTree()
+BOOST_AUTO_TEST_CASE( SplayAvlStdComparison )
 {
 	CSplayTree SplayTree;
 	CAVLTree<int> AvlTree;
 	std::set<int> StdSet;
 
-	while( true ) {
+	for( int i = 0; i < 100000; ++i ) {
 		char command = rand() % 3;
 		switch( command ) {
 			case 0:
@@ -148,19 +145,19 @@ void AutoTestSplayTree()
 				SetRes = StdSet.count( key );
 				SplayRes = SplayTree.Search( key );
 				AvlTree.Search( key );
-				massert( SetRes == SplayRes );
+				BOOST_CHECK( SetRes == SplayRes );
 				break;
 			case '+':
 				SetRes = StdSet.insert( key ).second;
 				SplayRes = SplayTree.Insert( key );
 				AvlTree.Insert( key );
-				massert( SetRes == SplayRes );
+				BOOST_CHECK( SetRes == SplayRes );
 				break;
 			case '-':
 				SetRes = StdSet.erase( key );
 				SplayRes = SplayTree.Remove( key );
 				AvlTree.Remove( key );
-				massert( SetRes == SplayRes );
+				BOOST_CHECK( SetRes == SplayRes );
 				break;
 			default:
 				massert( false );

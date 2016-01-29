@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "SparseTable.h"
+#include "../SparseTable.h"
 
 void TestSparseTable()
 {

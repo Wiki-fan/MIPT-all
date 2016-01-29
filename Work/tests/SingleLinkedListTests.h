@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "../stdafx.h"
 
 // Класс тестирующий список CSingleLinkedList
 class CSingleLinkedListTester {

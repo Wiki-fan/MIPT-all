@@ -1,6 +1,6 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "OpenAddressHashTableTests.h"
-#include "OpenAddressHashTable.h"
+#include "../OpenAddressHashTable.h"
 #include <map>
 
 // Случайным образом производит действия с хеш-таблицей и сравнивает результат с результатом std::map.
@@ -9,7 +9,7 @@ void AutoTestOpenAddressHashTable()
 	COpenAddressHashTable hashTable;
 	std::map<std::string, int> map;
 
-	while( true ) {
+	for( int i = 0; i < 100000; ++i ) {
 		char command = rand() % 3;
 		switch( command ) {
 			case 0://case 3:case 4:case 5:case 6:case 7:case 8:case 9:
