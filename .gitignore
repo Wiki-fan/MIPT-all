@@ -16,4 +16,6 @@
 **/.#*
 **/*.tmp
 **/a.out
+**/.DS_Store
+**/thumbs.db
 
