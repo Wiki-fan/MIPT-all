@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "stdafx.h"
 
-namespace my {
+namespace my
+{
 
 const int DequeFragmentSize = 10;
 
@@ -46,18 +47,18 @@ public:
 		typedef typename std::conditional<is_const_iterator, const value_type&, value_type&>::type reference;
 		typedef typename std::conditional<is_const_iterator, const value_type*, value_type*>::type pointer;
 		// Конструктор по умолчанию.
-		CMetaIterator() :parent( 0 ), node( 0 ), iBuf( 0 )
+		CMetaIterator() : parent( 0 ), node( 0 ), iBuf( 0 )
 		{
 		}
 		// Конструктор по номеру элемента в деке.
 		CMetaIterator( CDeque& _parent, difference_type _n );
 		// Копирующий конструктор.
 		CMetaIterator( const self_type& other )
-			: node( other.node ), iBuf( other.iBuf ), parent( other.parent )
+				: node( other.node ), iBuf( other.iBuf ), parent( other.parent )
 		{
 		}
 		// Деструктор.
-		~CMetaIterator() {};
+		~CMetaIterator() { };
 
 		// Префиксный инкремент.
 		self_type operator++();
@@ -82,12 +83,12 @@ public:
 		self_type operator-( difference_type a ) const; // Минус.
 		self_type operator+=( difference_type a )
 		{
-			*this = (*this) + a;
+			*this = ( *this ) + a;
 			return *this;
 		}
 		self_type operator-=( difference_type a )
 		{
-			*this = (*this) - a;
+			*this = ( *this ) - a;
 			return *this;
 		}
 
@@ -106,37 +107,38 @@ public:
 		// Сравнение.
 		bool operator==( const self_type& other ) const
 		{
-			return (node->buf == other.node->buf && iBuf == other.iBuf);
-		}// Неравенство.
+			return ( node->buf == other.node->buf && iBuf == other.iBuf );
+		}
+		// Неравенство.
 		bool operator!=( const self_type& other ) const
 		{
-			return !(*this == other);
+			return !( *this == other );
 		}
 		bool operator>( const self_type& other ) const;
-		bool operator>=( const self_type& other ) const { return ((*this) > other || (*this) == other); };
-		bool operator<( const self_type& other ) const { return !((*this) >= other); };
-		bool operator<=( const self_type& other ) const { return !((*this) > other); };
+		bool operator>=( const self_type& other ) const { return (( *this ) > other || ( *this ) == other ); };
+		bool operator<( const self_type& other ) const { return !(( *this ) >= other ); };
+		bool operator<=( const self_type& other ) const { return !(( *this ) > other ); };
 		// Разыменовывание.
 		reference operator*() const
 		{
 			return node->buf[iBuf];
 		}
 		// Оператор стрелочка.
-		pointer operator->() const { return &(node->buf[iBuf]); };
+		pointer operator->() const { return &( node->buf[iBuf] ); };
 
 		// Прибавка к константе.
-		friend self_type operator+( difference_type a, const self_type &iter )
+		friend self_type operator+( difference_type a, const self_type& iter )
 		{
 			return iter.operator+( a );
 		}
-		friend self_type operator-( difference_type a, const self_type &iter )
+		friend self_type operator-( difference_type a, const self_type& iter )
 		{
 			return iter.operator-( a );
 		}
 
 	private:
 		CMetaIterator( CDeque& _parent, CNode* _buf, difference_type _iBuf )
-			: parent( &_parent ), node( _buf ), iBuf( _iBuf )
+				: parent( &_parent ), node( _buf ), iBuf( _iBuf )
 		{
 		}
 
@@ -160,12 +162,12 @@ public:
 	CIterator end() const { return CIterator( *this, last, l + 1 ); };
 	CConstIterator cend() { return CConstIterator( *this, last, l + 1 ); };
 	CConstIterator cend() const { return CConstIterator( *this, last, l + 1 ); };
-	CReverseIterator rbegin() { return std::reverse_iterator<CIterator>( end() ); };
-	CReverseIterator rbegin() const { return std::reverse_iterator<CIterator>( end() ); };
+	CReverseIterator rbegin() { return std::reverse_iterator<CIterator>( end()); };
+	CReverseIterator rbegin() const { return std::reverse_iterator<CIterator>( end()); };
 	CReverseConstIterator crbegin() { return std::reverse_iterator<CConstIterator>( cend()); };
 	CReverseConstIterator crbegin() const { return std::reverse_iterator<CConstIterator>( cend()); };
-	CReverseIterator rend() { return std::reverse_iterator<CIterator>( begin() ); };
-	CReverseIterator rend() const { return std::reverse_iterator<CIterator>( begin() ); };
+	CReverseIterator rend() { return std::reverse_iterator<CIterator>( begin()); };
+	CReverseIterator rend() const { return std::reverse_iterator<CIterator>( begin()); };
 	CReverseConstIterator crend() { return std::reverse_iterator<CConstIterator>( cbegin()); };
 	CReverseConstIterator crend() const { return std::reverse_iterator<CConstIterator>( cbegin()); };
 
@@ -202,9 +204,9 @@ private:
 
 template<typename T>
 CDeque<T>::CDeque()
-	: f( DequeFragmentSize / 2 ),
-	l( DequeFragmentSize / 2 - 1 ),
-	count( 0 )
+		: f( DequeFragmentSize / 2 ),
+		  l( DequeFragmentSize / 2 - 1 ),
+		  count( 0 )
 {
 	CNode* node = new CNode( 0, 0 );
 	first = last = node;
@@ -300,9 +302,9 @@ const T& CDeque<T>::operator[]( mysize n ) const
 }
 
 template<typename T>
-template <bool is_const_iterator>
+template<bool is_const_iterator>
 CDeque<T>::CMetaIterator<is_const_iterator>::CMetaIterator( CDeque<T>& _parent, difference_type _n ) :
-	parent( &_parent )
+		parent( &_parent )
 {
 	node = parent->first;
 	if( _n < DequeFragmentSize - parent->f ) { // В первой ноде.
@@ -310,7 +312,7 @@ CDeque<T>::CMetaIterator<is_const_iterator>::CMetaIterator( CDeque<T>& _parent, 
 		iBuf = _n + parent->f;
 	} else {
 		CNode* cur = parent->first;
-		mysize curpos = parent->count - (DequeFragmentSize - parent->f);
+		mysize curpos = parent->count - ( DequeFragmentSize - parent->f );
 		while( curpos > DequeFragmentSize - 1 ) {
 			curpos -= DequeFragmentSize;
 			cur = cur->next;
@@ -321,7 +323,7 @@ CDeque<T>::CMetaIterator<is_const_iterator>::CMetaIterator( CDeque<T>& _parent, 
 }
 
 template<typename T>
-template <bool is_const_iterator>
+template<bool is_const_iterator>
 typename CDeque<T>::template CMetaIterator<is_const_iterator>
 CDeque<T>::CMetaIterator<is_const_iterator>::operator++()
 {
@@ -336,7 +338,7 @@ CDeque<T>::CMetaIterator<is_const_iterator>::operator++()
 }
 
 template<typename T>
-template <bool is_const_iterator>
+template<bool is_const_iterator>
 typename CDeque<T>::template CMetaIterator<is_const_iterator>
 CDeque<T>::CMetaIterator<is_const_iterator>::operator--()
 {
@@ -351,7 +353,7 @@ CDeque<T>::CMetaIterator<is_const_iterator>::operator--()
 }
 
 template<typename T>
-template <bool is_const_iterator>
+template<bool is_const_iterator>
 typename CDeque<T>::template CMetaIterator<is_const_iterator>
 CDeque<T>::CMetaIterator<is_const_iterator>::operator+( difference_type a ) const
 {
@@ -364,7 +366,7 @@ CDeque<T>::CMetaIterator<is_const_iterator>::operator+( difference_type a ) cons
 }
 
 template<typename T>
-template <bool is_const_iterator>
+template<bool is_const_iterator>
 typename CDeque<T>::template CMetaIterator<is_const_iterator>
 CDeque<T>::CMetaIterator<is_const_iterator>::operator-( difference_type a ) const
 {
@@ -376,8 +378,8 @@ CDeque<T>::CMetaIterator<is_const_iterator>::operator-( difference_type a ) cons
 	return CMetaIterator( *parent, temp, iBuf - a );
 }
 
-template <typename T>
-template <bool is_const_iterator>
+template<typename T>
+template<bool is_const_iterator>
 typename CDeque<T>::template CMetaIterator<is_const_iterator>::difference_type
 CDeque<T>::CMetaIterator<is_const_iterator>::operator-( const self_type& other )
 {
@@ -401,8 +403,8 @@ CDeque<T>::CMetaIterator<is_const_iterator>::operator-( const self_type& other )
 	}
 	diff -= other.iBuf;
 	// Не нашли, надо было идти в другую сторону.
-	if( fl == false ) {
-		diff = DequeFragmentSize-iBuf;
+	if( ) {
+		diff = DequeFragmentSize - iBuf;
 		temp = other.node;
 		while( temp != 0 ) {
 			if( temp == node ) {
@@ -417,13 +419,13 @@ CDeque<T>::CMetaIterator<is_const_iterator>::operator-( const self_type& other )
 }
 
 template<typename T>
-template <bool is_const_iterator>
+template<bool is_const_iterator>
 bool CDeque<T>::CMetaIterator<is_const_iterator>::operator>( const self_type& other ) const
 {
 	massert( parent == other.parent );
 	// Если они указывают на элементы в одном подмассиве, просто сравниваем индексы.
 	if( other.node == node ) {
-		return iBuf > other.iBuf ? true : false;
+		return iBuf > other.iBuf;
 	}
 	// Проматываем от подмассива other'а до конца. Если найдём подмассив *this'а, то он действительно больше.
 	CNode* temp = other.node;

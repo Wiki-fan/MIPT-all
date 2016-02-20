@@ -111,7 +111,7 @@ CTable::iterator CTable::iterator::operator++( int )
 			++i;
 		}
 	}
-	return *this;
+	return temp;
 }
 
 CTable::iterator::iterator( CTable& _parent, int _i, int _j ) :

@@ -2,7 +2,7 @@
 //#define MY_CIN_REDIR
 int main()
 {
-	srand( time( 0 ) );
+	srand( static_cast<unsigned int>(time( 0 )));
 #ifdef MY_CIN_REDIR
 	std::ifstream ifs( "in.txt", std::ios_base::in );
 	std::streambuf* cinbuf = std::cin.rdbuf();

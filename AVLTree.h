@@ -20,7 +20,7 @@ public:
 	bool Remove( const T& key ) override;
 
 	// Поиск k-й порядковой статистики.
-	int getStatictics( int k ) const;
+	int getStatistics( int k ) const;
 
 private:
 
@@ -172,7 +172,7 @@ inline bool CAVLTree<T>::Remove( const T& key )
 	return fl;
 }
 template<typename T>
-int CAVLTree<T>::getStatictics( int k ) const
+int CAVLTree<T>::getStatistics( int k ) const
 {
 	CNode* p = head;
 	for( ; p != 0; ) {

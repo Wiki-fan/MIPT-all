@@ -57,9 +57,9 @@ bool ToReversePolish( std::istream& is, std::ostream& os )
 			oper.push( '(' );
 			unary_flag = 2; // В конце цикла будет декрементирован. Будет 1, т.е. если дальше минус, то он унарный.
 		} else if( c == ')' ) {
-			massert( !oper.empty(), "closing parethence before opening one" );
+			massert( !oper.empty(), "closing bracket before opening one" );
 			while( oper.top() != '(' ) {
-				massert( !oper.empty(), "closing parethence before opening one" );
+				massert( !oper.empty(), "closing bracket before opening one" );
 				os << oper.pop();
 			}
 			oper.pop(); // Удаляем '(' из стека.

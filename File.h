@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <cstdio>
+#include "stdafx.h"
 
 namespace my
 {
