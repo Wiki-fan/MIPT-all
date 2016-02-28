@@ -6,19 +6,19 @@
 class CSplayTree : public ITree<int> {
 
 public:
-	CSplayTree() : head( 0 ), fl( 0 ) {}
+	CSplayTree() : head( 0 ), fl( 0 ) { }
 	~CSplayTree() { delete head; }
 
 	// Вставка элемента с ключом key.
-	bool Insert( const int &key ) override;
+	bool Insert( const int& key ) override;
 
 	// Поиск элемента с ключом key.
-	bool Search( const int &key ) const override;
+	bool Search( const int& key ) const override;
 
 	// Удаление элемента с ключом key.
-	bool Remove( const int &key ) override;
+	bool Remove( const int& key ) override;
 
-private:
+protected:
 	struct CNode {
 		int key;
 		CNode* parent;
@@ -28,11 +28,11 @@ private:
 		{
 		}
 		explicit CNode( int _key )
-			: key( _key ), parent( 0 ), left( 0 ), right( 0 )
+				: key( _key ), parent( 0 ), left( 0 ), right( 0 )
 		{
 		}
 		CNode( int _key, CNode* _left, CNode* _right, CNode* _parent )
-			: key( _key ), parent( _parent ), left( _left ), right( _right )
+				: key( _key ), parent( _parent ), left( _left ), right( _right )
 		{
 		}
 		~CNode()
@@ -58,29 +58,30 @@ private:
 		setParent( p->right, p );
 	}
 
-	static void rotate( CNode *&p, CNode *&parent );
+	static void rotate( CNode*& p, CNode*& parent );
 
-	static CNode* splay( CNode *p );
+	static CNode* splay( CNode* p );
 
 	// Ищет вершину с ключом key (или ближайшую к ней по значению, если вершины с key нет), и тянет её вверх.
-	static CNode* subSearch( CNode *node, int key );
+	static CNode* subSearch( CNode* node, int key );
 
-	static void split( CNode *p, int key, CNode *&l, CNode *&r );
+	static void split( CNode* p, int key, CNode*& l, CNode*& r, CNode*& m );
 
 	// Сливает два поддерева. Гарантируется, что l->key < r->key.
-	static CNode* Merge( CNode *l, CNode *r );
+	static CNode* merge( CNode* l, CNode* r );
 
 };
 
-inline bool CSplayTree::Insert( const int &key )
+inline bool CSplayTree::Insert( const int& key )
 {
 	// Если такой элемент уже есть, не добавляем.
-	if( Search( key ) ) {
+	if( Search( key )) {
 		return false;
 	}
 	//Разбиваем дерево по ключу.
-	CNode* l, *r;
-	split( head, key, l, r );
+	CNode* l, * r, * m;
+	split( head, key, l, r, m );
+	delete m;
 	// Цепляем получившиеся поддеревья к новой вершине.
 	head = new CNode( key, l, r, 0 );
 	setParent( l, head );
@@ -88,16 +89,16 @@ inline bool CSplayTree::Insert( const int &key )
 	return true;
 }
 
-inline bool CSplayTree::Search( const int &key ) const
+inline bool CSplayTree::Search( const int& key ) const
 {
 	head = subSearch( head, key );
-	return head == 0 ? 0 : (head->key == key);
+	return head == 0 ? 0 : ( head->key == key );
 }
 
-inline bool CSplayTree::Remove( const int &key )
+inline bool CSplayTree::Remove( const int& key )
 {
 	// Ищем нужный элемент и заодно тянем его в вершину.
-	if( !Search( key ) ) {
+	if( !Search( key )) {
 		return false;
 	}
 
@@ -105,7 +106,7 @@ inline bool CSplayTree::Remove( const int &key )
 	setParent( head->left, 0 );
 	setParent( head->right, 0 );
 	CNode* tmp = head;
-	head = Merge( head->left, head->right );
+	head = merge( head->left, head->right );
 	// Удаляем ненужный элемент.
 	tmp->left = tmp->right = 0;
 	delete tmp;
@@ -113,7 +114,7 @@ inline bool CSplayTree::Remove( const int &key )
 }
 
 // Поворот p вокруг parent. Сам понимает, левый или правый.
-inline void CSplayTree::rotate( CNode *&p, CNode *&parent )
+inline void CSplayTree::rotate( CNode*& p, CNode*& parent )
 {
 	// Нужен только для подцепления результата.
 	CNode* gparent = parent->parent;
@@ -140,7 +141,7 @@ inline void CSplayTree::rotate( CNode *&p, CNode *&parent )
 }
 
 // Поднимает данную вершину в корень.
-inline CSplayTree::CNode * CSplayTree::splay( CNode *p )
+inline CSplayTree::CNode* CSplayTree::splay( CNode* p )
 {
 	if( p == 0 ) {
 		return 0;
@@ -156,7 +157,7 @@ inline CSplayTree::CNode * CSplayTree::splay( CNode *p )
 		rotate( p, parent );
 		return p;
 	} else {
-		bool zigzig = (gparent->left == parent) == (parent->left == p);
+		bool zigzig = ( gparent->left == parent ) == ( parent->left == p );
 		// zigzig
 		if( zigzig ) {
 			rotate( parent, gparent );
@@ -170,7 +171,7 @@ inline CSplayTree::CNode * CSplayTree::splay( CNode *p )
 }
 
 // Подпрограмма поиска, тянет в вершину и возвращает либо вершину с ключом key, либо ближайшую к ней.
-inline CSplayTree::CNode * CSplayTree::subSearch( CNode *node, int key )
+inline CSplayTree::CNode* CSplayTree::subSearch( CNode* node, int key )
 {
 	if( node == 0 ) { // Если нужной вершины не имеется...
 		return 0; // возвращаем 0.
@@ -185,8 +186,8 @@ inline CSplayTree::CNode * CSplayTree::subSearch( CNode *node, int key )
 	}
 }
 
-// Разбивает дерево с корнем p по ключу key. Результаты кладутся в l и r.
-inline void CSplayTree::split( CNode *p, int key, CNode *&l, CNode *&r )
+// Разбивает дерево с корнем p по ключу key. Результаты кладутся в l и r. Серединка - в m.
+inline void CSplayTree::split( CNode* p, int key, CNode*& l, CNode*& r, CNode*& m )
 {
 	if( p == 0 ) {
 		l = r = 0;
@@ -200,21 +201,25 @@ inline void CSplayTree::split( CNode *p, int key, CNode *&l, CNode *&r )
 		setParent( p->right, 0 );
 		l = p->left;
 		r = p->right;
+		m = p;
+		m->left = m->right = 0;
 	} else if( p->key < key ) {
 		r = p->right;
 		p->right = 0;
 		setParent( r, 0 );
 		l = p;
+		m = 0;
 	} else {
 		l = p->left;
 		p->left = 0;
 		setParent( l, 0 );
 		r = p;
+		m = 0;
 	}
 }
 
 // Сливает два дерева, возвращает результат.
-inline CSplayTree::CNode * CSplayTree::Merge( CNode *l, CNode *r )
+inline CSplayTree::CNode* CSplayTree::merge( CNode* l, CNode* r )
 {
 	if( r == 0 ) {
 		return l;

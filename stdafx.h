@@ -29,6 +29,9 @@
 #include <functional>
 #include <memory>
 
+
+#include "Smth.h"
+
 typedef long long int mysize;
 typedef long long int type;
 // Подставляемая функция assert'а, выводящая файл, номер строки и (если есть) сообщение об ошибке, 

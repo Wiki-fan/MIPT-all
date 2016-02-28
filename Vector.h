@@ -33,6 +33,8 @@ public:
 	virtual void push_back( const T& item );
 	// Удаление элемента из конца вектора. В отличие от std::vector возвращает удаляемый элемент.
 	virtual T pop_back();
+	// Вставка элемента со значением k на позицию i.
+	void Insert( int i, const T& k );
 	// Перевыделяет память так, чтобы не было лишней неиспользуемой памяти.
 	void shrink_to_fit();
 	// Проверка пустоты вектора.
@@ -193,4 +195,13 @@ void CVector<T>::shrink_to_fit()
 	items = new_items;
 }
 
+template<typename T>
+void CVector<T>::Insert( int i, const T& k )
+{
+	push_back( back());
+	for( int j = size() - 1 - 1; j > i; --i ) {
+		items[j] = items[j - 1];
+	}
+	items[i] = k;
+}
 } // namespace my

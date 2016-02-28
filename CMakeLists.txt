@@ -20,7 +20,6 @@ set(TESTS_SOURCES
 		tests/VectorTests.cpp
 		tests/MeldableHeapTests.h
 		tests/TestBracketSequence.cpp
-		tests/VectorTests.h
 		tests/SingleLinkedListTests.cpp
 		tests/MinMaxHeapTests.cpp
 		tests/SplayTreeTests.h
@@ -48,7 +47,6 @@ set(TESTS_SOURCES
 		stdafx.cpp
 		stdafx.h
 		Table.h
-		Vector.h
 		MeldableHeap.h
 		BinomialHeap.h
 		PtrOwner.h
@@ -63,7 +61,7 @@ set(TESTS_SOURCES
 		SplayTree.h
 		SegmentTree.h
 		SparseTable.h
-		)
+		ImplicitSplayTree.h tests/ImplicitSplayTreeTests.h ImplicitTree.h)
 set(TEST test_${PROJECT_NAME})
 
 set(SOURCE_FILES
@@ -104,7 +102,7 @@ set(SOURCE_FILES
 		SplayTree.h
 		SegmentTree.h
 		SparseTable.h
-		)
+		ImplicitSplayTree.h tests/ImplicitSplayTreeTests.h ImplicitTree.h)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
