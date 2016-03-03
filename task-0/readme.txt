@@ -1,1 +1,1 @@
-This is readme for task 0
+This is a simple HelloWorld project.
