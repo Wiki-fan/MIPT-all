@@ -5,7 +5,7 @@ project(didactic_woof)
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "" FORCE)
 #set(CMAKE_CONFIGURATION_TYPES "Release;Debug;MyDebug" CACHE STRING "" FORCE)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wwrite-strings")
 #SET(CMAKE_CXX_FLAGS_MYDEBUG "-gdwarf-2 -Wall -Wabi -g -p" CACHE STRING
 #		"My debug."
 #		FORCE)
@@ -61,7 +61,7 @@ set(TESTS_SOURCES
 		SplayTree.h
 		SegmentTree.h
 		SparseTable.h
-		ImplicitSplayTree.h tests/ImplicitSplayTreeTests.h ImplicitTree.h)
+		ImplicitSplayTree.h tests/ImplicitTreeTests.h ImplicitTree.h)
 set(TEST test_${PROJECT_NAME})
 
 set(SOURCE_FILES
@@ -102,7 +102,7 @@ set(SOURCE_FILES
 		SplayTree.h
 		SegmentTree.h
 		SparseTable.h
-		ImplicitSplayTree.h tests/ImplicitSplayTreeTests.h ImplicitTree.h)
+		ImplicitSplayTree.h tests/ImplicitTreeTests.h ImplicitTree.h ImplicitSplayTree.cpp ImplicitCartesianTree.cpp ImplicitCartesianTree.h)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

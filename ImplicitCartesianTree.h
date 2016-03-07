@@ -2,12 +2,12 @@
 #include "stdafx.h"
 #include "ImplicitTree.h"
 
-// Сплэй-дерево по неявному ключу.
-class CImplicitSplayTree : public IImplicitTree {
+// Декартово дерево по неявному ключу.
+class CImplicitCartesianTree : public IImplicitTree {
 
 public:
-	CImplicitSplayTree() : head( 0 ), fl( 0 ) { }
-	~CImplicitSplayTree() { delete head; }
+	CImplicitCartesianTree() : head( 0 ) { }
+	~CImplicitCartesianTree() { delete head; }
 
 	// Вставка элемента k по индексу i.
 	void Insert( int i, int k );
@@ -15,22 +15,23 @@ public:
 	// Присвоение элементу с индексом i значения k.
 	void Assign( int i, int k );
 
-	// Сумма на подотрезке [l. r).
+	// Сумма на полуинтервале [l, r).
 	int SumSubSegment( int l, int r );
 
-	// Лексикографически следующая перестановка элементов подотрезка [l, r).
+	// Лексикографически следующая перестановка на полуинтервале [l, r).
 	bool NextPermutation( int l, int r );
 
 	// Распечатывает дерево и возвращает вектор со значениями дерева.
 	void Print()
 	{
 		std::vector<int> vec;
-		printf( "Splay: " );
+		printf( "Cartes:" );
 		print( head );
 		printf( "\n" );
 	}
 
-	std::vector<int> InorderDump()
+	// Делает inorder-обход и результаты возвращает в виде вектора.
+	std::vector<int> Inorder()
 	{
 		std::vector<int> vec;
 		inorderTraversal( head, vec );
@@ -43,6 +44,7 @@ protected:
 		CNode* left;
 		CNode* right;
 		int c; // Количество вершин в поддереве
+		int priority; // Приоритет декартового дерева.
 		int sum; // Сумма вершин поддерева.
 		int val; // Значение вершины.
 		bool reversed; // Отложенная модификация.
@@ -51,11 +53,11 @@ protected:
 		CNode() = delete;
 		explicit CNode( int _val )
 				: parent( 0 ), left( 0 ), right( 0 ), c( 1 ), sum( _val ), val( _val ), lss( 1 ), lsp( 1 ), last( val ),
-				  first( val )
+				  first( val ), priority( rand()), reversed( false )
 		{
 		}
 		CNode( int _val, CNode* _left, CNode* _right, CNode* _parent )
-				: parent( _parent ), left( _left ), right( _right ), val( _val )
+				: parent( _parent ), left( _left ), right( _right ), val( _val ), priority( rand()), reversed( false )
 		{
 			recalcAll( this );
 		}
@@ -70,6 +72,7 @@ protected:
 	static void inorderTraversal( CNode* node, std::vector<int>& vec )
 	{
 		if( node != 0 ) {
+			push( node );
 			inorderTraversal( node->left, vec );
 			vec.push_back( node->val );
 			inorderTraversal( node->right, vec );
@@ -79,14 +82,14 @@ protected:
 	static void print( CNode* node )
 	{
 		if( node != 0 ) {
+			push( node );
 			print( node->left );
 			printf( "%d ", node->val );
 			print( node->right );
 		}
 	}
 
-	mutable CNode* head;
-	bool fl;
+	/*mutable */CNode* head;
 
 	// Проталкивание отложенных изменений.
 	static void push( CNode* p )
@@ -101,8 +104,6 @@ protected:
 
 		recalcLS( p );
 		p->reversed = false;
-		push( p->left );
-		push( p->right );
 	}
 
 	// Реверс отрезка, соответствующего вершине p.
@@ -115,17 +116,10 @@ protected:
 		}
 	}
 
-	static int findNearestBiggerThan( CNode*& p, int value );
-
 	// Получить количество детей в поддереве с вершиной в данной или 0.
 	static int getC( CNode* p )
 	{
 		return p == 0 ? 0 : p->c;
-	}
-
-	static int getVal( CNode* p )
-	{
-		return p == 0 ? 0 : p->val;
 	}
 
 	// Получить сумму в поддереве с вершиной в данной или 0.
@@ -161,7 +155,51 @@ protected:
 	}
 
 	// Пересчитать префиксы/суффиксы.
-	static void recalcLS( CNode* node );
+	static void recalcLS( CNode* node )
+	{
+		if( node == 0 ) {
+			return;
+		}
+
+		bool fl = true;
+		// Суффикс.
+		if( node->right != 0 ) {
+			node->lss = node->right->lss;
+			node->last = node->right->last;
+			if( getLSS( node->right ) == getC( node->right ) && node->val >= node->right->first ) {
+				node->lss += 1;
+			} else {
+				fl = false;
+			}
+		} else {
+			node->lss = 1;
+			node->last = node->val;
+		}
+		if( node->left && node->left->last >= node->val && fl ) {
+			node->lss += node->left->lss;
+		}
+
+		// Префикс.
+		fl = true;
+		if( node->left != 0 ) {
+			node->lsp = node->left->lsp;
+			node->first = node->left->first;
+			if( getLSP( node->left ) == getC( node->left ) && node->val >= node->left->last ) {
+				node->lsp += 1;
+			} else {
+				fl = false;
+			}
+		} else {
+			node->lsp = 1;
+			node->first = node->val;
+		}
+
+		if( node->right && node->right->first >= node->val && fl ) {
+			node->lsp += node->right->lsp;
+		}
+
+
+	}
 
 	// Пересчитать всё.
 	static void recalcAll( CNode* node )
@@ -172,70 +210,11 @@ protected:
 		recalcLS( node );
 	}
 
-	static void setParent( CNode* p, CNode* parent )
-	{
-		if( p != 0 ) {
-			p->parent = parent;
-		}
-	}
+	static void split( CNode* p, int i, CNode*& l, CNode*& r );
 
-	static void setChildsParent( CNode* p )
-	{
-		setParent( p->left, p );
-		setParent( p->right, p );
-	}
-
-	static void rotate( CNode*& p, CNode*& parent );
-
-	static CNode* splay( CNode* p );
-
-	// Ищет вершину с ключом key (или ближайшую к ней по значению, если вершины с key нет), и тянет её вверх.
-	static CNode* subSearch( CNode* node, int key );
-
-	static CNode* nonRecursiveSubSearch( CNode* node, int i );
-
-	static CNode* subValSearch( CNode* node, int val )
-	{
-		if( node == 0 ) { // Если нужной вершины не имеется...
-			return 0; // возвращаем 0.
-		} else { // Иначе ищем дальше.
-			if( node->val > val && node->right != 0 ) {
-				return subSearch( node->right, val );
-			} else if( node->val < val && node->left != 0 ) {
-				return subSearch( node->left, val );
-			} else {
-				return splay( node ); // Тащим вверх.
-			}
-		}
-	}
-	static void splitByVal( CNode* p, int val, CNode*& l, CNode*& r )
-	{
-		if( p == 0 ) {
-			l = r = 0;
-			return;
-		}
-		// Отыскиваем нужную вершину.
-		p = subValSearch( p, val );
-		// Нужным образом перенавешиваем вершины.
-		if( p->val >= val ) {
-			r = p->right;
-			p->right = 0;
-			setParent( r, 0 );
-			l = p;
-		} else {
-			l = p->left;
-			p->left = 0;
-			setParent( l, 0 );
-			r = p;
-		}
-	}
-
-	void split( CNode* p, int key, CNode*& l, CNode*& r );
-
-	void recursiveSplit( CNode* p, int i, CNode*& l, CNode*& r );
-
-	// Сливает два поддерева. Гарантируется, что l->key < r->key.
 	static CNode* merge( CNode* l, CNode* r );
 
-};
+	// Разбивает по значению. Применяется на убывающей последовательности, обнаруженной на одном из шагов NextPermutation.
+	static void splitByVal( CNode* t, int val, CNode*& l, CNode*& r );
 
+};

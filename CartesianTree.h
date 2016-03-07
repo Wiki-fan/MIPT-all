@@ -36,7 +36,6 @@ private:
 	void subSplit( CNode* t, T key, CNode*& l, CNode*& r );
 	void subInsert( CNode*& t, CNode* it );
 
-
 	void inorderTraversal( CNode* node ) const;
 };
 

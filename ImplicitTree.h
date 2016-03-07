@@ -3,6 +3,9 @@
 
 class IImplicitTree {
 public:
+	IImplicitTree() { }
+	virtual ~IImplicitTree() { }
+
 	// Вставка элемента со значением k на позицию i.
 	virtual void Insert( int i, int k ) = 0;
 
