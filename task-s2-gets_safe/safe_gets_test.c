@@ -1,7 +1,6 @@
-#include "Tests.h"
-#include "SafeString.h"
+#include "safe_string.h"
 
-void TestS2()
+int main()
 {
 	FILE* f;
 	char* str;
@@ -9,7 +8,9 @@ void TestS2()
 		printf("Unable to open file\n");
 		exit(1);
 	};
-	str = malloc(2000*sizeof(char));
 	gets_safe(f, &str);
 	printf("%s", str);
+
+	free(str);
+	return 0;
 }

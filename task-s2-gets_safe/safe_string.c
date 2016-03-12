@@ -1,6 +1,7 @@
-#include "SafeString.h"
+#include <string.h>
+#include "safe_string.h"
 
-int gets_safe(FILE* f, char** str)
+int gets_safe_ext(FILE* f, char** str, const char* term)
 {
 	int bufSize = 1000; /* Initial buffer size. */
 	char* buf = (char*)malloc(bufSize*sizeof(char)), *newBuf = NULL;
@@ -23,14 +24,19 @@ int gets_safe(FILE* f, char** str)
 		}
 		*iter++ = c;
 		/* Characters that should terminate input. */
-		if (c == '\0' || c == '\n') {
+		if (c == '\0' || strchr(term, c)) {
 			break;
 		}
 	}
 	/* Append '\0' if terminating character was '\n'. */
-	if (c == '\n') {
+	if (c != '\0') {
 		*iter = '\0';
 	}
 	*str = buf;
 	return i;
+}
+
+int gets_safe(FILE* f, char** str)
+{
+	return gets_safe_ext(f, str, "\n");
 }
