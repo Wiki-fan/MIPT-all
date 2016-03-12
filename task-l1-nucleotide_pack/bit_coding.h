@@ -1,5 +1,6 @@
 #ifndef TASK_L1__BIT_CODING
 #define TASK_L1__BIT_CODING
+#include <stdlib.h>
 
 /* Function that encodes symbols in alphabet with cardinality lesser than
  * 256. Returns number of bits written to answer. Both toEncode and
@@ -7,7 +8,7 @@
  * Memory for answer is allocated inside the function.
  */
 extern int      BitEncode(const char *toEncode, const char *alphabet,
-			  char **answer);
+			  char **answer, bool tightBuffer, bool memoryAllocated );
 
 /*
  * Function that decodes symbols in alphabet with cardinality lesser than
@@ -15,7 +16,8 @@ extern int      BitEncode(const char *toEncode, const char *alphabet,
  * answer will be pointing to resulting c-string. toDecode is pointing to
  * bits encoded bits. Memory for answer is allocated inside the function.
  */
+/* returns number of decoded. It will be lesser than size, if end character found. */
 extern int      BitDecode(const char *toDecode, const char *alphabet,
-			  char **answer, int bits);
+			  char **answer, size_t size, bool memoryAllocated);
 
 #endif /* TASK_L1__BIT_CODING */

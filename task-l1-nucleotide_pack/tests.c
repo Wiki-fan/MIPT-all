@@ -16,10 +16,10 @@ bool TestBitEncodeDecode()
 			count2;
 	bool ret;
 
-	count = BitEncode( str, alphabet, &ans );
-	printf( "%d: %s\n", count , ans);
+	count = BitEncode( str, alphabet, &ans, false, false );
+	printf( "%d: %s\n", count, ans);
 
-	count2 = BitDecode( ans, alphabet, &ans2, count );
+	count2 = BitDecode( ans, alphabet, &ans2, count, false );
 	printf( "%d: %s\n", count2, ans2 );
 
 	ret = !(strcmp(str, ans2));
@@ -32,6 +32,6 @@ bool TestBitEncodeDecode()
 
 extern void TestL1()
 {
-	nucleotide_pack("in.fasta", "out.gfasta");
-	nucleotide_unpack("out.gfasta", "result.fasta");
+	nucleotide_pack(0, "in.fasta", "out.gfasta" );
+	nucleotide_pack(1, "out.gfasta", "res.fasta" );
 }
