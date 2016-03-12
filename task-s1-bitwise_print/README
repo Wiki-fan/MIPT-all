@@ -1,0 +1,6 @@
+Macro that prints all the bits of X to stdout.
+Format like that:
+0001 1111 | ....
+   1    F
+
+Executable bitwise_print shows example of work.

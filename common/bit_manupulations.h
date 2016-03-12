@@ -5,7 +5,13 @@
  * Returns bit at BIT_POS position of BYTE+BYTE_POS byte.
  */
 #define GET_BIT( BIT_POS, BYTE_POS, BYTE ) \
-	(char)((((unsigned char*)&BYTE)[BYTE_POS] >> BIT_POS) & 1)
+	(unsigned char)((GET_BYTE(BYTE, BYTE_POS) >> BIT_POS) & 1)
+
+/*
+ * Returns byte BYTE+BYTE_POS
+ */
+#define GET_BYTE( X, BYTE_POS) \
+	( ((unsigned char*)&X)[BYTE_POS] )
 
 /*
  * Sets bit at BIT_POS of BYTE to value 1.

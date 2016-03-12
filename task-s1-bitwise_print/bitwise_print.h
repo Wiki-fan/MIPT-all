@@ -36,7 +36,7 @@
 	putchar('\n'); \
 	for ( i##X = (int)sizeof(X)*2-1; i##X >= 0 ; --i##X ) \
 	{ \
-		printf("%4x", i##X*4); \
+		printf("%4x", (GET_BYTE(X, i##X/2) >> (i##X%2==0?0:4) & 0xf)); \
 		if (i##X%2 ==0 ) \
 		{ \
 			printf("   "); \
