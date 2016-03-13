@@ -3,12 +3,12 @@
 #include <stdlib.h>
 
 /* Function that encodes symbols in alphabet with cardinality lesser than
- * 256. Returns number of bits written to answer. Both toEncode and
+ * 256. Returns number of successfully coded symbols (excluding end-of-string). Both toEncode and
  * alphabet are c-strings. answer will be pointing to resulting c-string.
  * Memory for answer is allocated inside the function.
  */
 extern int      BitEncode(const char *toEncode, const char *alphabet,
-			  char **answer, bool tightBuffer, bool memoryAllocated );
+			  char **answer );
 
 /*
  * Function that decodes symbols in alphabet with cardinality lesser than
@@ -18,6 +18,6 @@ extern int      BitEncode(const char *toEncode, const char *alphabet,
  */
 /* returns number of decoded. It will be lesser than size, if end character found. */
 extern int      BitDecode(const char *toDecode, const char *alphabet,
-			  char **answer, size_t size, bool memoryAllocated);
+			  char **answer, size_t size);
 
 #endif /* TASK_L1__BIT_CODING */

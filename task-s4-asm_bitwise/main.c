@@ -33,3 +33,12 @@ int print(long int X, char* str) {
 	}
 	*str++ = '\n';
 }
+
+int print2(long int X, char* str) {
+	int i, k;
+	for( i = sizeof(X)*8-1; i >= 0; --i ) {
+		*str++ = GET_BIT(k, i, X)? '1':'0';
+	}
+	*str++ = '\n';
+	*str++ = '\n';
+}

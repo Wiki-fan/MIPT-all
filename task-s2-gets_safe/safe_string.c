@@ -28,7 +28,7 @@ int gets_safe_ext(FILE* f, char** str, const char* term)
 			break;
 		}
 	}
-	/* Append '\0' if terminating character was '\n'. */
+	/* Append '\0' if terminating character was term. */
 	if (c != '\0') {
 		*iter = '\0';
 	}

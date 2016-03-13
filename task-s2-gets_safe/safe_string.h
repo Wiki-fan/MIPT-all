@@ -1,3 +1,6 @@
+#ifndef TASK_S2__GETS_SAFE
+#define TASK_S2__GETS_SAFE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -13,3 +16,5 @@ extern int gets_safe_ext(FILE* f, char** str, const char* term);
  * Variation of gets_safe_ext, where term is always "\n".
  */
 extern int gets_safe(FILE* f, char** str);
+
+#endif /* TASK_S2__GETS_SAFE */

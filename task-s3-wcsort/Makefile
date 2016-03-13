@@ -1,4 +1,4 @@
-TARGET= hello_world
+TARGET= wcsort
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
@@ -7,7 +7,7 @@ CFLAGS=-Wextra -ansi -pedantic -lm
 
 all: $(TARGET)
 
-safe_gets_test: $(OBJ)
+wcsort: $(OBJ)
 	$(CC) -o $@ $^
 
 %.o: %.c

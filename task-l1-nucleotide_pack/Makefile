@@ -1,14 +1,14 @@
-TARGET= bitwise_print
+TARGET= nucleotide_pack
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
 CC=gcc
-CFLAGS=-Wextra -ansi -pedantic -lm
+CFLAGS=-Wextra -ansi -pedantic
 
 all: $(TARGET)
 
-bitwise_print: $(OBJ)
-	$(CC) -o $@ $^
+nucleotide_pack: $(OBJ) ../task-s2-gets_safe/safe_string.o
+	$(CC) -o $@ $^ -lm
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -MD $<

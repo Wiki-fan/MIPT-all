@@ -2,7 +2,7 @@
 #define TASK_S1__BITWISE_PRINT
 
 #include <stdio.h>
-#include "../common/BitManipulations.h"
+#include "../common/bit_manipulations.h"
 
 /*
  * Macro that prints all the bits of X to stdout.

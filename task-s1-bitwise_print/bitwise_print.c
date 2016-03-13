@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "BitwisePrint.h"
+#include "bitwise_print.h"
 
 struct TestStruct
 {

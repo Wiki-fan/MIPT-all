@@ -1,34 +1,49 @@
-#include "NucleotidePack.h"
+#include "nucleotide_pack.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
-#include "../common/BitManipulations.h"
-#include "../task-s2-gets_safe/SafeString.h"
-#include "BitCoding.h"
+#include "../common/bit_manipulations.h"
+#include "../task-s2-gets_safe/safe_string.h"
+#include "bit_coding.h"
 
-int readWhileNotNew( char* buf, int bufSize, FILE* inf, const char* alphabet, bool skipOther )
+#define NUCLEOTIDE_GROUP_W 10
+#define NUCLEOTIDE_STRING_G 6
+int readWhileNotNew( FILE* f, char** str, const char* term, int size)
 {
-	int count;
+	int bufSize = 1000; /* Initial buffer size. */
+	char* buf = (char*)malloc(bufSize*sizeof(char)), *newBuf = NULL;
 	int c;
-	for( count = 0; count < bufSize; ++count ) {
-		c = getc( inf );
-		if( c == EOF) {
-			return count;
+	char* iter = buf;
+	int i = 0;
+	while ( (c = getc(f)) != EOF) {
+		++i;
+		/* Realloc if needed. */
+		if (i == bufSize-1) {
+			bufSize *= 2;
+			newBuf = realloc(buf, bufSize*sizeof(char));
+			if (newBuf != 0) {
+				buf = newBuf;
+				iter = buf + i-1;
+			} else {
+				puts("Error reallocating memory\n");
+				exit(1);
+			}
 		}
-		/* New sequence check. */
-		if( c == '>' ) {
-			ungetc( c, inf );
-			return count;
+		if (c != '\0' && strchr(term, c)) {
+			ungetc(c, f);
+			break;
 		}
-		/* Cut characters that are not in alphabet. */
-		if (skipOther &&!strchr(alphabet, c)) {
-			continue;
-		}
-		*(buf++) = c;
+		*iter++ = c;
+		/* Characters that should terminate input. */
 	}
-	return count;
+	/* Append '\0' if terminating character was term. */
+	if (c != '\0') {
+		*iter = '\0';
+	}
+	*str = buf;
+	return i;
 }
 
 void nucleotide_pack( char direction, const char* inFileName, const char* outFileName )
@@ -41,7 +56,8 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
 	char* inBuf, * outBuf;
 	size_t count = 0;
 	int ret;
-	int inBufferSize, outBufferSize; /* In bytes. */
+	/*int inBufferSize, outBufferSize; /* In bytes. */
+
 
 	if(( inf = fopen( inFileName, "rb" )) == NULL) {
 		fprintf( stderr, "Failed to open file %s.\n", inFileName );
@@ -52,56 +68,45 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
 		exit( 1 );
 	}
 
-	if( direction == 0 ) {
-		inBufferSize = 8;
-		outBufferSize = symbolSize;
-	} else if( direction == 1 ) {
-		inBufferSize = symbolSize;
-		outBufferSize = 8;
-	} else {
-		fprintf( stderr, "Unknown direction of packing.\n" );
-		exit( 1 );
-	}
-
-	outBuf = (char*) malloc( inBufferSize * sizeof( char ));
-	inBuf = (char*) malloc( outBufferSize * sizeof( char ));
-	if( inBuf == NULL || outBuf == NULL) {
-		printf( stderr, "Troubles with memory allocation.\n" );
-		exit( 1 );
-	}
-
 	while( gets_safe( inf, &header )) {
 		/* Copying the header. */
 		fputs( header, outf );
 		if( direction == 0 ) {
-			do {
-				count = readWhileNotNew( inBuf, inBufferSize, inf, alphabet, true);
+			/*count = readWhileNotNew( inBuf, inBufferSize, inf, alphabet, true);*/
+			count = readWhileNotNew( inf, &inBuf, ">", -1);
 
-				/* The last portion should be coded with end symbol. */
-				ret = BitEncode( inBuf, alphabet, &outBuf, count == inBufferSize ? true : false , true);
-				fwrite( outBuf, sizeof( char ), (ret*3)/8+1, outf );
-			} while( count == inBufferSize );
+			/* The last portion should be coded with end symbol. */
+			ret = BitEncode( inBuf, alphabet, &outBuf );
+			fwrite(&ret, sizeof(int), 1, outf);
+			fwrite( outBuf, sizeof( char ), (( ret + 1 ) * 3 ) / 8 + 1, outf );
 		} else if( direction == 1 ) {
-			bool fl = true;
-			while( fl ) {
-				count = readWhileNotNew( inBuf, inBufferSize, inf, alphabet, false );
+			int j;
+			fread(&ret, sizeof(int), 1, outf);
+			/*count = readWhileNotNew( inBuf, inBufferSize, inf, alphabet, false );*/
+			count = readWhileNotNew( inf, &inBuf, ">", ret );
 
-				ret = BitDecode( inBuf, alphabet, &outBuf, outBufferSize, true);
-				/*if (count == 0 && ret < outBufferSize ) {
-					fprintf(stderr, "Missing end-of-sequence symbol.\n");
-					exit(1);
-				}*/
-				if (ret < outBufferSize) {
-					fl = false;
+			ret = BitDecode( inBuf, alphabet, &outBuf, ret);
+
+			while(ret>0) {
+				for (j = 0; j<NUCLEOTIDE_STRING_G && ret>0; ++j) {
+					fwrite( outBuf, sizeof( char ),
+					        ret>NUCLEOTIDE_GROUP_W?NUCLEOTIDE_GROUP_W:ret, outf );
+					ret -= NUCLEOTIDE_GROUP_W;
+					putc(' ', outf);
 				}
-				fwrite( outBuf, sizeof( char ), ret, outf );
+				putc('\n', outf);
 			}
+			/*fwrite( outBuf, sizeof( char ), ret, outf );*/
+
+		} else {
+			fprintf( stderr, "Unknown direction of packing.\n" );
+			exit( 1 );
 		}
+		free( inBuf );
+		free( outBuf );
 	}
 
 	free( header );
-	free( inBuf );
-	free( outBuf );
 	fclose( inf );
 	fclose( outf );
 }
