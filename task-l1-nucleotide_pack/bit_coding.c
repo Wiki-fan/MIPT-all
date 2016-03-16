@@ -2,7 +2,6 @@
 #include <math.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <ctype.h>
 #include "bit_coding.h"
 #include "../common/bit_manipulations.h"
@@ -21,25 +20,20 @@ int BitEncode( const char* toEncode, const char* alphabet, char** answer)
 			i,
 			bit;
 	char* temp;
-	bool fl = true;
 	int count = 0;
 
 	*answer = malloc( answerSize / 8 + 1 );    /* Allocating memory for answer. */
 	out = *answer;
-	while( fl ) {
-		if( !(c = *in) ) {
-			character = alphabetSize; /* End character. */
-			fl = false;
+	while( c = *in ) {
+		c = tolower(*in);
+		temp = strchr( alphabet, c );    /* Integer that will represent character encoded. */
+		if( temp == NULL) {
+			++in;
+			continue; /* Character is not in our alphabet. Skip. */
 		} else {
-			c = tolower(*in);
-			temp = strchr( alphabet, c );    /* Integer that will represent character encoded. */
-			if( temp == NULL) {
-				++in;
-				continue; /* Character is not in our alphabet. Skip. */
-			} else {
-				character = (char) ( temp - alphabet );
-			}
+			character = (char) ( temp - alphabet );
 		}
+
 		for( i = 0; i < symbolSize; ++i ) {
 			READ_BIT( bit, i, character );
 
@@ -54,15 +48,15 @@ int BitEncode( const char* toEncode, const char* alphabet, char** answer)
 		++in;
 		++count;
 	}
-	return count-1;
+
+	return count; /* Encoded symbols, without end-of-string character. */
 }
 
-int BitDecode( const char* toDecode, const char* alphabet, char** answer, size_t size)
+int BitDecode( const char* toDecode, const char* alphabet, char** answer, int size )
 {
-	int alphabetSize = (int) strlen( alphabet ),    /* Number of symbols in alphabet. */
-			symbolSize = (int) log( alphabetSize ) + 2;    /* Bits in one character. */
+	unsigned char alphabetSize = (unsigned char) strlen( alphabet ),    /* Number of symbols in alphabet. */
+			symbolSize = (unsigned char) ( log( alphabetSize ) + 2 );    /* Bits in one character. */
 	int i = 0, j;
-	bool fl = true;
 	const char* in = toDecode;    /* Input iterator. */
 	char bit,    /* Bit that we'll read and write. */
 			symbol,    /* Encoded character. */
@@ -71,11 +65,11 @@ int BitDecode( const char* toDecode, const char* alphabet, char** answer, size_t
 	*answer = malloc((size_t) size + 1 );    /* Allocating memory for answer. */
 	out = *answer;
 
-	for (i = 0; i<size; ++i) {
+	while (i< size ) {
 		symbol = 0;
 		/* Reading symbolSize bits. */
 		for( j = 0; j < symbolSize; ++j ) {
-			/* Reading bit to bit. */
+			/* Reading bit. */
 			READ_BIT( bit, bitPosToRead, *in );
 			++bitPosToRead;
 			if( bitPosToRead > 7 ) {
@@ -86,17 +80,10 @@ int BitDecode( const char* toDecode, const char* alphabet, char** answer, size_t
 			/* Writing bit to symbol. */
 			WRITE_BIT( bit, j, symbol );
 		}
-		if (symbol == alphabetSize) {
-			break;
-		}
+		++i;
 		*out = alphabet[(unsigned char) symbol];
 		++out;
-		/*++i;
-		if (i > size) {
-			fprintf(stderr, "Missing end-of-sequence symbol.\n");
-			exit(1);
-		}*/
 	}
-	*out = '\0';        /* Adding "end of string" symbol. */
-	return i;
+	*out = '\0'; /* Adding end-of-string symbol. */
+ 	return i;
 }

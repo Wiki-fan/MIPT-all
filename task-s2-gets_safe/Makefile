@@ -1,13 +1,13 @@
-TARGET= safe_gets_test
+TARGET= test_safe_gets
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
 CC=gcc
-CFLAGS=-Wextra -ansi -pedantic -lm
+CFLAGS=-Wall -ansi -pedantic -lm
 
 all: $(TARGET)
 
-safe_gets_test: $(OBJ)
+test_safe_gets: $(OBJ)
 	$(CC) -o $@ $^
 
 %.o: %.c

@@ -1,0 +1,16 @@
+nucleotide_pack_task
+
+Input file .fasta looks like:
+>string_name\n
+atgcc...[actually nucleotide sequence. May be interrupted with ANY OTHER characters (except '>'), which should be skipped without errors. ]
+We CAN store the whole sequence (but only one) in memory.
+
+Output file .gfasta looks like:
+>string_name\n
+[4 bytes int representing number of nucleotides in this sequence][encoded nucleotide sequence, end of sequence is coded as character distinct from the alphabet.]
+We should store 6 groups of 10 symbols on a single line.
+
+Usage:
+./nucleotide_pack [pack/unpack] in_file out_file
+
+Ready for check.

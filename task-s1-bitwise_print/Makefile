@@ -1,13 +1,13 @@
-TARGET= bitwise_print
+TARGET= test_bitwise_print
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
 CC=gcc
-CFLAGS=-Wextra -ansi -pedantic -lm
+CFLAGS=-Wall -ansi -pedantic -lm
 
 all: $(TARGET)
 
-bitwise_print: $(OBJ)
+test_bitwise_print: $(OBJ)
 	$(CC) -o $@ $^
 
 %.o: %.c

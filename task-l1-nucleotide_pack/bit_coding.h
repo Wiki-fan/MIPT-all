@@ -7,7 +7,7 @@
  * alphabet are c-strings. answer will be pointing to resulting c-string.
  * Memory for answer is allocated inside the function.
  */
-extern int      BitEncode(const char *toEncode, const char *alphabet,
+extern int BitEncode(const char *toEncode, const char *alphabet,
 			  char **answer );
 
 /*
@@ -17,7 +17,7 @@ extern int      BitEncode(const char *toEncode, const char *alphabet,
  * bits encoded bits. Memory for answer is allocated inside the function.
  */
 /* returns number of decoded. It will be lesser than size, if end character found. */
-extern int      BitDecode(const char *toDecode, const char *alphabet,
-			  char **answer, size_t size);
+extern int BitDecode(const char *toDecode, const char *alphabet,
+			  char **answer, int size );
 
 #endif /* TASK_L1__BIT_CODING */
