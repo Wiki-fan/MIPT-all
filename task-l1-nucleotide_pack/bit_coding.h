@@ -8,7 +8,7 @@
  * Memory for answer is allocated inside the function.
  */
 extern int BitEncode(const char *toEncode, const char *alphabet,
-			  char **answer );
+                     char **answer );
 
 /*
  * Function that decodes symbols in alphabet with cardinality lesser than
@@ -18,6 +18,6 @@ extern int BitEncode(const char *toEncode, const char *alphabet,
  */
 /* returns number of decoded. It will be lesser than size, if end character found. */
 extern int BitDecode(const char *toDecode, const char *alphabet,
-			  char **answer, int size );
+                     char **answer, int size );
 
 #endif /* TASK_L1__BIT_CODING */

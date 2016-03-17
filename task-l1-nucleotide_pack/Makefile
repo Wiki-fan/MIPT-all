@@ -7,8 +7,9 @@ CFLAGS=-Wall -ansi -pedantic
 
 all: $(TARGET)
 
-nucleotide_pack: $(OBJ) ../task-s2-gets_safe/safe_string.o
-	$(CC) -o $@ $^ -lm
+nucleotide_pack: $(OBJ)
+	$(MAKE) -C ../task-s2-gets_safe
+	$(CC) -o $@ $^ ../task-s2-gets_safe/safe_string.o -lm
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -MD $<
