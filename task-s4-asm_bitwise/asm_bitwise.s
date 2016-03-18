@@ -1,196 +1,114 @@
-	.file	"main.c"
-	.section	.rodata
-.LC0:
-	.string	"%4x"
-	.text
-	.globl	print
-	.type	print, @function
-print:
-.LFB0:
-	.cfi_startproc
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	subq	$32, %rsp
-	movq	%rdi, -24(%rbp)
-	movq	%rsi, -32(%rbp)
-	movl	$7, -4(%rbp)
-	jmp	.L2
-.L8:
-	movl	$7, -8(%rbp)
-	jmp	.L3
-.L4:
-	movq	-32(%rbp), %rax
-	leaq	1(%rax), %rdx
-	movq	%rdx, -32(%rbp)
-	movl	-4(%rbp), %edx
-	movslq	%edx, %rdx
-	leaq	-24(%rbp), %rcx
-	addq	%rcx, %rdx
-	movzbl	(%rdx), %edx
-	movzbl	%dl, %esi
-	movl	-8(%rbp), %edx
-	movl	%edx, %ecx
-	sarl	%cl, %esi
-	movl	%esi, %edx
-	andl	$1, %edx
-	movb	%dl, (%rax)
-	subl	$1, -8(%rbp)
-.L3:
-	cmpl	$3, -8(%rbp)
-	jg	.L4
-	movq	-32(%rbp), %rax
-	leaq	1(%rax), %rdx
-	movq	%rdx, -32(%rbp)
-	movb	$32, (%rax)
-	jmp	.L5
-.L6:
-	movq	-32(%rbp), %rax
-	leaq	1(%rax), %rdx
-	movq	%rdx, -32(%rbp)
-	movl	-4(%rbp), %edx
-	movslq	%edx, %rdx
-	leaq	-24(%rbp), %rcx
-	addq	%rcx, %rdx
-	movzbl	(%rdx), %edx
-	movzbl	%dl, %esi
-	movl	-8(%rbp), %edx
-	movl	%edx, %ecx
-	sarl	%cl, %esi
-	movl	%esi, %edx
-	andl	$1, %edx
-	movb	%dl, (%rax)
-	subl	$1, -8(%rbp)
-.L5:
-	cmpl	$0, -8(%rbp)
-	jns	.L6
-	cmpl	$0, -4(%rbp)
-	je	.L7
-	movq	-32(%rbp), %rax
-	movl	$2128928, (%rax)
-.L7:
-	subl	$1, -4(%rbp)
-.L2:
-	cmpl	$0, -4(%rbp)
-	jns	.L8
-	movq	-32(%rbp), %rax
-	leaq	1(%rax), %rdx
-	movq	%rdx, -32(%rbp)
-	movb	$10, (%rax)
-	movl	$15, -4(%rbp)
-	jmp	.L9
-.L14:
-	movl	-4(%rbp), %eax
-	movl	%eax, %edx
-	shrl	$31, %edx
-	addl	%edx, %eax
-	sarl	%eax
-	cltq
-	leaq	-24(%rbp), %rdx
-	addq	%rdx, %rax
-	movzbl	(%rax), %eax
-	movzbl	%al, %eax
-	movl	-4(%rbp), %edx
-	andl	$1, %edx
-	testl	%edx, %edx
-	jne	.L10
-	movl	$0, %edx
-	jmp	.L11
-.L10:
-	movl	$4, %edx
-.L11:
-	movl	%edx, %ecx
-	sarl	%cl, %eax
-	andl	$15, %eax
-	movl	%eax, %edx
-	movq	-32(%rbp), %rax
-	movl	$.LC0, %esi
-	movq	%rax, %rdi
-	movl	$0, %eax
-	call	sprintf
-	movl	-4(%rbp), %eax
-	andl	$1, %eax
-	testl	%eax, %eax
-	jne	.L12
-	movq	-32(%rbp), %rax
-	movl	$2105376, (%rax)
-	jmp	.L13
-.L12:
-	movl	$32, %edi
-	call	putchar
-.L13:
-	subl	$1, -4(%rbp)
-.L9:
-	cmpl	$0, -4(%rbp)
-	jns	.L14
-	movq	-32(%rbp), %rax
-	leaq	1(%rax), %rdx
-	movq	%rdx, -32(%rbp)
-	movb	$10, (%rax)
-	nop
-	leave
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE0:
-	.size	print, .-print
-	.globl	print2
-	.type	print2, @function
-print2:
-.LFB1:
-	.cfi_startproc
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movq	%rdi, -24(%rbp)
-	movq	%rsi, -32(%rbp)
-	movl	$63, -4(%rbp)
-	jmp	.L16
-.L19:
-	movq	-32(%rbp), %rax
-	leaq	1(%rax), %rdx
-	movq	%rdx, -32(%rbp)
-	movl	-4(%rbp), %edx
-	movslq	%edx, %rdx
-	leaq	-24(%rbp), %rcx
-	addq	%rcx, %rdx
-	movzbl	(%rdx), %edx
-	movzbl	%dl, %esi
-	movl	-8(%rbp), %edx
-	movl	%edx, %ecx
-	sarl	%cl, %esi
-	movl	%esi, %edx
-	andl	$1, %edx
-	testl	%edx, %edx
-	je	.L17
-	movl	$49, %edx
-	jmp	.L18
-.L17:
-	movl	$48, %edx
-.L18:
-	movb	%dl, (%rax)
-	subl	$1, -4(%rbp)
-.L16:
-	cmpl	$0, -4(%rbp)
-	jns	.L19
-	movq	-32(%rbp), %rax
-	leaq	1(%rax), %rdx
-	movq	%rdx, -32(%rbp)
-	movb	$10, (%rax)
-	movq	-32(%rbp), %rax
-	leaq	1(%rax), %rdx
-	movq	%rdx, -32(%rbp)
-	movb	$10, (%rax)
-	nop
-	popq	%rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE1:
-	.size	print2, .-print2
-	.ident	"GCC: (GNU) 5.3.0"
-	.section	.note.GNU-stack,"",@progbits
+.code32
+
+
+.data
+format_str:
+    .string "%4x "
+byte_delim:
+    .string " | "
+
+
+.text
+.globl print_bits
+
+.type print_bits, @function
+print_bits:
+
+    movl 4(%esp), %eax # eax - value that we should print
+    movl 8(%esp),%ebx # ebx - array pointer
+    movl $32, %ecx # ecx - counter
+    # edi - result of and
+    push %eax # remember our input digit
+    
+    jmp ne4 # skip first comparison  because we don't need preceding whitespace
+cycle:
+
+    # check if ' | ' needed
+    movl %ecx, %edi
+    and $0x00000007, %edi  # checking last 3 binary digits to be 0 (integer will divide by 8)
+    cmp $0, %edi
+    jne ne8
+    movl $0x20, (%ebx) # whitespace
+    inc %ebx
+    movl $0x7C, (%ebx) # |
+    inc %ebx
+    movl $0x20, (%ebx) # whitespace
+    inc %ebx
+    jmp ne4
+ne8:
+    # checking last 3 binary digits to be 0 (integer will divide by 4)
+    and $0x00000003, %edi
+    cmp $0, %edi
+    jne ne4
+    movl $0x20, (%ebx) # whitespace
+    inc %ebx
+ne4:  
+
+    # retrieving  and writing actual bit
+    movl %eax, %edi
+    shr $31, %edi 
+    andl $0x00000001, %edi  # retrieving bit
+    cmp $1, %edi
+    jne write0
+    movl $0x31, (%ebx) # write '1' to str
+    jmp write1
+write0:
+    movl $0x30, (%ebx) # write '0' to str
+write1:
+    
+    shl $1, %eax # shift digit
+    inc %ebx # go to new str element
+    /*dec %ecx
+    
+    cmp $0, %ecx
+    jne cycle*/
+    loop cycle
+    
+    movl $0x0A, (%ebx) # newline
+    inc %ebx
+    
+    pop %eax # resetting initial value
+    movl $8, %ecx
+    jmp ne2
+    # cycle that prints hexadecimal values
+hex_cycle:
+    # append delimiters if needed
+    movl %ecx, %edi
+    andl $1, %edi
+    cmp  $0, %edi # check division by 2
+    jne ne2
+    movl $0x7C, (%ebx) # |
+    inc %ebx
+    movl $0x20, (%ebx) # whitespace
+    inc %ebx
+ne2:    
+    # getting actual 4 bit value
+    movl %eax, %edi
+    shr $28, %edi
+    andl $0xF, %edx
+    ## prolog 
+    pushl %eax
+    pushl %ecx
+    pushl %ebx
+    pushl %edi # push old state of registers
+    ## end prolog 
+    push %edi
+    push $format_str
+    push %ebx
+    call sprintf
+    addl $12, %esp
+    ## epilog 
+    popl %edi
+    popl %ebx
+    popl %ecx
+    popl %eax
+    addl $5, %ebx # move str pointer
+    ## end epilog 
+    
+    shl $4, %eax
+    loop hex_cycle
+    
+    movl $0x0, (%ebx) # end of string
+
+    movl $0, %eax # return value 0
+    ret

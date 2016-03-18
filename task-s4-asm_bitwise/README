@@ -1,4 +1,7 @@
 The same as Task S1 Bitwise Print, but written in GAS assembler.
 Answer stored in str, we should handle only long ints, and we know that str is enough for the whole answer.
+amd64/i686 architectures allowed.
 
-Not ready yet.
+int print_bits(int value, char* str);
+
+Ready for check.
