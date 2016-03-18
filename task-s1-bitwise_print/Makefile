@@ -15,4 +15,4 @@ test_bitwise_print: $(OBJ)
 include $(wildcard *.d)
 
 clean:
-	rm -rf $(TARGET) *.o *.d
+	rm -rf $(TARGET) *.o *.d  *.orig

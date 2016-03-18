@@ -6,4 +6,8 @@ End-of-string character \0 is stored at s+1 position of *str.
 
 Executable performs test of function using /dev/urandom.
 
+Return values:
+0 - everything is good
+1 - error (re)allocating memory
+
 Ready for check.

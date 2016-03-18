@@ -2,7 +2,7 @@
 #include "../common/bit_manipulations.h"
 #include "stdlib.h"
 
-int print_bits(int value, char* str);
+void print_bits(int value, char* str);
 
 int main()
 {

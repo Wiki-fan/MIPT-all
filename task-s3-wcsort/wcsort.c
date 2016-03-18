@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+/* Read line until \n or EOF, count symbols and words. */
 int gets_n( FILE* f, char** str, int* symbols, int* words )
 {
     int bufSize = 1000; /* Initial buffer size. */
@@ -64,7 +65,8 @@ int gets_n( FILE* f, char** str, int* symbols, int* words )
     return i;
 }
 
-int puts_n( FILE* f, char* str )
+/* */
+void puts_n( FILE* f, char* str )
 {
     do
     {
