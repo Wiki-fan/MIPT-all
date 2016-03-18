@@ -21,7 +21,7 @@ int readWhileNotNew( FILE* f, char** str, bool checkTerm, int size )
     char* buf = (char*) malloc( bufSize * sizeof( char )), * newBuf = NULL;
     if( buf == NULL)
     {
-        err( 1, "Error allocating memory: " );
+        err( 1, "Error (re)allocating memory" );
     }
     iter = buf;
 
@@ -44,7 +44,7 @@ int readWhileNotNew( FILE* f, char** str, bool checkTerm, int size )
             }
             else
             {
-                err(1, "Error reallocating memory" );
+                err(1, "Error (re)allocating memory" );
             }
         }
         /* Character that should terminate input. */
@@ -76,11 +76,11 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
 
     if(( inf = fopen( inFileName, "rb" )) == NULL)
     {
-        err(1, "Failed to open file %s", inFileName);
+        err(2, "Failed to open file %s", inFileName);
     }
     if(( outf = fopen( outFileName, "wb" )) == NULL)
     {
-        err(1, "Failed to open file %s", outFileName);
+        err(2, "Failed to open file %s", outFileName);
     }
 
     while( gets_safe( inf, &header ))
@@ -117,10 +117,6 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
                 putc( '\n', outf );
             }
 
-        }
-        else
-        {
-            errx(1, "Unknown direction of packing");
         }
         free( inBuf );
         free( outBuf );

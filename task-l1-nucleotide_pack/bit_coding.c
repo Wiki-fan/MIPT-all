@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <err.h>
 #include "bit_coding.h"
 #include "../common/bit_manipulations.h"
 
@@ -23,6 +24,10 @@ int BitEncode( const char* toEncode, const char* alphabet, char** answer)
     int count = 0;
 
     *answer = malloc( answerSize / 8 + 1 );    /* Allocating memory for answer. */
+    if( *answer == NULL)
+    {
+        err( 1, "Error (re)allocating memory" );
+    }
     out = *answer;
     while( c = *in )
     {
@@ -69,6 +74,10 @@ int BitDecode( const char* toDecode, const char* alphabet, char** answer, int si
          * out,    /* Output iterator. */
          bitPosToRead = 0;
     *answer = malloc((size_t) size + 1 );    /* Allocating memory for answer. */
+    if( *answer == NULL)
+    {
+        err( 1, "Error (re)allocating memory" );
+    }
     out = *answer;
 
     while (i< size )
