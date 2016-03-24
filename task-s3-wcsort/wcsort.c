@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <err.h>
 
 /* Read line until \n or EOF, count symbols and words. */
 int gets_n( FILE* f, char** str, int* symbols, int* words )
@@ -20,7 +20,7 @@ int gets_n( FILE* f, char** str, int* symbols, int* words )
     buf = (char*) malloc( bufSize * sizeof( char ));
     if (buf == NULL)
     {
-        fprintf(stderr, "Error allocating memory.\n");
+        err(1, "Error allocating memory");
     }
     iter = buf;
     while( fl )
@@ -39,25 +39,31 @@ int gets_n( FILE* f, char** str, int* symbols, int* words )
             }
             else
             {
-                puts( "Error reallocating memory\n" );
-                exit( 1 );
+                err(1,"Error reallocating memory" );
             }
         }
         /* Appending '\n' if string ended with EOF (or if '\n' founded, obviously). */
-        if( c == EOF || c == '\n')
+        if( c == EOF )
+        {
+            ++( *words );
+            break;
+        }
+        else if ( c == '\n')
         {
             *iter = '\n';
             fl = false;
+            ++( *words );
         }
         else
         {
             *iter = c;
+            /* Isspace, and previous character exists and isgraph. */
+            if( isspace( *iter ) && iter != buf && isgraph( iter[-1] ))
+            {
+                ++( *words );
+            }
         }
-        /* Isspace, and previous character exists and isgraph. */
-        if( isspace( *iter ) && iter != buf && isgraph( iter[-1] ))
-        {
-            ++( *words );
-        }
+
         ++( *symbols );
         ++iter;
     }
@@ -65,7 +71,7 @@ int gets_n( FILE* f, char** str, int* symbols, int* words )
     return i;
 }
 
-/* */
+/* Puts string str (ended with '\n') to file f. */
 void puts_n( FILE* f, char* str )
 {
     do
@@ -75,6 +81,7 @@ void puts_n( FILE* f, char* str )
     while (*str++ != '\n');
 }
 
+/* Compare strings ended with '\n'. */
 int strcmp_n( const void* a, const void* b )
 {
     char* x = *(char**) a, * y = *(char**) b;
@@ -119,7 +126,10 @@ void wcsort( FILE* inf, FILE* outf )
     int symbols = 0, words = 0, strings = 0;
     int i = 0, j, size = 100;
     strs = (char**) malloc( size * sizeof( char* ));
-
+    if (strs == NULL)
+    {
+        err(1,"Memory allocation error");
+    }
     while( gets_n( inf, &( strs[i] ), &symbols, &words ))
     {
         ++strings;
@@ -131,8 +141,7 @@ void wcsort( FILE* inf, FILE* outf )
             newStrs = realloc( strs, size );
             if (newStrs == NULL)
             {
-                fprintf(stderr, "Memory allocation error.\n");
-                exit(1);
+                err(1,"Memory allocation error");
             }
         }
     }
@@ -144,7 +153,7 @@ void wcsort( FILE* inf, FILE* outf )
         free( strs[j] );
     }
     free( strs );
-    printf( "%6d%6d%6d\n", strings, words, symbols );
+    printf( "%6d%6d%6d\n", strings-1, words, symbols );
 }
 
 int main( int argc, char* argv[] )
@@ -158,26 +167,22 @@ int main( int argc, char* argv[] )
     case 2:
         if(( inf = fopen( argv[1], "r" )) == NULL)
         {
-            fprintf( stderr, "Failed to open file %s.\n", argv[1] );
-            exit( 1 );
+            err(2, "Failed to open file %s", argv[1] );
         }
         wcsort( inf, stdout );
         break;
     case 3:
         if(( inf = fopen( argv[1], "r" )) == NULL)
         {
-            fprintf( stderr, "Failed to open file %s.\n", argv[1] );
-            exit( 1 );
+            err( 2, "Failed to open file %s", argv[1] );
         }
         if(( outf = fopen( argv[2], "w" )) == NULL)
         {
-            fprintf( stderr, "Failed to open file %s.\n", argv[2] );
-            exit( 1 );
+            err(2, "Failed to open file %s", argv[2] );
         }
         wcsort( inf, outf );
     default:
-        printf( "Too many arguments\n" );
-        return 1;
+        errx( 3, "Too many arguments" );
     }
     return 0;
 }
