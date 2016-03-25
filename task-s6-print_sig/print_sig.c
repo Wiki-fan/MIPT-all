@@ -20,13 +20,13 @@ int main()
     sa.sa_handler = handler;
     /* Don't block any other signals. */
     sigemptyset( &sa.sa_mask );
-    for( i = 0; i < 32; ++i )
+    for( i = 1; i < 32; ++i )
     {
         if( sigismember( &set, i ))   /* If signal i really exists */
         {
-            if( sigaction( SIGUSR1, &sa, NULL) == -1 )
+            if( sigaction( i, &sa, NULL) == -1 )
             {
-                err( 3, "Unable to set handler" );
+                /*err( 3, "Unable to set handler" );*/
             }
         }
     }
