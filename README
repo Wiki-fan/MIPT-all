@@ -14,4 +14,6 @@ Common exit codes:
 2 Failed to open file
 3 Unreachable code
 10 Wrong number of parameters
+11 Unknown parameter
+12 Expected parameter
 Additional info may print to stderr.

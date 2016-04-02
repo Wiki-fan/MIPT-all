@@ -1,6 +1,7 @@
 #include <string.h>
 #include <err.h>
 #include "safe_string.h"
+#include "../common/utils.h"
 
 int gets_safe_ext(FILE* f, char** str, const char* term)
 {
@@ -8,11 +9,8 @@ int gets_safe_ext(FILE* f, char** str, const char* term)
     int c;
     char* iter;
     int i = 0;
-    char* buf = (char*)malloc(bufSize*sizeof(char)), *newBuf = NULL;
-    if (buf == NULL)
-    {
-        err(1, "Error (re)allocating memory");
-    }
+    char* buf;
+    buf = (char*)malloc_s(bufSize*sizeof(char));
     iter = buf;
 
     while ( (c = getc(f)) != EOF)
@@ -22,16 +20,9 @@ int gets_safe_ext(FILE* f, char** str, const char* term)
         if (i == bufSize-1)
         {
             bufSize *= 2;
-            newBuf = realloc(buf, bufSize*sizeof(char));
-            if (newBuf != NULL)
-            {
-                buf = newBuf;
-                iter = buf + i-1;
-            }
-            else
-            {
-                err(1, "Error (re)allocating memory");
-            }
+            buf = realloc_s(buf, bufSize*sizeof(char));
+
+            iter = buf + i-1;
         }
         *iter++ = c;
         /* Characters that should terminate input. */

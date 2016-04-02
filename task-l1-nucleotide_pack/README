@@ -14,11 +14,7 @@ Usage:
 ./nucleotide_pack [pack/unpack] in_file out_file
 
 Return codes:
-0 All was successful.
-1 Error (re)allocating memory
-2 Failed to open file
-10 Wrong number of parameters
-11 Unknown mode of packing
-Additional info may print to stderr.
+standard
+21 Unknown mode of packing
 
 Ready for check.
