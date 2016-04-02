@@ -5,3 +5,13 @@ make short_tasks - build short tasks and their dependencies
 make long_tasks - make long tasks and their dependencies
 make style - astyle all sources from current directory and all its direct subdirectories
 make clean - clean all .o, .d, .orig and executables
+
+
+Common exit codes:
+
+0 All was successful.
+1 Error (re)allocating memory
+2 Failed to open file
+3 Unreachable code
+10 Wrong number of parameters
+Additional info may print to stderr.
