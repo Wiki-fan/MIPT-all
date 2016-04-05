@@ -12,18 +12,20 @@
 #include "../common/manipulations.h"
 #include "../common/utils.h"
 
-#define LINE_NUMBER_LEN 5
-#define LINE_NUMBER_SPECIF "%3d: "
+#define ADDITIONAL_CHARACTERS_LEN 2
+#define LINE_NUMBER_SPECIF "%c%*d:"
 #define TAB_WIDTH 4
 #define TAB_STR "    "
 
-struct Cursor
+struct Screen
 {
+	char** strs;
+	int* lengths;
 	int top, left; /* Top-left coordinates. */
 	int terminal_row, terminal_col; /* Terminal window dimensions. */
 	int file_col, file_row; /* File dimensions */
 };
-typedef struct Cursor* pCursor;
+typedef struct Screen* pScreen;
 
 void putline( char* s, int n )
 {
@@ -77,7 +79,7 @@ int get_line( FILE* f, char** str )
 	return i;
 }
 
-void read_file( FILE* f, char*** strs, int** lengths, int* lines_number, int* columns_number )
+void read_less_file( FILE* f, pScreen screen)
 {
 	char** ret;
 	int* lens;
@@ -89,8 +91,8 @@ void read_file( FILE* f, char*** strs, int** lengths, int* lines_number, int* co
 	while(( len = get_line( f, &( ret[i] )))) {
 		lens[i] = len;
 		++i;
-		if( len > *columns_number ) {
-			*columns_number = len;
+		if( len > screen->file_col) {
+			screen->file_col = len;
 		}
 		if( i > size ) {
 			size *= 2;
@@ -98,26 +100,33 @@ void read_file( FILE* f, char*** strs, int** lengths, int* lines_number, int* co
 			lens = realloc_s( lens, size );
 		}
 	}
-	*strs = ret;
-	*lengths = lens;
-	*lines_number = i;
+	screen->strs = ret;
+	screen->lengths = lens;
+	screen->file_row = i;
 }
 
 
-void print_strs( char** strs, int* lengths, pCursor cursor, bool line_print_flag )
+void print_strs( pScreen screen, bool line_print_flag )
 {
-	int i;
+	int i = screen->file_row;
 	int h;
-	int width = line_print_flag ? cursor->terminal_col - LINE_NUMBER_LEN : cursor->terminal_col;
+	int width;
+	int number_width = 0;
+	while (i>0) {
+		i /= 10;
+		++number_width;
+	}
+	width = line_print_flag ? screen->terminal_col - (ADDITIONAL_CHARACTERS_LEN+number_width) : screen->terminal_col;
+
 	printf( "\033[H\033[J" ); /* clear screen */
 	/* if file contains less lines than terminal height */
-	h = cursor->terminal_row > cursor->file_row? cursor->file_row : cursor->terminal_row;
+	h = screen->terminal_row > screen->file_row? screen->file_row : screen->terminal_row;
 	for( i = 0; i < h; ++i ) {
 		if( line_print_flag ) {
-			printf( LINE_NUMBER_SPECIF, cursor->top + i );
+			printf( LINE_NUMBER_SPECIF, screen->left>0?'<':'|', number_width, screen->top + i );
 		}
-		if( cursor->left < lengths[cursor->top + i] ) {
-			putline( strs[cursor->top + i] + cursor->left, width );
+		if( screen->left < screen->lengths[screen->top + i] ) {
+			putline( screen->strs[screen->top + i] + screen->left, width );
 		}
 		else {
 			putchar( '\n' );
@@ -128,7 +137,7 @@ void print_strs( char** strs, int* lengths, pCursor cursor, bool line_print_flag
 void less( FILE* f, bool line_print_flag )
 {
 	struct winsize winsz;
-	struct Cursor cursor;
+	struct Screen cursor;
 	ioctl( STDIN_FILENO, TIOCGWINSZ, &winsz );
 	printf( "col %d row %d\n", winsz.ws_col, winsz.ws_row );
 
@@ -137,17 +146,14 @@ void less( FILE* f, bool line_print_flag )
 	int symbol;
 	bool fl = true;
 
-	read_file( f, &strs, &lengths, &cursor.file_row, &cursor.file_col );
-	/*printf( "%d %d\n", cursor.file_row, cursor.file_col );*/
+	read_less_file( f, &cursor);
 
 	cursor.left = cursor.top = 0;
-	cursor.file_col = winsz.ws_col;
 	cursor.terminal_row = winsz.ws_row;
 	cursor.terminal_col = winsz.ws_col;
 
 	while( fl ) {
-		/*printf( "Был введён символ: код=%d начертание '%c'\n", symbol, (char) symbol );*/
-		print_strs( strs, lengths, &cursor, line_print_flag );
+		print_strs( &cursor, line_print_flag );
 		symbol = getchar();
 		switch( symbol ) {
 			case 27:
@@ -162,10 +168,10 @@ void less( FILE* f, bool line_print_flag )
 								cursor.top -= cursor.top == 0 ? 0 : 1;
 								break;
 							case 'B': /*down*/
-								cursor.top += cursor.top == cursor.file_row - cursor.terminal_row ? 0 : 1;
+								cursor.top += cursor.top >= cursor.file_row - cursor.terminal_row ? 0 : 1;
 								break;
 							case 'C': /*right*/
-								cursor.left += /*cursor.left - winsz.ws_col < columns_number ? 0 :*/ 1;
+								cursor.left += cursor.left + cursor.terminal_col > cursor.file_col ? 0 : 1;
 								break;
 							case 'D': /*left*/
 								cursor.left -= cursor.left == 0 ? 0 : 1;
@@ -182,9 +188,10 @@ void less( FILE* f, bool line_print_flag )
 			case EOF:
 				fl = false;
 				break;
+			case 'q':
+				return;
 			default:;
 		}
-		/*printf( "%d %d \n", top, left );*/
 		if( symbol == '\004' ) {
 			break;
 		}
@@ -241,9 +248,9 @@ int main( int argc, char* argv[] )
 	 * Поскольку как-то оно слишком агрессивно, по моему
 	 * мнению я это выключу нафик.
 	 */
-	/*
+	
 	new_attributes.c_cc[VTIME] = 0;
-	*/
+
 	tcsetattr( STDIN_FILENO, TCSANOW, &new_attributes );
 
 	less( f, line_print_flag );
