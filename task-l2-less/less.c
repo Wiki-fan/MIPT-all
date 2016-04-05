@@ -9,46 +9,53 @@
 #include <slcurses.h>
 #include <stdbool.h>
 #include <sys/ioctl.h>
+#include <wchar.h>
+#include <locale.h>
 #include "../common/manipulations.h"
 #include "../common/utils.h"
 
 #define ADDITIONAL_CHARACTERS_LEN 2
 #define LINE_NUMBER_SPECIF "%c%*d:"
 #define TAB_WIDTH 4
-#define TAB_STR "    "
+#define TAB_STR L"    "
 
 struct Screen
 {
-	char** strs;
+	wchar_t** strs;
 	int* lengths;
 	int top, left; /* Top-left coordinates. */
 	int terminal_row, terminal_col; /* Terminal window dimensions. */
 	int file_col, file_row; /* File dimensions */
+	int field_width; /* Working area width */
+	int number_width; /* Line number width */
 };
 typedef struct Screen* pScreen;
 
-void putline( char* s, int n )
+/* Prints wide line s to stdout */
+void putline( wchar_t* s, int n )
 {
 	int i = 0;
-	while( *s != '\0' && *s != '\n' && i < n ) {
-		putchar( *s++ );
+	while( *s != L'\0' && *s != L'\n' && i < n ) {
+		/*putwchar( *s++ );*/
+		printf("%lc", *s++);
 		++i;
 	}
-	putchar( '\n' );
+	putwchar( L'\n' );
 }
 
-int get_line( FILE* f, char** str )
+/* Reads wide line from file */
+int get_line( FILE* f, wchar_t** str )
 {
 	int bufSize = 1000; /* Initial buffer size. */
-	int c;
-	char* iter;
+	wint_t c;
+	wchar_t* iter;
 	int i = 0;
-	char* buf;
-	buf = (char*) malloc_s( bufSize * sizeof( char ));
+	wchar_t* buf;
+	buf = (wchar_t*) malloc_s( bufSize * sizeof( wchar_t ));
 	iter = buf;
 
-	while(( c = getc( f )) != EOF) {
-		if( c == '\t' ) {
+	while(( c = getwc( f )) != WEOF) {
+		if( c == L'\t' ) {
 			i += TAB_WIDTH; /* tab is hardcoded 4 whitespaces */
 		} else {
 			++i;
@@ -56,36 +63,37 @@ int get_line( FILE* f, char** str )
 		/* Realloc if needed. */
 		if( i == bufSize - 1 ) {
 			bufSize *= 2;
-			buf = realloc_s( buf, bufSize * sizeof( char ));
+			buf = realloc_s( buf, bufSize * sizeof( wchar_t ));
 
 			iter = buf + i - 1;
 		}
-		if( c == '\t' ) {
-			sprintf( iter, "%s", TAB_STR );
+		if( c == L'\t' ) {
+			swprintf( iter, "%ls", TAB_STR );
 			iter += TAB_WIDTH;
 		} else {
 			*iter++ = c;
 		}
 		/* Characters that should terminate input. */
-		if(/*c == '\0' ||*/ c == '\n' ) {
+		if(/*c == '\0' ||*/ c == L'\n' ) {
 			break;
 		}
 	}
 	/* Append '\0' if terminating character was term. */
-	if( c != '\0' ) {
-		*iter = '\0';
+	if( c != L'\0' ) {
+		*iter = L'\0';
 	}
 	*str = buf;
 	return i;
 }
 
+/* Special function for less that reads whole file into memory */
 void read_less_file( FILE* f, pScreen screen)
 {
-	char** ret;
+	wchar_t** ret;
 	int* lens;
 	int i = 0, j, len;
 	int size = 1000; /* Initial string buffer size. */
-	ret = (char**) malloc_s( size * sizeof( char* ));
+	ret = (wchar_t**) malloc_s( size * sizeof( wchar_t* ));
 	lens = (int*) malloc_s( size * sizeof( int ));
 
 	while(( len = get_line( f, &( ret[i] )))) {
@@ -105,28 +113,23 @@ void read_less_file( FILE* f, pScreen screen)
 	screen->file_row = i;
 }
 
-
+/* Prints output on the screen */
 void print_strs( pScreen screen, bool line_print_flag )
 {
 	int i = screen->file_row;
 	int h;
-	int width;
-	int number_width = 0;
-	while (i>0) {
-		i /= 10;
-		++number_width;
-	}
-	width = line_print_flag ? screen->terminal_col - (ADDITIONAL_CHARACTERS_LEN+number_width) : screen->terminal_col;
+
 
 	printf( "\033[H\033[J" ); /* clear screen */
+	/*printf("\033[2J\033[1;1H");*/
 	/* if file contains less lines than terminal height */
 	h = screen->terminal_row > screen->file_row? screen->file_row : screen->terminal_row;
 	for( i = 0; i < h; ++i ) {
 		if( line_print_flag ) {
-			printf( LINE_NUMBER_SPECIF, screen->left>0?'<':'|', number_width, screen->top + i );
+			printf( LINE_NUMBER_SPECIF, screen->left>0?'<':'|', screen->number_width, screen->top + i );
 		}
 		if( screen->left < screen->lengths[screen->top + i] ) {
-			putline( screen->strs[screen->top + i] + screen->left, width );
+			putline( screen->strs[screen->top + i] + screen->left, screen->field_width );
 		}
 		else {
 			putchar( '\n' );
@@ -134,26 +137,33 @@ void print_strs( pScreen screen, bool line_print_flag )
 	}
 }
 
+/* Main less function */
 void less( FILE* f, bool line_print_flag )
 {
 	struct winsize winsz;
-	struct Screen cursor;
+	struct Screen screen;
 	ioctl( STDIN_FILENO, TIOCGWINSZ, &winsz );
-	printf( "col %d row %d\n", winsz.ws_col, winsz.ws_row );
+	/*printf( "col %d row %d\n", winsz.ws_col, winsz.ws_row );*/
 
-	char** strs;
-	int* lengths;
 	int symbol;
 	bool fl = true;
 
-	read_less_file( f, &cursor);
+	/* set min value to file_col */
+	screen.file_col = screen.left = screen.top = 0;
+	screen.terminal_row = winsz.ws_row;
+	screen.terminal_col = winsz.ws_col;
 
-	cursor.left = cursor.top = 0;
-	cursor.terminal_row = winsz.ws_row;
-	cursor.terminal_col = winsz.ws_col;
+	read_less_file( f, &screen);
+	screen.number_width = 0;
+	int i = screen.file_col;
+	while (i>0) {
+		i /= 10;
+		++screen.number_width;
+	}
+	screen.field_width = line_print_flag ? screen.terminal_col - (ADDITIONAL_CHARACTERS_LEN+screen.number_width) : screen.terminal_col;
 
 	while( fl ) {
-		print_strs( &cursor, line_print_flag );
+		print_strs( &screen, line_print_flag );
 		symbol = getchar();
 		switch( symbol ) {
 			case 27:
@@ -165,16 +175,16 @@ void less( FILE* f, bool line_print_flag )
 							case EOF:
 								break;
 							case 'A': /*up*/
-								cursor.top -= cursor.top == 0 ? 0 : 1;
+								screen.top -= screen.top == 0 ? 0 : 1;
 								break;
 							case 'B': /*down*/
-								cursor.top += cursor.top >= cursor.file_row - cursor.terminal_row ? 0 : 1;
+								screen.top += screen.top >= screen.file_row - screen.terminal_row ? 0 : 1;
 								break;
 							case 'C': /*right*/
-								cursor.left += cursor.left + cursor.terminal_col > cursor.file_col ? 0 : 1;
+								screen.left += screen.left + screen.field_width > screen.file_col ? 0 : 1;
 								break;
 							case 'D': /*left*/
-								cursor.left -= cursor.left == 0 ? 0 : 1;
+								screen.left -= screen.left == 0 ? 0 : 1;
 								break;
 							default:;
 						}
@@ -185,15 +195,11 @@ void less( FILE* f, bool line_print_flag )
 					default:;
 				}
 				break;
-			case EOF:
+			case EOF: case 'q':
+			case '\004': /* Ctrl+D */
 				fl = false;
 				break;
-			case 'q':
-				return;
 			default:;
-		}
-		if( symbol == '\004' ) {
-			break;
 		}
 	}
 }
@@ -207,6 +213,11 @@ int main( int argc, char* argv[] )
 	struct termios old_attributes, new_attributes;
 	bool line_print_flag = false;
 
+	/* Should set locale to get wide characters working */
+	setlocale(LC_CTYPE, "");
+	/*setlocale(LC_ALL, "ru_RU.utf8");*/
+
+	/* Get arguments */
 	while(( c = getopt( argc, argv, "n" )) != -1 ) {
 		switch( c ) {
 			case 'n':
@@ -218,7 +229,6 @@ int main( int argc, char* argv[] )
 				errx( 3, "Unreachable code" );
 		}
 	}
-
 	if( argc == 1 ) {
 		f = stdin;
 	}
@@ -229,6 +239,8 @@ int main( int argc, char* argv[] )
 		f = fopen_s( argv[optind], "r" );
 	}
 
+
+	/* Set terminal mode */
 	if( !isatty( STDIN_FILENO )) {
 		errx( 20, "Input is redirected not from terminal. Error" );
 	}
@@ -242,13 +254,7 @@ int main( int argc, char* argv[] )
 	new_attributes.c_lflag &= ~ICANON;
 	/* Minimum number of characters for non-canonical read */
 	new_attributes.c_cc[VMIN] = 1;
-
-	/* Включает жёсткое чтение по одному символу.
-	 * Терминал будет работать не как сокет.
-	 * Поскольку как-то оно слишком агрессивно, по моему
-	 * мнению я это выключу нафик.
-	 */
-	
+	/* Strict one byte reading */
 	new_attributes.c_cc[VTIME] = 0;
 
 	tcsetattr( STDIN_FILENO, TCSANOW, &new_attributes );
