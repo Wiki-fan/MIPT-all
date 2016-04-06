@@ -1,0 +1,13 @@
+Analog of standard less.
+
+Usage:
+./less [-n] [filename]
+./less -h
+./less -v
+
+Exit codes:
+Common.
+20 Input is redirected not from terminal
+21 Error getting terminal size
+
+Ready for check.

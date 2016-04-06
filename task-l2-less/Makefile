@@ -2,12 +2,12 @@ TARGET= less
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
-DEPS = ../common/manipulations.o ../common/utils.o ../task-s2-gets_safe/safe_string.o
-DEP_DIRS = ../common ../task-s2-gets_safe
+DEPS = ../common/utils.o
+DEP_DIRS = ../common
 
 .PHONY:  all clean $(DEP_DIRS)
 
-CFLAGS=-Wall -ansi -pedantic $(DEPS)
+CFLAGS=-Wall  -pedantic $(DEPS) -ansi
 
 all: $(DEP_DIRS) $(TARGET)
 

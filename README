@@ -16,4 +16,5 @@ Common exit codes:
 10 Wrong number of parameters
 11 Unknown parameter
 12 Expected parameter
-Additional info may print to stderr.
+13 Too many parameters
+Additional info may be printed to stderr.
