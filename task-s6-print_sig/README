@@ -1,2 +1,7 @@
 print_sig prints pid's of first ten processes which sent signals to print_sig.
-throw_sig throws 10 SIGUSR1 to process pid (first command line parameter) and produces some strange output.
+
+Exit codes:
+Common.
+20 Unable to set handler
+
+Ready for check.
