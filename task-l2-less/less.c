@@ -110,7 +110,7 @@ static void termsize_handler( int sig )
 /* Reads wide line from file */
 int get_line( FILE* f, wchar_t** str )
 {
-    int bufSize = 1000; /* Initial buffer size. */
+    int bufSize = 100; /* Initial buffer size. */
     wint_t c;
     wchar_t* iter;
     int i = 0;
@@ -166,7 +166,7 @@ void read_less_file( FILE* f )
     wchar_t** ret;
     int* lens;
     int i = 0, len;
-    int size = 1000; /* Initial string buffer size. */
+    int size = 100; /* Initial string buffer size. */
     ret = (wchar_t**) malloc_s( size * sizeof( wchar_t* ));
     lens = (int*) malloc_s( size * sizeof( int ));
 
@@ -181,8 +181,8 @@ void read_less_file( FILE* f )
         if( i > size )
         {
             size *= 2;
-            ret = realloc_s( ret, size );
-            lens = realloc_s( lens, size );
+            ret = realloc_s( ret, size*sizeof(ret[0]) );
+            lens = realloc_s( lens, size*sizeof(lens[0]) );
         }
     }
     screen.strs = ret;
