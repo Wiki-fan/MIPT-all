@@ -5,7 +5,7 @@
 void* malloc_s( size_t size )
 {
     void* ret;
-    ret = malloc((size_t) size );    /* Allocating memory for answer. */
+    ret = malloc( size );    /* Allocating memory for answer. */
     if( ret == NULL)
     {
         err( 1, "Memory allocation error" );

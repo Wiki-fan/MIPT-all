@@ -3,12 +3,13 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <err.h>
+#include "../common/utils.h"
 
 /* Read line until \n or EOF, count symbols and words. */
 int gets_n( FILE* f, char** str, int* symbols, int* words )
 {
-    int bufSize = 1000; /* Initial buffer size. */
-    char* buf, * newBuf = NULL;
+    int bufSize = 100; /* Initial buffer size. */
+    char* buf;
     int c;
     bool fl = true;
     char* iter;
@@ -17,51 +18,33 @@ int gets_n( FILE* f, char** str, int* symbols, int* words )
     if (feof(f))
         return 0;
 
-    buf = (char*) malloc( bufSize * sizeof( char ));
-    if (buf == NULL)
-    {
-        err(1, "Error allocating memory");
-    }
+    buf = (char*) malloc_s( bufSize * sizeof( char ));
     iter = buf;
     while( fl )
     {
         c = getc( f );
         ++i;
         /* Realloc if needed. */
-        if( i == bufSize - 1 )
+        if( i == bufSize-1 )
         {
             bufSize *= 2;
-            newBuf = realloc( buf, bufSize * sizeof( char ));
-            if( newBuf != 0 )
-            {
-                buf = newBuf;
-                iter = buf + i - 1;
-            }
-            else
-            {
-                err(1,"Error reallocating memory" );
-            }
+            buf = realloc_s( buf, bufSize * sizeof( char ));
+            iter = buf + i-1;
         }
         /* Appending '\n' if string ended with EOF (or if '\n' founded, obviously). */
-        if( c == EOF )
-        {
-            ++( *words );
-            break;
-        }
-        else if ( c == '\n')
+        if ( c == '\n' || c == EOF)
         {
             *iter = '\n';
             fl = false;
-            ++( *words );
         }
         else
         {
             *iter = c;
-            /* Isspace, and previous character exists and isgraph. */
-            if( isspace( *iter ) && iter != buf && isgraph( iter[-1] ))
-            {
-                ++( *words );
-            }
+        }
+        /* Isspace, and previous character exists and isgraph. */
+        if( isspace( *iter ) && iter != buf && isgraph( iter[-1] ))
+        {
+            ++( *words );
         }
 
         ++( *symbols );
@@ -125,24 +108,15 @@ void wcsort( FILE* inf, FILE* outf )
     char** strs;
     int symbols = 0, words = 0, strings = 0;
     int i = 0, j, size = 100;
-    strs = (char**) malloc( size * sizeof( char* ));
-    if (strs == NULL)
-    {
-        err(1,"Memory allocation error");
-    }
+    strs = (char**) malloc_s( size * sizeof( char* ));
     while( gets_n( inf, &( strs[i] ), &symbols, &words ))
     {
         ++strings;
         ++i;
         if( i > size )
         {
-            char** newStrs;
             size *= 2;
-            newStrs = realloc( strs, size );
-            if (newStrs == NULL)
-            {
-                err(1,"Memory allocation error");
-            }
+            strs = realloc_s( strs, size*sizeof(strs[0]) );
         }
     }
     qsort( strs, i, sizeof( char* ), strcmp_n );
@@ -153,7 +127,7 @@ void wcsort( FILE* inf, FILE* outf )
         free( strs[j] );
     }
     free( strs );
-    printf( "%6d%6d%6d\n", strings-1, words, symbols );
+    printf( "%6d%6d%6d\n", strings-1, words, symbols-1 );
 }
 
 int main( int argc, char* argv[] )
