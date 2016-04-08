@@ -4,9 +4,9 @@ OBJ = $(patsubst %.c,%.o,$(SRC))
 DEPS = ../common/manipulations.o ../common/utils.o
 DEP_DIRS = ../common
 
-.PHONY:  all clean $(DEP_DIRS)
+.PHONY:  all clean valgrind $(DEP_DIRS)
 
-CFLAGS=-Wall -ansi -pedantic -lm
+CFLAGS+=-Wall -ansi -pedantic -lm
 
 all: $(DEP_DIRS) $(TARGET)
 
@@ -17,8 +17,11 @@ test_safe_gets: $(OBJ) $(DEPS)
 	$(CC) $(CFLAGS) -c -MD $<
 include $(wildcard *.d)
 
+valgrind:
+	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) 1>std.out
+
 $(DEP_DIRS):
 	$(MAKE) -C $@
 
 clean:
-	rm -rf $(TARGET) *.o *.d  *.orig
+	rm -rf $(TARGET) *.o *.d  *.orig std.out

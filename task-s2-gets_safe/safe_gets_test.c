@@ -4,11 +4,8 @@ int main()
 {
     FILE* f;
     char* str;
-    if (!(f = fopen("/dev/urandom", "r")) )
-    {
-        printf("Unable to open file\n");
-        exit(1);
-    };
+    f = fopen_s("/dev/urandom", "r");
+
     gets_safe(f, &str);
     printf("%s", str);
 

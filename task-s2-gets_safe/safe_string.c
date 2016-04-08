@@ -5,7 +5,7 @@
 
 int gets_safe_ext(FILE* f, char** str, const char* term)
 {
-    int bufSize = 1000; /* Initial buffer size. */
+    int bufSize = 10; /* Initial buffer size. */
     int c;
     char* iter;
     int i = 0;
@@ -20,7 +20,7 @@ int gets_safe_ext(FILE* f, char** str, const char* term)
         if (i == bufSize-1)
         {
             bufSize *= 2;
-            buf = realloc_s(buf, bufSize*sizeof(char));
+            buf = (char*)realloc_s(buf, bufSize*sizeof(char));
 
             iter = buf + i-1;
         }
