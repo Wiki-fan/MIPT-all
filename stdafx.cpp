@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 
-void mfassert( char* file, unsigned int line, bool check, char *format, ... )
+void mfassert( char* file, unsigned int line, bool check, char* format, ... )
 {
 	if( !check ) {
 		printf( "ASSERT: file %s, line %u\n\t", file, line );

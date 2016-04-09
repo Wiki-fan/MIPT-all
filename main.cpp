@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 //#define MY_CIN_REDIR
-#include "tests/ImplicitTreeTests.h"
+#include "Graph.h"
 int main()
 {
 	srand( static_cast<unsigned int>(time( 0 )));
@@ -10,8 +10,8 @@ int main()
 	std::cin.rdbuf( ifs.rdbuf() );
 #endif
 
-	TestImplicitTree();
-	//ManualTest();
+	CGraphTester<int, std::vector, std::vector> tester;
+	tester.PerformTests( 10, 10000 );
 
 #ifdef MY_CIN_REDIR
 	std::cin.rdbuf( cinbuf );
