@@ -24,20 +24,24 @@ public:
 
 	CGraph( size_t size )
 	{
-		vertices.resize( size );
+		vertices.reserve( size );
+		for( int i = 0; i < size; ++i ) {
+			vertices.push_back( CVertex( i ));
+		}
 	}
 
 	void AddEdge( int u, int v, int weight )
 	{
-		vertices[u].adjacent.push_back( v );
-		vertices[v].adjacent.push_back( u );
+		vertices[u].adjacent.push_back( &vertices[v] );
+		vertices[v].adjacent.push_back( &vertices[u] );
 	}
 
 private:
 	struct CVertex {
-		CVertex() { }
+		explicit CVertex( int n ) : num( n ) { }
 		~CVertex() { }
-		AT<T> adjacent;
+		AT<CVertex*> adjacent;
+		int num;
 	};
 
 	VT<CVertex> vertices;
@@ -54,9 +58,10 @@ public:
 		g = &graph;
 		onBeginWalk();
 		colors.resize( g->vertices.size(), Color::White );
-		for( size_t i = 0; i < g->vertices.size(); ++i ) {
+		size_t i = 0;
+		for( auto iter = g->vertices.begin(); iter != g->vertices.end(); ++i, ++iter ) {
 			if( colors[i] == Color::White ) {
-				dfs( i );
+				dfs( *iter );
 			}
 		}
 		onEndWalk();
@@ -89,17 +94,18 @@ private:
 	std::vector<Color> colors;
 
 	//using CGraph::CVertex;
-	void dfs( size_t vNum )
+	void dfs( typename CGraph<T, VT, AT>::CVertex& v )
 	{
-		colors[vNum] = Color::Gray;
-		onColorGray( vNum );
-		for( size_t i = 0; i < g->vertices[vNum].adjacent.size(); ++i ) {
-			if( colors[g->vertices[vNum].adjacent[i]] == Color::White ) {
-				dfs( g->vertices[vNum].adjacent[i] );
+		colors[v.num] = Color::Gray;
+		onColorGray( v.num );
+		size_t i = 0;
+		for( auto iter = v.adjacent.begin(); iter != v.adjacent.end(); ++i, ++iter ) {
+			if( colors[( *iter )->num] == Color::White ) {
+				dfs( **iter );
 			}
 		}
-		colors[vNum] = Color::Black;
-		onColorBlack( vNum );
+		colors[v.num] = Color::Black;
+		onColorBlack( v.num );
 	}
 
 	CGraph<T, VT, AT>* g;
