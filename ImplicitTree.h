@@ -12,8 +12,9 @@ public:
 	// Присвоение элементу с индексом i значения k.
 	virtual void Assign( int i, int k ) = 0;
 
-	// [l, r]
+	// Сумма на полуинтервале [l, r).
 	virtual int SumSubSegment( int l, int r ) = 0;
 
+	// Лексикографически следующая перестановка на полуинтервале [l, r).
 	virtual bool NextPermutation( int r, int l ) = 0;
 };

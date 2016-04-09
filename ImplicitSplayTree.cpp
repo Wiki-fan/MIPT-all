@@ -161,11 +161,10 @@ bool CImplicitSplayTree::NextPermutation( int l, int r )
 	printf( "MPART: " );
 	print( mpart );
 	//int previ = findNearestBiggerThan( mpart, mpart->val );
-	//splitByVal(mpart, mpart->val, mpart, rpart);
+	splitByVal(mpart, mpart->val, mpart, rpart);
 	//printf("\n%d %d lol\n", previ);
 	//split( mpart, previ, mpart, rpart );
 	//printf("PREVI: %d LSS: %d", previ, getLSS(mpart));
-	SomeSplit( mpart, mpart->val, mpart, rpart );
 	split( mpart, 1, lswap, mpart );
 	split( rpart, 1, rswap, rpart );
 	printf( "\nlpart:" );

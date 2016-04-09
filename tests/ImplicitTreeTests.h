@@ -2,12 +2,9 @@
 #include "../stdafx.h"
 #include "../ImplicitTree.h"
 #include "../ImplicitCartesianTree.h"
+#include "../Smth.h"
 
-int randBetween( const int l, const int r )
-{
-	return ( rand() % ( r - l + 1 )) + l;
-}
-
+// Наивная реализация дерева по неявному ключу на std::vector.
 class CNaiveImplicitTree : public IImplicitTree {
 public:
 	std::vector<int> v;
@@ -50,6 +47,7 @@ public:
 	}
 };
 
+// Тестировщик для неявных деревьев с next_permutation.
 class CImplicitTreeTester {
 public:
 	// Генерирует тестовую последовательность из N тестов, диапазон значений [rangeL, rangeR].
@@ -160,22 +158,27 @@ public:
 void TestImplicitTree()
 {
 	CImplicitTreeTester tester;
-	tester.PrepareTests( 10000, -10000, 10000 );
+	int n, rangeL, rangeR;
+	std::cin >> n >>rangeR >> rangeR;
+	tester.PrepareTests( n, rangeL, rangeR );
 	// ProofOfWorkTests сравнивают весь получившийся массив, принудительно пушат все отложенные модификации, работают долго.
 	// Не стоит включать их на большом наборе тестов.
-	tester.PerformProofOfWorkTests();
-	printf( "ProofOfWorkTests successful\n" );
+	if (n <=100000) {
+		tester.PerformProofOfWorkTests();
+		printf( "ProofOfWorkTests successful\n" );
+	}
 
 	CImplicitCartesianTree cartes;
 	CNaiveImplicitTree naive;
 	clock_t t;
 	t = clock();
-	tester.PerformTimeTests( naive );
-	double timeNaive = double( clock() - t ) / CLOCKS_PER_SEC;
-	t = clock();
 	tester.PerformTimeTests( cartes );
 	double timeCartesian = double( clock() - t ) / CLOCKS_PER_SEC;
-	printf( "Naive Cartesian\n%10f %10f\n", timeNaive, timeCartesian );
+	printf( "Cartesian %10f\n", timeCartesian );
+	t = clock();
+	tester.PerformTimeTests( naive );
+	double timeNaive = double( clock() - t ) / CLOCKS_PER_SEC;
+	printf( "Naive     %10f\n", timeNaive);
 
 }
 

@@ -89,7 +89,7 @@ protected:
 		}
 	}
 
-	/*mutable */CNode* head;
+	CNode* head;
 
 	// Проталкивание отложенных изменений.
 	static void push( CNode* p )
@@ -154,52 +154,7 @@ protected:
 		}
 	}
 
-	// Пересчитать префиксы/суффиксы.
-	static void recalcLS( CNode* node )
-	{
-		if( node == 0 ) {
-			return;
-		}
-
-		bool fl = true;
-		// Суффикс.
-		if( node->right != 0 ) {
-			node->lss = node->right->lss;
-			node->last = node->right->last;
-			if( getLSS( node->right ) == getC( node->right ) && node->val >= node->right->first ) {
-				node->lss += 1;
-			} else {
-				fl = false;
-			}
-		} else {
-			node->lss = 1;
-			node->last = node->val;
-		}
-		if( node->left && node->left->last >= node->val && fl ) {
-			node->lss += node->left->lss;
-		}
-
-		// Префикс.
-		fl = true;
-		if( node->left != 0 ) {
-			node->lsp = node->left->lsp;
-			node->first = node->left->first;
-			if( getLSP( node->left ) == getC( node->left ) && node->val >= node->left->last ) {
-				node->lsp += 1;
-			} else {
-				fl = false;
-			}
-		} else {
-			node->lsp = 1;
-			node->first = node->val;
-		}
-
-		if( node->right && node->right->first >= node->val && fl ) {
-			node->lsp += node->right->lsp;
-		}
-
-
-	}
+	static void recalcLS( CNode* node );
 
 	// Пересчитать всё.
 	static void recalcAll( CNode* node )
@@ -214,7 +169,6 @@ protected:
 
 	static CNode* merge( CNode* l, CNode* r );
 
-	// Разбивает по значению. Применяется на убывающей последовательности, обнаруженной на одном из шагов NextPermutation.
 	static void splitByVal( CNode* t, int val, CNode*& l, CNode*& r );
 
 };
