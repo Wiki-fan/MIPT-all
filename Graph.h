@@ -12,6 +12,9 @@ template<typename T, template<typename, typename ... args> typename VT, template
 class CDfs;
 
 template<typename T, template<typename, typename ... args> typename VT, template<typename, typename ... args> typename AT>
+class CBfs;
+
+template<typename T, template<typename, typename ... args> typename VT, template<typename, typename ... args> typename AT>
 class CGraphTester;
 
 // Граф, хранящийся списком смежности.
@@ -19,9 +22,9 @@ class CGraphTester;
 //template<template<typename> typename VT, template<typename> typename AT>
 template<typename T, template<typename, typename ... args> typename VT, template<typename, typename ... args> typename AT>
 class CGraph {
-public:
-	CGraph() { }
 
+public:
+	CGraph() = default;
 	CGraph( size_t size )
 	{
 		vertices.reserve( size );
@@ -29,8 +32,9 @@ public:
 			vertices.push_back( CVertex( i ));
 		}
 	}
+	virtual ~CGraph() { }
 
-	void AddEdge( int u, int v, int weight )
+	void AddEdge( int u, int v )
 	{
 		vertices[u].adjacent.push_back( &vertices[v] );
 		vertices[v].adjacent.push_back( &vertices[u] );
@@ -47,12 +51,17 @@ private:
 	VT<CVertex> vertices;
 
 	friend class CDfs<T, VT, AT>;
+
+	friend class CBfs<T, VT, AT>;
 };
 
 template<typename T, template<typename, typename ... args> typename VT, template<typename, typename ... args> typename AT>
 class CDfs {
+
 public:
-	CDfs() { }
+	CDfs() = default;
+	virtual ~CDfs() { }
+
 	void Dfs( CGraph<T, VT, AT>& graph )
 	{
 		g = &graph;
@@ -65,41 +74,40 @@ public:
 			}
 		}
 		onEndWalk();
+		colors.clear();
 	}
 
-	void onBeginWalk()
+	virtual void onBeginWalk()
 	{
-		std::cout << "Begin" << std::endl;
+		std::cout << "Begin DFS" << std::endl;
 	}
 
-	void onEndWalk()
+	virtual void onEndWalk()
 	{
-		std::cout << "End" << std::endl;
+		std::cout << "End DFS" << std::endl;
 	}
 
-	void onColorGray( size_t v )
+	virtual void onColorGray( size_t v )
 	{
-		std::cout << "gray" << v << std::endl;
+		//std::cout << "gray" << v << std::endl;
 	}
 
-	void onColorBlack( size_t v )
+	virtual void onColorBlack( size_t v )
 	{
-		std::cout << "black" << v << std::endl;
+		//std::cout << "black" << v << std::endl;
 	}
 
 private:
 	enum class Color {
 		White, Gray, Black
 	};
-	std::vector<Color> colors;
 
 	//using CGraph::CVertex;
 	void dfs( typename CGraph<T, VT, AT>::CVertex& v )
 	{
 		colors[v.num] = Color::Gray;
 		onColorGray( v.num );
-		size_t i = 0;
-		for( auto iter = v.adjacent.begin(); iter != v.adjacent.end(); ++i, ++iter ) {
+		for( auto iter = v.adjacent.begin(); iter != v.adjacent.end(); ++iter ) {
 			if( colors[( *iter )->num] == Color::White ) {
 				dfs( **iter );
 			}
@@ -108,6 +116,69 @@ private:
 		onColorBlack( v.num );
 	}
 
+	std::vector<Color> colors;
+	CGraph<T, VT, AT>* g;
+
+	friend class CGraphTester<T, VT, AT>;
+};
+
+template<typename T, template<typename, typename ... args> typename VT, template<typename, typename ... args> typename AT>
+class CBfs {
+
+public:
+	CBfs() = default;
+	virtual ~CBfs() { }
+	void Bfs( CGraph<T, VT, AT>& graph )
+	{
+		g = &graph;
+		std::queue<typename CGraph<T, VT, AT>::CVertex*> q;
+		onBeginWalk();
+		colors.resize( g->vertices.size(), Color::White );
+		colors[g->vertices[0].num] = Color::Gray;
+		q.push( &g->vertices[0] );
+		while( !q.empty()) {
+			typename CGraph<T, VT, AT>::CVertex* v = q.front();
+			q.pop();
+			for( auto iter = v->adjacent.begin(); iter != v->adjacent.end(); ++iter ) {
+				if( colors[( *iter )->num] == Color::White ) {
+					colors[( *iter )->num] = Color::Gray;
+					onColorGray(( *iter )->num );
+					q.push(( *iter ));
+				}
+			}
+			colors[v->num] = Color::Black;
+			onColorBlack( v->num );
+		}
+		onEndWalk();
+		colors.clear();
+	}
+
+	virtual void onBeginWalk()
+	{
+		std::cout << "Begin BFS" << std::endl;
+	}
+
+	virtual void onEndWalk()
+	{
+		std::cout << "End BFS" << std::endl;
+	}
+
+	virtual void onColorGray( size_t v )
+	{
+		//std::cout << "gray" << v << std::endl;
+	}
+
+	virtual void onColorBlack( size_t v )
+	{
+		//std::cout << "black" << v << std::endl;
+	}
+
+private:
+	enum class Color {
+		White, Gray, Black
+	};
+
+	std::vector<Color> colors;
 	CGraph<T, VT, AT>* g;
 
 	friend class CGraphTester<T, VT, AT>;
@@ -115,13 +186,17 @@ private:
 
 template<typename T, template<typename, typename ... args> typename VT, template<typename, typename ... args> typename AT>
 class CGraphTester {
+
 public:
+	CGraphTester() = default;
+	~CGraphTester() { }
+
 	void GenRandGraph( int v )
 	{
-		size_t vertices = randBetween( 0, v ), edges = randBetween( 0, v * ( v - 1 ) / 2 );
+		size_t vertices = randBetween( 0, v ), edges = randBetween( 0, v * ( v - 1 ) / 2 ) / 100;
 		g = CGraph<T, VT, AT>( vertices );
 		for( int i = 0; i < edges; ++i ) {
-			g.AddEdge( randBetween( 0, vertices ), randBetween( 0, vertices ), randBetween( 0, INT_MAX ));
+			g.AddEdge( randBetween( 0, vertices ), randBetween( 0, vertices ));
 		}
 	}
 
@@ -134,13 +209,23 @@ public:
 		}
 	}
 
+	void TestBFS()
+	{
+		CBfs<T, VT, AT> bfs;
+		bfs.Bfs( g );
+		for( int i = 0; i < bfs.colors.size(); ++i ) {
+			massert( bfs.colors[i] == CBfs<T, VT, AT>::Color::Black );
+		}
+	}
 
 	void PerformTests( int n, int v )
 	{
 		for( int i = 0; i < n; ++i ) {
 			GenRandGraph( v );
 			TestDFS();
+			TestBFS();
 		}
+		std::cout << "TESTING COMPLETED" << std::endl;
 	}
 private:
 	CGraph<T, VT, AT> g;

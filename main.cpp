@@ -10,7 +10,7 @@ int main()
 	std::cin.rdbuf( ifs.rdbuf() );
 #endif
 
-	CGraphTester<int, std::vector, std::vector> tester;
+	CGraphTester<int, std::vector, std::list> tester;
 	tester.PerformTests( 10, 10000 );
 
 #ifdef MY_CIN_REDIR
