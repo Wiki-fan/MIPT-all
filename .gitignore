@@ -13,6 +13,8 @@
 **/a.out
 **/.DS_Store
 **/thumbs.db
+**/*.cfg
+file.out std.out
 .idea
 CMakeLists.txt
 **/*.fasta

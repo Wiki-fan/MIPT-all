@@ -22,7 +22,7 @@ int gets_safe_ext(FILE* f, char** str, const char* term)
             bufSize *= 2;
             buf = (char*)realloc_s(buf, bufSize*sizeof(char));
 
-            iter = buf + i-1;
+            iter = buf + i - 1;
         }
         *iter++ = c;
         /* Characters that should terminate input. */

@@ -6,8 +6,10 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <err.h>
+#include <ctype.h>
 #include "../task-s2-gets_safe/safe_string.h"
 #include "bit_coding.h"
+#include "../common/utils.h"
 
 #define NUCLEOTIDE_GROUP_W 10
 #define NUCLEOTIDE_STRING_G 6
@@ -18,11 +20,7 @@ int readWhileNotNew( FILE* f, char** str, bool checkTerm, int size )
     int c;
     int i = 0;
     char* iter;
-    char* buf = (char*) malloc( bufSize * sizeof( char )), * newBuf = NULL;
-    if( buf == NULL)
-    {
-        err( 1, "Error (re)allocating memory" );
-    }
+    char* buf = (char*) malloc_s( bufSize * sizeof( char ));
     iter = buf;
 
     if( size == -1 )
@@ -31,27 +29,24 @@ int readWhileNotNew( FILE* f, char** str, bool checkTerm, int size )
     }
     while( i < size && ( c = getc( f )) != EOF)
     {
+        /* Character that should terminate input. */
+        if( checkTerm && c == '>' )
+        {
+            ungetc( c, f );
+            ++i;
+            break;
+        }
+        if (checkTerm && !strchr("atgcu", tolower(c)) )
+        {
+            continue;
+        }
         ++i;
         /* Realloc if needed. */
         if( i == bufSize - 1 )
         {
             bufSize *= 2;
-            newBuf = realloc( buf, bufSize * sizeof( char ));
-            if( newBuf != 0 )
-            {
-                buf = newBuf;
-                iter = buf + i - 1;
-            }
-            else
-            {
-                err(1, "Error (re)allocating memory" );
-            }
-        }
-        /* Character that should terminate input. */
-        if( checkTerm && '>' == c )
-        {
-            ungetc( c, f );
-            break;
+            buf = realloc_s( buf, bufSize * sizeof( char ));
+            iter = buf + i - 1;
         }
         *iter++ = c;
     }
@@ -74,14 +69,8 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
     char* inBuf, * outBuf;
     int ret;
 
-    if(( inf = fopen( inFileName, "rb" )) == NULL)
-    {
-        err(2, "Failed to open file %s", inFileName);
-    }
-    if(( outf = fopen( outFileName, "wb" )) == NULL)
-    {
-        err(2, "Failed to open file %s", outFileName);
-    }
+    inf = fopen_s( inFileName, "rb" );
+    outf = fopen_s( outFileName, "wb" );
 
     while( gets_safe( inf, &header ))
     {
@@ -95,7 +84,7 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
             fwrite( &ret, sizeof( int ), 1, outf );
             fwrite( outBuf, sizeof( char ), ret * symbolSize / 8 + 1, outf );
         }
-        else if( direction == 1 )
+        else /*if( direction == 1 )*/
         {
             /* Unpack. */
             char* iter;
@@ -120,6 +109,7 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
         }
         free( inBuf );
         free( outBuf );
+        free( header );
     }
 
     free( header );

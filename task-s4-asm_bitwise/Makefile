@@ -2,8 +2,10 @@ TARGET= test_asm_bitwise
 SRC = asm_bitwise.s
 OBJ = asm_bitwise.o
 
-CC=gcc
-CFLAGS=-Wall -ansi -pedantic -lm -m32
+.PHONY:  all clean valgrind
+
+CFLAGS += -Wall -ansi -pedantic -lm -m32
+VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 
 AS=as
 ASFLAGS=--32
@@ -21,6 +23,9 @@ all: $(TARGET)
 
 test_asm_bitwise: main.c asm_bitwise.o
 	$(CC) $(CFLAGS) -o $@ $^
+
+valgrind:
+	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) 1>std.out
 
 clean:
 	rm -rf $(TARGET) *.o  *.d *.orig

@@ -113,7 +113,7 @@ void wcsort( FILE* inf, FILE* outf )
     {
         ++strings;
         ++i;
-        if( i > size )
+        if( i >= size )
         {
             size *= 2;
             strs = realloc_s( strs, size*sizeof(strs[0]) );

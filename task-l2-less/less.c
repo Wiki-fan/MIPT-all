@@ -178,7 +178,7 @@ void read_less_file( FILE* f )
         {
             screen.file_col = len;
         }
-        if( i > size )
+        if( i >= size )
         {
             size *= 2;
             ret = realloc_s( ret, size*sizeof(ret[0]) );
@@ -267,7 +267,7 @@ void less( FILE* f )
             ;
         }
     }
-    for (i = 0; i<screen.file_row; ++i)
+    for (i = 0; i<screen.file_row+1; ++i)
         free(screen.strs[i]);
     free(screen.lengths);
     free(screen.strs);

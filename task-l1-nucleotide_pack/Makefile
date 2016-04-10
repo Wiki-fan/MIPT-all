@@ -2,18 +2,28 @@ TARGET= nucleotide_pack
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
-CC=gcc
-CFLAGS=-Wall -ansi -pedantic
+DEPS = ../common/utils.o ../task-s2-gets_safe/safe_string.o
+DEP_DIRS = ../common ../task-s2-gets_safe
 
-all: $(TARGET)
+.PHONY:  all clean valgrind $(DEP_DIRS)
+
+CFLAGS += -Wall -ansi -pedantic
+VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
+
+all: $(DEP_DIRS) $(TARGET)
 
 nucleotide_pack: $(OBJ)
-	$(MAKE) -C ../task-s2-gets_safe
-	$(CC) -o $@ $^ ../task-s2-gets_safe/safe_string.o -lm
+	$(CC) -o $@ $^ $(DEPS) -lm
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -MD $<
 include $(wildcard *.d)
+
+valgrind:
+	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) pack ../seqdump.fasta mid.gfasta
+
+$(DEP_DIRS):
+	$(MAKE) -C $@
 
 clean:
 	rm -rf $(TARGET) *.o *.d *.orig
