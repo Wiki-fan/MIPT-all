@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 //#define MY_CIN_REDIR
 #include "Graph.h"
+#include "tests/GraphTests.h"
 int main()
 {
 	srand( static_cast<unsigned int>(time( 0 )));
@@ -10,7 +11,7 @@ int main()
 	std::cin.rdbuf( ifs.rdbuf() );
 #endif
 
-	CGraphTester<int, std::vector, std::list> tester;
+	CGraphTester<size_t, int, int, std::list> tester;
 	tester.PerformTests( 10, 10000 );
 
 #ifdef MY_CIN_REDIR

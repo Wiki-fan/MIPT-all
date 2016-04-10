@@ -61,7 +61,7 @@ set(TESTS_SOURCES
 		SplayTree.h
 		SegmentTree.h
 		SparseTable.h
-		ImplicitSplayTree.h tests/ImplicitTreeTests.h ImplicitTree.h Graph.h)
+		ImplicitSplayTree.h tests/ImplicitTreeTests.h ImplicitTree.h Graph.h GraphTraversal.h tests/GraphTests.h)
 set(TEST test_${PROJECT_NAME})
 
 set(SOURCE_FILES
@@ -102,7 +102,16 @@ set(SOURCE_FILES
 		SplayTree.h
 		SegmentTree.h
 		SparseTable.h
-		ImplicitSplayTree.h tests/ImplicitTreeTests.h ImplicitTree.h ImplicitSplayTree.cpp ImplicitCartesianTree.cpp ImplicitCartesianTree.h Graph.h)
+		ImplicitSplayTree.h
+		tests/ImplicitTreeTests.h
+		ImplicitTree.h
+		ImplicitSplayTree.cpp
+		ImplicitCartesianTree.cpp
+		ImplicitCartesianTree.h
+		Graph.h
+		GraphTraversal.h
+		tests/GraphTests.h
+		)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

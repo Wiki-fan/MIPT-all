@@ -403,7 +403,7 @@ CDeque<T>::CMetaIterator<is_const_iterator>::operator-( const self_type& other )
 	}
 	diff -= other.iBuf;
 	// Не нашли, надо было идти в другую сторону.
-	if( ) {
+	if( fl == false ) {
 		diff = DequeFragmentSize - iBuf;
 		temp = other.node;
 		while( temp != 0 ) {
