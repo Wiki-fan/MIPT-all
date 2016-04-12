@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 void* malloc_s( size_t size );
+void* calloc_s( size_t nMem, size_t size );
 void* realloc_s( void* buf, size_t size );
 FILE* fopen_s( const char* filename, const char* mode);
 

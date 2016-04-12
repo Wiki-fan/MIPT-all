@@ -22,7 +22,7 @@ int BitEncode( const char* toEncode, const char* alphabet, char** answer)
     char* temp;
     int count = 0;
 
-    *answer = (char*)malloc_s( answerSize / 8 + 1 );    /* Allocating memory for answer. */
+    *answer = (char*)calloc_s(  ( answerSize / 8 + 1)*sizeof(char), sizeof(char));    /* Allocating memory for answer. */
     out = *answer;
 
     while( (c = *in) )
@@ -69,7 +69,7 @@ int BitDecode( const char* toDecode, const char* alphabet, char** answer, int si
          symbol,    /* Encoded character. */
          * out,    /* Output iterator. */
          bitPosToRead = 0;
-    *answer = (char*)malloc_s( size + 1 );    /* Allocating memory for answer. */
+    *answer = (char*)calloc_s( size*sizeof(char) + 1, sizeof(char) );    /* Allocating memory for answer. */
     out = *answer;
 
     while (i< size )

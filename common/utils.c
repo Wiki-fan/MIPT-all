@@ -13,6 +13,17 @@ void* malloc_s( size_t size )
     return ret;
 }
 
+void* calloc_s( size_t nMem, size_t size )
+{
+    void* ret;
+    ret = calloc( nMem, size );    /* Allocating memory for answer. */
+    if( ret == NULL)
+    {
+        err( 1, "Memory allocation error" );
+    }
+    return ret;
+}
+
 void* realloc_s( void* buf, size_t size )
 {
     void* ret;

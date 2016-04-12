@@ -16,7 +16,7 @@
 
 int readWhileNotNew( FILE* f, char** str, bool checkTerm, int size )
 {
-    int bufSize = 1000; /* Initial buffer size. */
+    int bufSize = 10; /* Initial buffer size. */
     int c;
     int i = 0;
     char* iter;
@@ -76,13 +76,15 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
     {
         /* Copying the header. */
         fputs( header, outf );
+        free( header );
         if( direction == 0 )
         {
             /* Pack. */
-            readWhileNotNew( inf, &inBuf, true, -1 );
+            if (!readWhileNotNew( inf, &inBuf, true, -1 ))
+                break;
             ret = BitEncode( inBuf, alphabet, &outBuf );
             fwrite( &ret, sizeof( int ), 1, outf );
-            fwrite( outBuf, sizeof( char ), ret * symbolSize / 8 + 1, outf );
+            fwrite( outBuf, sizeof( char ), ((ret * symbolSize) % 8 == 0? ret * symbolSize / 8 : ret * symbolSize / 8 + 1 )/* + 1*/, outf );
         }
         else /*if( direction == 1 )*/
         {
@@ -109,7 +111,7 @@ void nucleotide_pack( char direction, const char* inFileName, const char* outFil
         }
         free( inBuf );
         free( outBuf );
-        free( header );
+
     }
 
     free( header );

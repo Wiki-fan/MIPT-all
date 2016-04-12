@@ -8,7 +8,7 @@ DEP_DIRS = ../common ../task-s2-gets_safe
 .PHONY:  all clean valgrind $(DEP_DIRS)
 
 CFLAGS += -Wall -ansi -pedantic
-VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
+VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes --vgdb=yes
 
 all: $(DEP_DIRS) $(TARGET)
 
@@ -20,7 +20,10 @@ nucleotide_pack: $(OBJ)
 include $(wildcard *.d)
 
 valgrind:
-	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) pack ../seqdump.fasta mid.gfasta
+	#valgrind $(VALGRIND_OPTIONS) ./$(TARGET) pack ../seqdump.fasta mid.gfasta
+	#valgrind $(VALGRIND_OPTIONS) ./$(TARGET) unpack mid.gfasta ans.fa
+	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) pack human1.fa mid.gfasta
+	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) unpack mid.gfasta ans.fasta
 
 $(DEP_DIRS):
 	$(MAKE) -C $@
