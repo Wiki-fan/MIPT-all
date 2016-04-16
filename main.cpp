@@ -11,8 +11,8 @@ int main()
 	std::cin.rdbuf( ifs.rdbuf() );
 #endif
 
-	CGraphTester<size_t, int, int, std::list> tester;
-	tester.PerformTests( 10, 10000 );
+	CGraphTester<int, int, std::list> tester;
+	tester.PerformTests( 10, 1000000 );
 
 #ifdef MY_CIN_REDIR
 	std::cin.rdbuf( cinbuf );
@@ -20,4 +20,3 @@ int main()
 	std::cin.get();
 	return 0;
 }
-

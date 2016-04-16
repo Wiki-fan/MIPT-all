@@ -8,49 +8,59 @@ int randBetween( const int l, const int r )
 	return ( rand() % ( r - l )) + l;
 }
 
-template<typename T, typename VT, typename ET, template<typename, typename ... args> typename AT>
-class CDfs;
-
-template<typename T, typename VT, typename ET, template<typename, typename ... args> typename AT>
-class CBfs;
-
-template<typename T, typename VT, typename ET, template<typename, typename ... args> typename AT>
-class CGraphTester;
-
 // Граф, хранящийся списком смежности.
 // VT - тип контейнера вершин, AT - тип контейнера смежности.
 //template<template<typename> typename template<typename> typename AT>
-template<typename T, typename VT, typename ET, template<typename, typename ... args> typename AT>
+template<typename VT, typename ET, template<typename, typename ... args> typename AT>
 class CGraph {
-
-	friend class CDfs<T, VT, ET, AT>;
-
-	friend class CBfs<T, VT, ET, AT>;
-
+	// Forward declaration.
+	struct CVertex;
+	struct CEdge;
 public:
+	// Конструктор по умолчанию - пустой граф.
 	CGraph() { }
+	//Граф с size вершинами.
 	CGraph( size_t size )
 	{
 		vertices.resize( size );
 	}
 
-	// u -> v
-	void AddEdge( T u, T v, ET weight )
+	// Добавить ребро u -> v.
+	void AddEdge( size_t u, size_t v, ET weight )
 	{
-		vertices[u].adjacent.push_back( CEdge( v, weight ));
-		// vertices[v].adjacent.push_back( u );
+		vertices[u].out.push_back( CEdge( v, weight ) );
+		vertices[v].in.push_back( CEdge( u, weight ) );
 	}
 
-	void AddVertex( VT val )
+	// Добавить вершину со значением val. Возвращает номер добавленной вершины.
+	size_t AddVertex( VT val )
 	{
 		vertices.push_back( CVertex( val ));
+		return vertices.size()-1;
 	}
+
+	// Получить контейнер рёбер, входящих в вершину.
+	AT<CEdge>& GetIncomingEdges(size_t vNum)
+	{
+		return vertices[vNum].in;
+	}
+
+	// Получить контейнер рёбер, выходящих из вершины.
+	AT<CEdge>& GetOutcomingEdges(size_t vNum)
+	{
+		return vertices[vNum].out;
+	}
+
+	// Получить количество вершин.
+	size_t GetSize() { return vertices.size(); }
 
 private:
 	struct CEdge {
 		ET val;
-		T vNum;
-		CEdge( T _vNum, ET _val ) : vNum( _vNum ), val( _val ) { }
+		size_t vNum;
+		CEdge( size_t _vNum, ET _val ) : vNum( _vNum ), val( _val ) { }
+		ET getVal() { return val; }
+		size_t getNum() { return vNum; }
 	};
 
 	struct CVertex {
@@ -58,7 +68,11 @@ private:
 		CVertex() : val( 0 ) { }
 		explicit CVertex( int _val ) : val( _val ) { }
 		~CVertex() { }
-		AT<CEdge> adjacent;
+		AT<CEdge> out;
+		AT<CEdge> in;
+		VT getVal() { return val; }
+		const AT<CEdge>& getIn() { return in; }
+		const AT<CEdge>& getOut() { return out; }
 	};
 
 	std::vector<CVertex> vertices;

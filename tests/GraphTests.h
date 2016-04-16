@@ -3,49 +3,55 @@
 #include "../Graph.h"
 #include "../GraphTraversal.h"
 
-template<typename T, typename VT, typename ET, template<typename, typename ... args> typename AT>
+// Тестировщик для класса графа и его обходов.
+template<typename VT, typename ET, template<typename, typename ... args> typename AT>
 class CGraphTester {
 
 public:
 	CGraphTester() = default;
 	~CGraphTester() { }
 
-	void GenRandGraph( int v )
+	// Создание рандомного графа с v вершинами и e гранями.
+	void GenRandGraph( int v, int e )
 	{
-		size_t vertices = randBetween( 0, v ), edges = randBetween( 0, v * ( v - 1 ) / 2 ) / 100;
-		g = CGraph<T, VT, ET, AT>( vertices );
-		for( int i = 0; i < edges; ++i ) {
-			g.AddEdge( randBetween( 0, vertices ), randBetween( 0, vertices ), randBetween( 0, 10000 ));
+		g = new CGraph<VT, ET, AT>( v );
+		for( int i = 0; i < e; ++i ) {
+			g->AddEdge( randBetween( 0, v ), randBetween( 0, v ), randBetween( 0, 10000 ));
 		}
 	}
 
+	// Протестировать DFS на текущем графе.
 	void TestDFS()
 	{
-		CDfs<T, VT, ET, AT> dfs;
-		dfs.Dfs( g );
-		for( int i = 0; i < dfs.colors.size(); ++i ) {
-			massert( dfs.colors[i] == CDfs<T, VT, ET, AT>::Color::Black );
+		CDfs<VT, ET, AT> dfs;
+		dfs.Dfs( *g );
+		for( int i = 0; i < dfs.getColors().size(); ++i ) {
+			massert( dfs.getColors()[i] == CDfs<VT, ET, AT>::Color::Black );
 		}
 	}
 
+	// Протестировать BFS на текущем графе.
 	void TestBFS()
 	{
-		CBfs<T, VT, ET, AT> bfs;
-		bfs.Bfs( g );
-		for( int i = 0; i < bfs.colors.size(); ++i ) {
-			massert( bfs.colors[i] == CBfs<T, VT, ET, AT>::Color::Black );
+		CBfs<VT, ET, AT> bfs;
+		bfs.Bfs( *g );
+		for( int i = 0; i < bfs.getColors().size(); ++i ) {
+			massert( bfs.getColors()[i] == CBfs<VT, ET, AT>::Color::Black );
 		}
 	}
 
+	// Протестировать обходы на графе с <=v вершинами n раз.
 	void PerformTests( int n, int v )
 	{
 		for( int i = 0; i < n; ++i ) {
-			GenRandGraph( v );
+			GenRandGraph( randBetween( 0, v ), randBetween( 0, v * ( v - 1 ) / 2 ) / 100 );
 			TestDFS();
-			TestBFS();
+			//TestBFS();
+			delete g;
 		}
 		std::cout << "TESTING COMPLETED" << std::endl;
 	}
+
 private:
-	CGraph<T, VT, ET, AT> g;
+	CGraph<VT, ET, AT>* g;
 };
