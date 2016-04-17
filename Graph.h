@@ -40,27 +40,27 @@ public:
 	}
 
 	// Получить контейнер рёбер, входящих в вершину.
-	AT<CEdge>& GetIncomingEdges(size_t vNum)
+	const AT<CEdge>& GetIncomingEdges( size_t vNum ) const
 	{
 		return vertices[vNum].in;
 	}
 
 	// Получить контейнер рёбер, выходящих из вершины.
-	AT<CEdge>& GetOutcomingEdges(size_t vNum)
+	const AT<CEdge>& GetOutcomingEdges( size_t vNum ) const
 	{
 		return vertices[vNum].out;
 	}
 
 	// Получить количество вершин.
-	size_t GetSize() { return vertices.size(); }
+	size_t GetSize() const { return vertices.size(); }
 
 private:
 	struct CEdge {
 		ET val;
 		size_t vNum;
 		CEdge( size_t _vNum, ET _val ) : vNum( _vNum ), val( _val ) { }
-		ET getVal() { return val; }
-		size_t getNum() { return vNum; }
+		ET getVal() const { return val; }
+		size_t getNum() const { return vNum; }
 	};
 
 	struct CVertex {
@@ -70,9 +70,9 @@ private:
 		~CVertex() { }
 		AT<CEdge> out;
 		AT<CEdge> in;
-		VT getVal() { return val; }
-		const AT<CEdge>& getIn() { return in; }
-		const AT<CEdge>& getOut() { return out; }
+		VT getVal() const { return val; }
+		const AT<CEdge>& getIn() const { return in; }
+		const AT<CEdge>& getOut() const { return out; }
 	};
 
 	std::vector<CVertex> vertices;

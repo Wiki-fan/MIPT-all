@@ -24,6 +24,7 @@
 #include <forward_list>
 #include <set>
 #include <queue>
+#include <stack>
 #include <string>
 #include <algorithm>
 #include <iterator>

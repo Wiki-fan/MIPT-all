@@ -40,10 +40,26 @@ public:
 	// Возвращает вектор цветов вершин.
 	const std::vector<Color>& getColors() { return colors; }
 
+	// Запуск обхода графа graph.
+	virtual void Walk( CGraph<VT, ET, AT>& graph )
+	{
+		g = &graph;
+		colors.resize( g->GetSize(), Color::White );
+		onBeginWalk();
+		for( size_t i = 0; i < g->GetSize(); ++i ) {
+			if( colors[i] == Color::White ) {
+				walk( i );
+			}
+		}
+		onEndWalk();
+		colors.clear();
+	}
 protected:
 
 	std::vector<Color> colors;
 	CGraph<VT, ET, AT>* g;
+
+	virtual void walk( size_t start ) = 0;
 };
 
 // Обход в глубину.
@@ -59,46 +75,28 @@ public:
 	CDfs() = default;
 	virtual ~CDfs() { }
 
-	// Запуск обхода в глубину графа graph.
-	void Dfs( CGraph<VT, ET, AT>& graph );
-
+	using CGraphTraversal<VT, ET, AT>::Walk;
 	using CGraphTraversal<VT, ET, AT>::onBeginWalk;
 	using CGraphTraversal<VT, ET, AT>::onEndWalk;
 	using CGraphTraversal<VT, ET, AT>::onColorGray;
 	using CGraphTraversal<VT, ET, AT>::onColorBlack;
 
 private:
-	void dfs( size_t vNum );
+	void walk( size_t vNum );
 };
 
 template<typename VT, typename ET, template<typename, typename ... args> typename AT>
-void CDfs<VT, ET, AT>::dfs( size_t vNum )
+void CDfs<VT, ET, AT>::walk( size_t vNum )
 {
 	colors[vNum] = Color::Gray;
 	onColorGray( vNum );
-	for( auto iter = g->GetOutcomingEdges(vNum).begin(); iter != g->GetOutcomingEdges(vNum).end(); ++iter ) {
+	for( auto iter = g->GetOutcomingEdges( vNum ).begin(); iter != g->GetOutcomingEdges( vNum ).end(); ++iter ) {
 		if( colors[iter->vNum] == Color::White ) {
-			dfs( iter->vNum );
+			walk( iter->vNum );
 		}
 	}
 	colors[vNum] = Color::Black;
 	onColorBlack( vNum );
-}
-
-template<typename VT, typename ET, template<typename, typename ... args> typename AT>
-void CDfs<VT, ET, AT>::Dfs( CGraph<VT, ET, AT>& graph )
-{
-	g = &graph;
-	onBeginWalk();
-	colors.resize( g->GetSize(), Color::White );
-
-	for( size_t i = 0; i < g->GetSize(); ++i ) {
-		if( colors[i] == Color::White ) {
-			dfs( i );
-		}
-	}
-	onEndWalk();
-	colors.clear();
 }
 
 // Обход в ширину.
@@ -114,29 +112,27 @@ public:
 	CBfs() = default;
 	virtual ~CBfs() { }
 
-	// Запуск обзора в глубину.
-	void Bfs( CGraph<VT, ET, AT>& graph );
-
+	using CGraphTraversal<VT, ET, AT>::Walk;
 	using CGraphTraversal<VT, ET, AT>::onBeginWalk;
 	using CGraphTraversal<VT, ET, AT>::onEndWalk;
 	using CGraphTraversal<VT, ET, AT>::onColorGray;
 	using CGraphTraversal<VT, ET, AT>::onColorBlack;
 
+private:
+	void walk( size_t start );
 };
 
 template<typename VT, typename ET, template<typename, typename ... args> typename AT>
-void CBfs<VT, ET, AT>::Bfs( CGraph<VT, ET, AT>& graph )
+void CBfs<VT, ET, AT>::walk( size_t start )
 {
-	g = &graph;
 	std::queue<size_t> q;
-	onBeginWalk();
-	colors.resize( g->GetSize(), Color::White );
+
 	colors[0] = Color::Gray;
 	q.push( 0 );
 	while( !q.empty()) {
 		size_t vNum = q.front();
 		q.pop();
-		for( auto iter = g->GetOutcomingEdges(vNum).begin(); iter != g->GetOutcomingEdges(vNum).end(); ++iter ) {
+		for( auto iter = g->GetOutcomingEdges( vNum ).begin(); iter != g->GetOutcomingEdges( vNum ).end(); ++iter ) {
 			if( colors[iter->vNum] == Color::White ) {
 				colors[iter->vNum] = Color::Gray;
 				onColorGray( iter->vNum );
@@ -146,6 +142,53 @@ void CBfs<VT, ET, AT>::Bfs( CGraph<VT, ET, AT>& graph )
 		colors[vNum] = Color::Black;
 		onColorBlack( vNum );
 	}
-	onEndWalk();
-	colors.clear();
+}
+
+// Нерекурсивный обход в глубину.
+template<typename VT, typename ET, template<typename, typename ... args> typename AT>
+class CNonRecursiveDfs : public CGraphTraversal<VT, ET, AT> {
+
+	using CGraphTraversal<VT, ET, AT>::colors;
+	using CGraphTraversal<VT, ET, AT>::g;
+
+public:
+	using typename CGraphTraversal<VT, ET, AT>::Color;
+
+	CNonRecursiveDfs() = default;
+	virtual ~CNonRecursiveDfs() { }
+
+	using CGraphTraversal<VT, ET, AT>::Walk;
+	using CGraphTraversal<VT, ET, AT>::onBeginWalk;
+	using CGraphTraversal<VT, ET, AT>::onEndWalk;
+	using CGraphTraversal<VT, ET, AT>::onColorGray;
+	using CGraphTraversal<VT, ET, AT>::onColorBlack;
+
+private:
+	void walk( size_t start );
+};
+
+template<typename VT, typename ET, template<typename, typename ... args> typename AT>
+void CNonRecursiveDfs<VT, ET, AT>::walk( size_t start )
+{
+	std::stack<size_t> st;
+	colors[start] = Color::Gray;
+	st.push( start );
+	while( !st.empty()) {
+		size_t vNum = st.top();
+		bool fl = true;
+		for( auto iter = g->GetOutcomingEdges( vNum ).begin(); iter != g->GetOutcomingEdges( vNum ).end(); ++iter ) {
+			if( colors[iter->vNum] == Color::White ) {
+				colors[iter->vNum] = Color::Gray;
+				onColorGray( iter->vNum );
+				st.push( iter->vNum );
+				fl = false;
+				break;
+			}
+		}
+		if( fl ) {
+			colors[vNum] = Color::Black;
+			onColorBlack( vNum );
+			st.pop();
+		}
+	}
 }
