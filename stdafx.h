@@ -32,7 +32,7 @@
 #include <memory>
 
 
-#include "Smth.h"
+#include "Other/Smth.h"
 
 typedef long long int mysize;
 typedef long long int type;

@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 //#define MY_CIN_REDIR
-#include "Graph.h"
-#include "tests/GraphTests.h"
+#include "Graph/GraphTests.h"
 int main()
 {
 	srand( static_cast<unsigned int>(time( 0 )));
