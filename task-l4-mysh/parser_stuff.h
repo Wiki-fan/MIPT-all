@@ -8,6 +8,7 @@ typedef enum {
 			T_LT, /*<*/
 			T_AMP, /*&*/
 			T_WORD,
+	T_NL,
 	T_END
 } TOKEN;
 

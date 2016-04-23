@@ -10,48 +10,68 @@
 
 void test_fork_execve()
 {
-	stdfd st = {0,1,2};
-	const char** argv = (char**){"ls", "-l", NULL};
-	run(argv, &st);
+	proc st = { 0, 1, 2 };
+	char* argv[3];
+	argv[0] = "/bin/ls";
+	argv[1] = "-la";
+	argv[3] = NULL;
+	run( argv, &st );
 }
 
-void test_parser()
+TOKEN test_gettoken()
 {
-	int t;
+	TOKEN t;
 	char* buf;
-	while (1) {
-		t = gettoken(&buf);
-		switch(t) {
-			case T_BAR:
-				printf("T_BAR\n");
-				break;
-			case T_GT:
-				printf("T_GT\n");
-				break;
-			case T_GTGT:
-				printf("T_GTGT\n");
-				break;
-			case T_LT:
-				printf("T_LT\n");
-				break;
-			case T_AMP:
-				printf("T_AMP\n");
-				break;
-			case T_WORD:
-				printf("T_WORD %s\n", buf);
-				break;
-			default:
-				printf("END\n");
-				return;
+
+	t = gettoken( &buf );
+	switch( t ) {
+		case T_BAR:
+			printf( "T_BAR\n" );
+			break;
+		case T_GT:
+			printf( "T_GT\n" );
+			break;
+		case T_GTGT:
+			printf( "T_GTGT\n" );
+			break;
+		case T_LT:
+			printf( "T_LT\n" );
+			break;
+		case T_AMP:
+			printf( "T_AMP\n" );
+			break;
+		case T_WORD:
+			printf( "T_WORD %s\n", buf );
+			break;
+		case T_NL:
+			printf( "T_NL\n");
+			break;
+		case T_END:
+			printf( "END\n" );
+			break;
+		default:
+			errx(30, "Missed token");
+	}
+	free( buf );
+	return t;
+}
+
+#define PROMPT ">"
+void test_prompt()
+{
+	TOKEN token = T_NL;
+	while( 1 ) {
+		if( token == T_NL ) {
+			printf( PROMPT );
 		}
+		token = test_gettoken();
+		if (token == T_END)
+			break;
 	}
 }
-
 int main()
 {
-	printf("Let testing begin!\n");
 	/*test_fork_execve();*/
-	test_parser();
-	printf("Let testing end!\n");
+	test_prompt();
 	return 0;
 }

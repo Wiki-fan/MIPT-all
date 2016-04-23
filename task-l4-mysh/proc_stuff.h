@@ -2,11 +2,18 @@
 #define TASK_L4__PROC
 
 typedef struct {
+	/* in descriptor */
 	int in;
+	/* out descriptor */
 	int out;
-	int err;
-} stdfd;
+	/* count of arguments */
+	int argc;
+	/* pointer to string array of arguments */
+	char** argv[];
+	/* pointers to in file and out file relatively (if corresponding descriptors are -1) */
+	char* infile, *outfile;
+} proc;
 
-int run(char* argv[], stdfd* fd);
+int run(char* argv[], proc* fd);
 
 #endif /* TASK_L4__PROC */
