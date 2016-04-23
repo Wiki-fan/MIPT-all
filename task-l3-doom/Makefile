@@ -1,5 +1,5 @@
-TARGET= doom
-SRC = $(wildcard *.c)
+TARGET= client server
+SRC = config_stuff.c game_stuff.c tty_stuff.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
 DEPS = ../common/utils.o
@@ -7,12 +7,12 @@ DEP_DIRS = ../common
 
 .PHONY:  all clean valgrind $(DEP_DIRS)
 
-CFLAGS += -Wall  -pedantic $(DEPS) -ansi
+CFLAGS += -Wall -pedantic $(DEPS) -ansi
 VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 
 all: $(DEP_DIRS) $(TARGET)
 
-$(TARGET):  $(OBJ) $(DEPS)
+$(TARGET): $@.o $(OBJ) $(DEPS)
 	$(CC) -o $@ $^ -lm
 
 %.o: %.c
@@ -20,7 +20,7 @@ $(TARGET):  $(OBJ) $(DEPS)
 include $(wildcard *.d)
 
 valgrind:
-	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) ../test 1>std.out
+	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) ../??? 1>std.out
 
 $(DEP_DIRS):
 	$(MAKE) -C $@
