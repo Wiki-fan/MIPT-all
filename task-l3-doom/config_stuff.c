@@ -16,56 +16,78 @@ extern Game game;
 #define DEFAULT } else {
 #define ENDSWITCH }
 
+/* read n characters into buffer buf which should store at least n+1 character for '\0' symbol */
+int get_raw(FILE* f, char* buf, int n)
+{
+	int c;
+	int i = 0;
+	while ( (c = getc(f)) != EOF ) {
+		if (c == '\n')
+			break;
+		buf[i++] = (char)c;
+		if (i == n+1) {
+			break;
+		}
+	}
+	buf[i] = '\0';
+}
+
 void read_config_from_file( char* file_name )
 {
 	FILE* inf;
-	int x, y, val;
+	int x, y;
+	float val;
 	inf = fopen_s( file_name, "r" );
 	char buf[BUF_SIZE];
-	fgets( buf, BUF_SIZE, inf );
-	if( !strcmp( buf, "Map" )) {
+	fscanf(inf, "%10s", buf);
+	if( strcmp( buf, "Map" )) {
 		errx( 20, "Map expected in config file" );
 	}
-	fscanf( inf, "%dx%d", &map.w, map.h );
+	fscanf( inf, "%dx%d\n", &map.h, &map.w );
 	/* Include borders in our map */
 	map.w += 2;
 	map.h += 2;
 
-	map.m = (char*) malloc_s( map.h * sizeof( char* ));
+	map.m = (char**) malloc_s( map.h * sizeof( char* ));
+	map.b = (int**) malloc_s( map.h * sizeof( int* ));
 	for( y = 0; y < map.h; ++y ) {
-		map.m[y] = (char*) malloc_s( map.w * sizeof( char ));
-		fgets( map.m[y], map.w, inf );
+		map.m[y] = (char*) malloc_s( (map.w+1) * sizeof( char ));
+		map.b[y] = (int*) malloc_s( (map.w+1) * sizeof( int ));
+		get_raw(inf, map.m[y], map.w);
 	}
 
-	while( fgets( buf, BUF_SIZE, inf ) != NULL) {
+	while( get_raw( inf, buf, BUF_SIZE-1) != NULL) {
+		puts(buf);
 		if( !strcmp( buf, "items:" )) {
 			break;
 		}
-		fscanf( inf, "%d", &val );
+		fscanf( inf, " = %f\n", &val );
 		SWITCH
 		CASEEQ( buf, "initial_health" )
-			game.initial_health = val;
+			game.initial_health = (int)val;
 		CASEEQ( buf, "hit_value" )
-			game.hit_value = val;
+			game.hit_value = (int)val;
 		CASEEQ( buf, "recharge_duration" )
-			game.recharge_duration = val;
+			game.recharge_duration = (int)val;
 		CASEEQ( buf, "mining_time" )
-			game.mining_time = val;
+			game.mining_time = (int)val;
 		CASEEQ( buf, "stay_health_drop" )
-			game.stay_health_drop = val;
+			game.stay_health_drop = (int)val;
 		CASEEQ( buf, "movement_health_drop" )
-			game.movement_health_drop = val;
+			game.movement_health_drop = (int)val;
 		CASEEQ( buf, "step_standard_delay" )
 			game.step_standard_delay = val;
 		CASEEQ( buf, "moratory_duration" )
-			game.moratory_duration = val;
+			game.moratory_duration = (int)val;
 		DEFAULT
-			errx( 21, "Unknown game parameter" );
+			errx( 21, "Unknown game parameter %s", buf );
 		ENDSWITCH
 	}
 
-	while( fscanf( inf, "%d %d %d", &x, &y, &val )) {
+	while( fscanf( inf, "%d %d %f", &x, &y, &val ) != EOF) {
 		map.m[y][x] = BOOST;
-	};
+		map.b[y][x] = (int)val;
+	}
+	printf("Config read successfully");
 
 }

@@ -12,7 +12,7 @@ VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 
 all: $(DEP_DIRS) $(TARGET)
 
-$(TARGET): $@.o $(OBJ) $(DEPS)
+client: client.o $(OBJ) $(DEPS)
 	$(CC) -o $@ $^ -lm
 
 %.o: %.c

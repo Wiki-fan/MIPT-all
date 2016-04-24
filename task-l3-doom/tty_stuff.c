@@ -108,6 +108,9 @@ int get_input()
 		case 'a': /*left*/
 			move( -1, 0 );
 			break;
+		case 'm':
+			player_set_mine();
+			break;
 		default:;
 	}
 	return fl;
@@ -120,11 +123,16 @@ void render()
 	clear();
 	for( y = player.y - FIELD_OF_SIGHT + 1; y < player.y + FIELD_OF_SIGHT; ++y ) {
 		for( x = player.x - FIELD_OF_SIGHT + 1; x < player.x + FIELD_OF_SIGHT; ++x ) {
-			if( x >= 0 && x < map.w && y >= 0 && y <= map.h ) {
-				putchar( map.m[y][x] );
+			if( x >= 0 && x < map.w && y >= 0 && y < map.h ) {
+				if( player.x == x && player.y == y ) {
+					putchar( PLAYER );
+				} else {
+					putchar( map.m[y][x] );
+				}
 			} else {
 				putchar( ' ' );
 			}
 		}
+		putchar( '\n' );
 	}
 }

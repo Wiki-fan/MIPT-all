@@ -9,11 +9,13 @@
 
 int main()
 {
-	read_config_from_file("config.cfg");
+	read_config_from_file( "config.cfg" );
 	set_canonical();
-	while(get_input()) {
+	player_init();
+	do {
 		render();
-	}
+	} while( get_input());
+
 	restore();
 	return 0;
 }

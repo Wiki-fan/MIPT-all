@@ -8,13 +8,13 @@ typedef struct {
 	int mining_time;
 	int stay_health_drop;
 	int movement_health_drop;
-	int step_standard_delay;
+	float step_standard_delay;
 	int moratory_duration;
 } Game;
 
 typedef struct {
 	char** m; /* map */
-	char** b; /* background */
+	int** b; /* background */
 	int w; /* width */
 	int h; /*height */
 } Map;

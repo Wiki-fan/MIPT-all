@@ -9,10 +9,15 @@ typedef struct
 } Player;
 
 void move(int x, int y);
+void player_init();
+void player_set_mine();
+
 /* map tile description */
 #define BOOST '$'
 #define WALL '#'
 #define SPACE ' '
-#define PLAYER 169
+#define PLAYER '@'
+#define MINE '~'
+/*169*/
 
 #endif /* L3__GAME_STUFF */
