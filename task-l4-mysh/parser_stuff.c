@@ -7,6 +7,10 @@
 #include <fcntl.h>
 #include "../common/utils.h"
 
+#define DROP(MSG) \
+	printf(stderr, "Error: %s", MSG);\
+	return T_ERROR;
+
 /*
  * S_NORMAL state is reading next token
  * S_GT state is reading << or < token
@@ -83,65 +87,80 @@ TOKEN gettoken( char** buf )
 				}
 				continue;
 			default:
-				errx(3, "Unreachable code");
+				errx( 3, "Unreachable code" );
 		}
 	}
 	return T_END;
 }
 
-int process()
+int process( int makepipe, int* pipefd )
 {
 	char* str;
 
-	int append = 0;
 	int argv_sz = 2;
 	int token;
+	int pid;
 	proc pr;
 	pr.in = STDIN_FILENO;
 	pr.out = STDOUT_FILENO;
 	pr.argc = 0;
-	*pr.argv = malloc_s(argv_sz*sizeof(char*));
+	pr.argv = malloc_s( argv_sz * sizeof( char* ));
+	pr.infile = pr.outfile = NULL;
+	pr.append = 0;
 
 	/* -1 in descriptor means that stream must be redirected */
-	while (1) {
-		switch(token = gettoken(&str)) {
+	while( 1 ) {
+		int i = 0;
+		switch( token = gettoken( &str )) {
 			case T_WORD:
-				pr.argv[0][pr.argc] = str;
+				pr.argv[pr.argc] = str;
 				++pr.argc;
-				if (pr.argc >= argv_sz) {
+				if( pr.argc >= argv_sz ) {
 					argv_sz *= 2;
-					*pr.argv = realloc_s(pr.argv, argv_sz*sizeof(char*));
+					pr.argv = realloc_s( pr.argv, argv_sz * sizeof( char* ));
 				}
 				break;
 			case T_LT:
-				if (gettoken(&pr.infile) != T_WORD) {
-					errx(26, "No file specified after <");
+				if( pr.in != STDIN_FILENO ) {
+					DROP( "Extra <" );
+				}
+				if( gettoken( &pr.infile ) != T_WORD ) {
+					DROP( "No file specified after <" );
 				}
 				pr.in = -1;
 				break;
 			case T_GT:
 			case T_GTGT:
 				/* if output redirect was already set */
-				if (pr.out != STDOUT_FILENO) {
-					errx(27, "Extra > or >>");
+				if( pr.out != STDOUT_FILENO ) {
+					DROP( "Extra > or >>" );
 				}
-				if (gettoken(&pr.outfile) != T_WORD) {
-					errx(26, "No word specified after > or >>");
+				if( gettoken( &pr.outfile ) != T_WORD ) {
+					DROP( "No file specified after > or >>" );
 				}
 				pr.out = -1;
-				if (token == T_GTGT) {
-					append = 1;
+				if( token == T_GTGT ) {
+					pr.append = 1;
 				}
 				break;
 			case T_BAR:
+			case T_NL:
 				pr.argv[pr.argc] = NULL;
-				if (token == T_BAR) {
-					if (pr.out != STDOUT_FILENO) {
-						errx(28, "| is conflicting with > or >>");
+				/* redirect pipes if needed */
+				if( token == T_BAR ) {
+					if( pr.out != STDOUT_FILENO ) {
+						DROP( "| is conflicting with > or >>" );
 					}
-					/* COMMAND */
+					/* TODO: redirect pipes */
 				}
-
+				CHN1( pid = run( &pr ), 31, "Error running" );
+				return token;
+			default:
+				errx( 3, "Unreachable code" );
 		}
+		for( i = 0; i < pr.argc; ++i ) {
+			free( pr.argv[i] );
+		}
+		free( pr.argv );
 	}
 }

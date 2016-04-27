@@ -9,11 +9,12 @@ typedef struct {
 	/* count of arguments */
 	int argc;
 	/* pointer to string array of arguments */
-	char** argv[];
+	char** argv;
 	/* pointers to in file and out file relatively (if corresponding descriptors are -1) */
-	char* infile, *outfile;
+	char *infile, *outfile;
+	int append; /* if should append */
 } proc;
 
-int run(char* argv[], proc* fd);
+int run(proc* fd );
 
 #endif /* TASK_L4__PROC */

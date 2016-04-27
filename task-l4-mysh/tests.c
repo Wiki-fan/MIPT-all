@@ -10,12 +10,13 @@
 
 void test_fork_execve()
 {
-	proc st = { 0, 1, 2 };
 	char* argv[3];
+	proc st= { 0, 1, 2, 0,0,0,0 };
 	argv[0] = "/bin/ls";
 	argv[1] = "-la";
 	argv[3] = NULL;
-	run( argv, &st );
+	st.argv = argv;
+	run( &st );
 }
 
 TOKEN test_gettoken()
@@ -56,7 +57,7 @@ TOKEN test_gettoken()
 	return t;
 }
 
-#define PROMPT ">"
+
 void test_prompt()
 {
 	TOKEN token = T_NL;

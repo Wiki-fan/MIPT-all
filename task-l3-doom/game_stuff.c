@@ -28,3 +28,8 @@ void player_set_mine()
 		--player.num_of_mines;
 	}
 }
+
+void player_attack()
+{
+
+}
