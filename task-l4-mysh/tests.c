@@ -59,7 +59,6 @@ TOKEN test_gettoken()
 	return t;
 }
 
-
 void test_prompt()
 {
 	TOKEN token = T_NL;

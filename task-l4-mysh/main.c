@@ -17,12 +17,13 @@ void checkopenedfd()
 		}
 	}
 }
+
 int main()
 {
 	int pid;
 	TOKEN token = T_NL;
 	while( 1 ) {
-		if( token == T_NL ) {
+		if( token == T_NL || token == T_ERROR ) {
 			printf( PROMPT );
 		}
 		token = process(&pid, 0, 0 );

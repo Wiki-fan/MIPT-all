@@ -6,14 +6,32 @@
 #include <fcntl.h>
 #include <string.h>
 #include <wait.h>
+#include <errno.h>
 #include "../common/utils.h"
+
+#define DROP( COND, MSG ) \
+    if (COND) fprintf(stderr, "%s: %s\n", MSG, strerror(errno));\
+	return 0;
+
+int builtin_func(proc* pr)
+{
+	if (!strcmp(pr->argv[0], "exit")) {
+		exit(1);
+	} else return 0;
+}
 
 /* redirects streams of process pr */
 int redirect(proc* pr)
 {
+	/* background stuff */
+	if (pr->in == STDIN_FILENO && pr->backgr) {
+		/* original shell don't redirect output to /dev/null */
+		/*pr->outfile = */pr->infile = "/dev/null";
+	}
+
 	/* input stuff */
 	if (pr->infile != 0) {
-		CHN1(pr->in = open(pr->infile, O_RDONLY, 0), 29, "Error opening file");
+		DROP(pr->in = open(pr->infile, O_RDONLY, 0), "Error opening file");
 	}
 	CHN1(dup2(pr->in, STDIN_FILENO), 30, "Dup2 failed");
 	if (pr->in != STDIN_FILENO) {
@@ -28,7 +46,7 @@ int redirect(proc* pr)
 		} else {
 			flags |= O_TRUNC;
 		}
-		CHN1(pr->out = open(pr->outfile, flags, 0700), 29, "Error opening file");
+		DROP(pr->out = open(pr->outfile, flags, 0700), "Error opening file");
 	}
 	CHN1(dup2(pr->out, STDOUT_FILENO), 30, "Dup2 failed");
 	if (pr->out != STDOUT_FILENO) {
@@ -37,9 +55,13 @@ int redirect(proc* pr)
 }
 
 /* runs process and redirects input, returns new fd */
-int run( proc* pr, int fd_to_close)
+pid_t run( proc* pr, int fd_to_close)
 {
 	pid_t pid;
+	/* if command is empty or builtin */
+	if (pr->argc == 0 || builtin_func(pr)) {
+		return 0;
+	}
 	CHN1( pid = fork(), 24, "Can't fork process" );
 	if( pid == 0 ) {
 		/* child */
@@ -62,14 +84,29 @@ int run( proc* pr, int fd_to_close)
 		close(pr->in);
 	if (pr->out>STDOUT_FILENO)
 		close(pr->out);
+	/* print pid for process that runs in background */
+	if (pr->backgr) {
+		printf("[] %d\n", pid);
+	}
 	return pid; /* returns child pid */
 }
 
-int wait_and_display(int pid)
+void wait_and_display(int pid)
 {
+	pid_t wpid;
 	int status = 0;
 	do {
-		CHN1(waitpid(pid, &status, 0), 33, "waitpid error");
-	} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+		if ((wpid = waitpid(-1, &status, 0)) == -1) {
+			if (errno == ECHILD) {
+				return;
+			} else err(33, "waitpid error");
+		}
+		/* debug */
+		/*if (WIFEXITED(status)) {
+			printf( "process %d finished with code %d\n", wpid, WEXITSTATUS( status ));
+		} else if (WIFSIGNALED(status)) {
+			printf( "process %d killed with signal %d\n", wpid, WTERMSIG( status ));
+		}*/
+	} while (wpid != pid);
 
 }
