@@ -7,9 +7,9 @@
 #include <fcntl.h>
 #include "../common/utils.h"
 
-#define DROP(MSG) \
-	printf(stderr, "Error: %s", MSG);\
-	return T_ERROR;
+#define DROP( MSG ) \
+    printf(stderr, "Error: %s", MSG);\
+    return T_ERROR;
 
 /*
  * S_NORMAL state is reading next token
@@ -93,14 +93,19 @@ TOKEN gettoken( char** buf )
 	return T_END;
 }
 
-int process( int makepipe, int* pipefd )
+/* makepipe this process should get input from other by pipe */
+int process( int* retpid, int makepipe, int* pipefd )
 {
+	/* variadic size buffer for input commands */
 	char* str;
-
+	/* initial size of argv for child process */
 	int argv_sz = 2;
-	int token;
+	int token, term;
 	int pid;
+	/* file descriptors for pipe (if needed) */
+	int pfd[2] = {-1, -1};
 	proc pr;
+	int i;
 	pr.in = STDIN_FILENO;
 	pr.out = STDOUT_FILENO;
 	pr.argc = 0;
@@ -108,9 +113,9 @@ int process( int makepipe, int* pipefd )
 	pr.infile = pr.outfile = NULL;
 	pr.append = 0;
 
-	/* -1 in descriptor means that stream must be redirected */
+	/* non-zero in file name means that stream must be redirected */
 	while( 1 ) {
-		int i = 0;
+
 		switch( token = gettoken( &str )) {
 			case T_WORD:
 				pr.argv[pr.argc] = str;
@@ -121,24 +126,23 @@ int process( int makepipe, int* pipefd )
 				}
 				break;
 			case T_LT:
+				/* if input redirect already set by | or < operator */
 				if( pr.in != STDIN_FILENO ) {
 					DROP( "Extra <" );
 				}
 				if( gettoken( &pr.infile ) != T_WORD ) {
 					DROP( "No file specified after <" );
 				}
-				pr.in = -1;
 				break;
 			case T_GT:
 			case T_GTGT:
-				/* if output redirect was already set */
+				/* if output redirect was already set by > or >> operator */
 				if( pr.out != STDOUT_FILENO ) {
 					DROP( "Extra > or >>" );
 				}
 				if( gettoken( &pr.outfile ) != T_WORD ) {
 					DROP( "No file specified after > or >>" );
 				}
-				pr.out = -1;
 				if( token == T_GTGT ) {
 					pr.append = 1;
 				}
@@ -151,16 +155,31 @@ int process( int makepipe, int* pipefd )
 					if( pr.out != STDOUT_FILENO ) {
 						DROP( "| is conflicting with > or >>" );
 					}
-					/* TODO: redirect pipes */
+					/* running next command and telling it that it should make pipe */
+					term = process(retpid, 1, &pr.out);
+				} else {
+					term = token;
 				}
-				CHN1( pid = run( &pr ), 31, "Error running" );
-				return token;
+				/* creating pipe */
+				if (makepipe) {
+					CHN1(pipe(pfd), 32, "Error making pipe");
+					*pipefd = pfd[1];
+					pr.in = pfd[0];
+				}
+				CHN1( pid = run( &pr, pfd[1] ), 31, "Error running" );
+				/* pid of process to wait */
+				if (token != T_BAR) {
+					*retpid = pid;
+				}
+				/* freeing argv */
+				for( i = 0; i < pr.argc; ++i ) {
+					free( pr.argv[i] );
+				}
+				free( pr.argv );
+				return term;
 			default:
 				errx( 3, "Unreachable code" );
 		}
-		for( i = 0; i < pr.argc; ++i ) {
-			free( pr.argv[i] );
-		}
-		free( pr.argv );
 	}
+
 }

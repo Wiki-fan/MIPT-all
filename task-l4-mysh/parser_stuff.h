@@ -17,6 +17,6 @@ typedef enum {
 
 void push( char* buf, int* buf_size, int* cur_pos, char c );
 TOKEN gettoken( char** buf );
-int process( int makepipe, int* pipefd );
+int process(int* retpid, int makepipe, int* pipefd );
 
 #endif /* TASK_L4__PARSER_STUFF */
