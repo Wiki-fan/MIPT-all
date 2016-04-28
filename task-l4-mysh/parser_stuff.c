@@ -8,19 +8,19 @@
 #include "../common/utils.h"
 
 #define DROP( MSG ) \
-    printf(stderr, "Error: %s", MSG);\
+    fprintf(stderr, "Error: %s", MSG);\
     return T_ERROR;
 
 /*
  * S_NORMAL state is reading next token
  * S_GT state is reading << or < token
  * S_INWORD state is reading word (file name or command)
- * S_INWORD state is reading quoted string
+ * S_INQUOTES state is reading quoted string
  */
 typedef enum {
-	S_NORMAL, /* */
+	S_NORMAL, /* getting token */
 			S_GT, /* first > seen*/
-			S_INWORD, /* reading command */
+			S_INWORD, /* reading word (part of command) */
 			S_INQUOTES, /* reading quoted string in command */
 } STATE;
 
@@ -41,6 +41,16 @@ TOKEN gettoken( char** buf )
 	int buf_size = 100, cur_pos = 0;
 	*buf = (char*) malloc_s( buf_size * sizeof( char ));
 	while(( c = getchar()) != EOF) {
+		/* endline backslash processing */
+		if (c =='\\') {
+			/* if after \ goes \n, skip both, if other char, push \ and this char */
+			if(( c = getchar()) != '\n' ) {
+				push( *buf, &buf_size, &cur_pos, '\\' );
+				push( *buf, &buf_size, &cur_pos, (char) c );
+			}
+			continue;
+		}
+
 		switch( state ) {
 			case S_NORMAL:
 				switch( c ) {
@@ -58,6 +68,9 @@ TOKEN gettoken( char** buf )
 						return T_LT;
 					case '&':
 						return T_AMP;
+					case '"':
+						state = S_INQUOTES;
+						continue;
 					default:
 						state = S_INWORD;
 						push( *buf, &buf_size, &cur_pos, (char) c );
@@ -69,6 +82,15 @@ TOKEN gettoken( char** buf )
 				} else {
 					ungetc( c, stdin );
 					return T_GT;
+				}
+			case S_INQUOTES:
+				switch( c ) {
+					case '"':
+						push( *buf, &buf_size, &cur_pos, '\0' );
+						return T_WORD;
+					default:
+						push( *buf, &buf_size, &cur_pos, (char) c );
+						continue;
 				}
 			case S_INWORD:
 				switch( c ) {
@@ -94,7 +116,7 @@ TOKEN gettoken( char** buf )
 }
 
 /* makepipe this process should get input from other by pipe */
-int process( int* retpid, int makepipe, int* pipefd )
+TOKEN process( int* retpid, int makepipe, int* pipefd )
 {
 	/* variadic size buffer for input commands */
 	char* str;
@@ -103,7 +125,7 @@ int process( int* retpid, int makepipe, int* pipefd )
 	int token, term;
 	int pid;
 	/* file descriptors for pipe (if needed) */
-	int pfd[2] = {-1, -1};
+	int pfd[2] = { -1, -1 };
 	proc pr;
 	int i;
 	pr.in = STDIN_FILENO;
@@ -156,19 +178,19 @@ int process( int* retpid, int makepipe, int* pipefd )
 						DROP( "| is conflicting with > or >>" );
 					}
 					/* running next command and telling it that it should make pipe */
-					term = process(retpid, 1, &pr.out);
+					term = process( retpid, 1, &pr.out );
 				} else {
 					term = token;
 				}
 				/* creating pipe */
-				if (makepipe) {
-					CHN1(pipe(pfd), 32, "Error making pipe");
+				if( makepipe ) {
+					CHN1( pipe( pfd ), 32, "Error making pipe" );
 					*pipefd = pfd[1];
 					pr.in = pfd[0];
 				}
 				CHN1( pid = run( &pr, pfd[1] ), 31, "Error running" );
 				/* pid of process to wait */
-				if (token != T_BAR) {
+				if( token != T_BAR ) {
 					*retpid = pid;
 				}
 				/* freeing argv */

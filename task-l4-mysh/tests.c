@@ -8,6 +8,8 @@
 #include "proc_stuff.h"
 #include "parser_stuff.h"
 
+TOKEN gettoken (char* buf);
+
 void test_fork_execve()
 {
 	char* argv[3];
@@ -24,7 +26,7 @@ TOKEN test_gettoken()
 	TOKEN t;
 	char* buf;
 
-	t = gettoken( &buf );
+	t = gettoken( buf );
 	switch( t ) {
 		case T_BAR:
 			printf( "T_BAR\n" );
