@@ -1,0 +1,6 @@
+Shell DOOM 2D multiplayer game.
+Server runs in 3 threads:
+1. Input connections handler (accept and receive). Data is stored in game_queue.
+2. Main game loop which processes game_queue and fills out_queue.
+3. Output connections handler (send). Reads from out_queue and sends data.
+Unimplemented yet.

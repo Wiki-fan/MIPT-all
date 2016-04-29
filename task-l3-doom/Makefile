@@ -1,5 +1,5 @@
 TARGET= client server
-SRC = config_stuff.c game_stuff.c tty_stuff.c
+SRC = config_stuff.c game_stuff.c tty_stuff.c net_stuff.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
 DEPS = ../common/utils.o
@@ -13,6 +13,9 @@ VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 all: $(DEP_DIRS) $(TARGET)
 
 client: client.o $(OBJ) $(DEPS)
+	$(CC) -o $@ $^ -lm
+
+server: server.o $(OBJ) $(DEPS)
 	$(CC) -o $@ $^ -lm
 
 %.o: %.c

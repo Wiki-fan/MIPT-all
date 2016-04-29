@@ -6,28 +6,25 @@
 #include <string.h>
 #include "game_stuff.h"
 #include "config_stuff.h"
+#include "tty_stuff.h"
+#include "common_types.h"
+
 extern Player player;
 extern Map map;
 
 /* terminal escape symbol */
 #define ESC "\033"
-#define CHN1( COMM, CODE, MESSAGE )\
-if ((COMM) == -1) \
-err(CODE, MESSAGE);
-
-#define CH0( COMM, CODE, MESSAGE )\
-if ((COMM) == 0) \
-err(CODE, MESSAGE);
-
 
 static struct termios old_attributes;
 
+/** clear screen */
 int clear( void )
 {
 	return printf( ESC "[2J" );
 }
 
-int set_canonical()
+/** set canonical terminal mode */
+void set_canonical()
 {
 	struct termios new_attributes;
 
@@ -51,16 +48,21 @@ int set_canonical()
 	CHN1( tcsetattr( STDIN_FILENO, TCSANOW, &new_attributes ), 22, "Can't set new terminal state" );
 }
 
-int restore()
+/** restore original terminal mode */
+void restore()
 {
-	CHN1( tcsetattr( STDIN_FILENO, TCSANOW, &old_attributes ) == -1, 20, "Can't restore original terminal state" );
+	CHN1( tcsetattr( STDIN_FILENO, TCSANOW, &old_attributes ), 20, "Can't restore original terminal state" );
 }
 
-int get_input()
+/** Gets input from keyboard.
+ * If keystroke should be processed, enum ACTION* type is set and return is 0.
+ * else return is 1 and enum ACTION* type is undefined */
+int get_input( enum ACTION* type )
 {
 	int fl = 1;
 	int symbol;
 	symbol = getchar();
+
 	switch( symbol ) {
 		case 27:
 			symbol = getchar();
@@ -71,22 +73,26 @@ int get_input()
 						case EOF:
 							break;
 						case 'A': /*up*/
-							move( 0, -1 );
+							*type = A_UP;
+							fl = 0;
 							break;
 						case 'B': /*down*/
-							move( 0, 1 );
+							*type = A_DOWN;
+							fl = 0;
 							break;
 						case 'C': /*right*/
-							move( 1, 0 );
+							*type = A_RIGHT;
+							fl = 0;
 							break;
 						case 'D': /*left*/
-							move( -1, 0 );
+							*type = A_LEFT;
+							fl = 0;
 							break;
 						default:;
 					}
 					break;
 				case EOF:
-					fl = 0;
+					/*fl = 0;*/
 					break;
 				default:;
 			}
@@ -94,29 +100,38 @@ int get_input()
 		case EOF:
 		case 'q':
 		case '\004': /* Ctrl+D */
+			*type = A_EXIT;
 			fl = 0;
 			break;
 		case 'w': /*up*/
-			move( 0, -1 );
+			*type = A_UP;
+			fl = 0;
 			break;
 		case 's': /*down*/
-			move( 0, 1 );
+			*type = A_DOWN;
+			fl = 0;
 			break;
 		case 'd': /*right*/
-			move( 1, 0 );
+			*type = A_RIGHT;
+			fl = 0;
 			break;
 		case 'a': /*left*/
-			move( -1, 0 );
+			*type = A_LEFT;
+			fl = 0;
 			break;
-		case 'm':
-			player_set_mine();
+		case 'm': case 'e':
+			*type = A_MINE;
+			fl = 0;
+			break;
+		case ' ':
+			*type = A_ATTACK;
+			fl = 0;
 			break;
 		default:;
 	}
 	return fl;
 }
 
-#define FIELD_OF_SIGHT 10
 void render()
 {
 	int x, y;
@@ -137,3 +152,9 @@ void render()
 	}
 }
 
+void render_all()
+{
+
+}
+
+#undef ESC

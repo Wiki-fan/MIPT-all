@@ -5,6 +5,8 @@
 #include <err.h>
 #include "../common/utils.h"
 #include "game_stuff.h"
+#include "net_stuff.h"
+#include "common_types.h"
 
 extern Map map;
 extern Game game;
@@ -16,7 +18,28 @@ extern Game game;
 #define DEFAULT } else {
 #define ENDSWITCH }
 
-/* read n characters into buffer buf which should store at least n+1 character for '\0' symbol */
+/*
+enum CONFIG {
+initial_health,
+game.initial_health = (int)val;
+hit_value,
+game.hit_value = (int)val;
+recharge_duration,
+game.recharge_duration = (int)val;
+mining_time,
+game.mining_time = (int)val;
+stay_health_drop,
+game.stay_health_drop = (int)val;
+movement_health_drop,
+game.movement_health_drop = (int)val;
+step_standard_delay,
+game.step_standard_delay = val;
+moratory_duration,
+game.moratory_duration = (int)val;
+DEFAULT
+};*/
+
+/** Read n characters into buffer buf which should store at least n+1 character for '\0' symbol */
 int get_raw(FILE* f, char* buf, int n)
 {
 	int c;
@@ -30,15 +53,19 @@ int get_raw(FILE* f, char* buf, int n)
 		}
 	}
 	buf[i] = '\0';
+	return i;
 }
 
+/** Reads config from file */
 void read_config_from_file( char* file_name )
 {
 	FILE* inf;
 	int x, y;
 	float val;
-	inf = fopen_s( file_name, "r" );
 	char buf[BUF_SIZE];
+	LOG(("Starting to read config file\n"));
+	inf = fopen_s( file_name, "r" );
+
 	fscanf(inf, "%10s", buf);
 	if( strcmp( buf, "Map" )) {
 		errx( 20, "Map expected in config file" );
@@ -56,8 +83,8 @@ void read_config_from_file( char* file_name )
 		get_raw(inf, map.m[y], map.w);
 	}
 
-	while( get_raw( inf, buf, BUF_SIZE-1) != NULL) {
-		puts(buf);
+	while( get_raw( inf, buf, BUF_SIZE-1) != 0) {
+		LOG(("Reading %s\n", buf));
 		if( !strcmp( buf, "items:" )) {
 			break;
 		}
@@ -85,9 +112,9 @@ void read_config_from_file( char* file_name )
 	}
 
 	while( fscanf( inf, "%d %d %f", &x, &y, &val ) != EOF) {
-		map.m[y][x] = BOOST;
+		map.m[y][x] = BONUS;
 		map.b[y][x] = (int)val;
 	}
-	printf("Config read successfully");
+	LOG(("Config read successfully\n"));
 
 }
