@@ -75,12 +75,12 @@ void read_config_from_file( char* file_name )
 	map.w += 2;
 	map.h += 2;
 
-	map.m = (char**) malloc_s( map.h * sizeof( char* ));
-	map.b = (int**) malloc_s( map.h * sizeof( int* ));
+	map.fg = (char**) malloc_s( map.h * sizeof( char* ));
+	map.bg = (int**) malloc_s( map.h * sizeof( int* ));
 	for( y = 0; y < map.h; ++y ) {
-		map.m[y] = (char*) malloc_s( (map.w+1) * sizeof( char ));
-		map.b[y] = (int*) malloc_s( (map.w+1) * sizeof( int ));
-		get_raw(inf, map.m[y], map.w);
+		map.fg[y] = (char*) malloc_s( (map.w+1) * sizeof( char ));
+		map.bg[y] = (int*) malloc_s( (map.w+1) * sizeof( int ));
+		get_raw(inf, map.fg[y], map.w);
 	}
 
 	while( get_raw( inf, buf, BUF_SIZE-1) != 0) {
@@ -112,8 +112,8 @@ void read_config_from_file( char* file_name )
 	}
 
 	while( fscanf( inf, "%d %d %f", &x, &y, &val ) != EOF) {
-		map.m[y][x] = BONUS;
-		map.b[y][x] = (int)val;
+		map.fg[y][x] = BONUS;
+		map.bg[y][x] = (int)val;
 	}
 	LOG(("Config read successfully\n"));
 

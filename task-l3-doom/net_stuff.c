@@ -92,7 +92,7 @@ void* server_loop( void* args )
 						fdmax = newsock_id;
 					}
 
-					printf( "new connection: socket %d\n", i );
+					LOG(( "new connection: socket %d\n", i ));
 				} else {
 					/* handle data from a client*/
 					enum ACTION act;
@@ -102,7 +102,7 @@ void* server_loop( void* args )
 					if( nbytes == 0 ) {
 						/* connection closed*/
 						/*printf( "Socket %d hung up, player %d from room %d disconnected\n", i, sock_info.arr[i].player_id, sock_info.arr[i].room_id );*/
-						printf( "Socket %d hung up\n", i );
+						LOG(( "Socket %d hung up\n", i ));
 						close( i );
 						FD_CLR( i, &master ); /* remove from master set*/
 					} else {
@@ -132,7 +132,8 @@ void* server_loop( void* args )
 								send_int( rooms.arr[temp].players.size, i );
 
 								for( j = 0; j < rooms.arr[temp].players.size; ++j ) {
-									send_buf( i, (int)strlen( rooms.arr[temp].players.arr[j].name ), rooms.arr[temp].players.arr[j].name );
+									/*send_buf( i, (int)strlen( rooms.arr[temp].players.arr[j].name ), rooms.arr[temp].players.arr[j].name );*/
+									send_buf(i, sizeof(Player), (char*)&rooms.arr[temp].players.arr[j] );
 								}
 								LOG(( "Send list of %d players of room %d to socket %d\n", rooms.arr[temp].players.size, temp, i ));
 								break;
@@ -152,6 +153,7 @@ void* server_loop( void* args )
 								strcpy(player.name, buf);
 								info.room_id = j;
 								info.player_id = rooms.arr[info.room_id].players.size;
+								info.sock_id = i;
 								Vector_Player_push( &rooms.arr[info.room_id].players, player );
 
 								Vector_SockIdInfo_set( &sock_info, info, i );
@@ -232,7 +234,7 @@ void* game_loop( void* args )
 						if( player->x == x && player->y == y ) {
 							String_push( &str, PLAYER );
 						} else {
-							String_push( &str, map.m[y][x] );
+							String_push( &str, map.fg[y][x] );
 						}
 					} else {
 						String_push( &str, ' ' );
@@ -241,8 +243,10 @@ void* game_loop( void* args )
 				String_push(&str, '\n' );
 			}
 			String_push( &str, '\0' );
+			send_buf(node->sock_info.sock_id, str.cur_pos, str.buf);
 			str.cur_pos = 0;
-			printf("%s", str.buf);
+			/*clear();
+			printf("%s", str.buf);*/
 		}
 	}
 }

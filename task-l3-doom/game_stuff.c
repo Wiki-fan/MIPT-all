@@ -59,20 +59,20 @@ void copy_map(Map* from, Map* to)
 	int i;
 	to->h = from->h;
 	to->w = from->w;
-	to->m = (char**) malloc_s( to->h * sizeof( char* ));
-	to->b = (int**) malloc_s( to->h * sizeof( int* ));
+	to->fg = (char**) malloc_s( to->h * sizeof( char* ));
+	to->bg = (int**) malloc_s( to->h * sizeof( int* ));
 	for( i = 0; i < to->h; ++i ) {
-		to->m[i] = (char*) malloc_s( (to->w+1) * sizeof( char ));
-		to->b[i] = (int*) malloc_s( (to->w+1) * sizeof( int ));
-		memcpy(to->m[i], from->m[i], to->w*sizeof(char));
-		memcpy(to->b[i], from->b[i], to->w*sizeof(int));
+		to->fg[i] = (char*) malloc_s( (to->w+1) * sizeof( char ));
+		to->bg[i] = (int*) malloc_s( (to->w+1) * sizeof( int ));
+		memcpy(to->fg[i], from->fg[i], to->w*sizeof(char));
+		memcpy(to->bg[i], from->bg[i], to->w*sizeof(int));
 	}
 }
 
 void player_move( int room_id, int player_id, int x, int y )
 {
 	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
-	if( rooms.arr[room_id].map.m[player->y + y][player->x + x] != WALL ) {
+	if( rooms.arr[room_id].map.fg[player->y + y][player->x + x] != WALL ) {
 		player->x += x;
 		player->y += y;
 	}
@@ -93,13 +93,12 @@ void player_init( Player* player )
 	player->hp = game.initial_health;
 }
 
-
 void player_mine( int room_id, int player_id )
 {
 	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
 	Map* map = &( rooms.arr[room_id].map );
-	if( map->m[player->y][player->x] == SPACE ) {
-		map->m[player->y][player->x] = MINE;
+	if( map->fg[player->y][player->x] == SPACE ) {
+		map->fg[player->y][player->x] = MINE;
 		--player->num_of_mines;
 	}
 }
@@ -108,9 +107,8 @@ void player_use( int room_id, int player_id )
 {
 	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
 	Map* map = &( rooms.arr[room_id].map );
-	if( map->m[player->y][player->x] == BONUS ) {
-		player->hp += map->b[player->y][player->x];
-		--player->num_of_mines;
+	if( map->fg[player->y][player->x] == BONUS ) {
+		player->hp += map->bg[player->y][player->x];
 	}
 }
 

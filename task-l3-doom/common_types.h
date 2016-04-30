@@ -26,7 +26,8 @@ enum ACTION {
 	A_ASK_ROOMS_LIST,
 	A_JOINROOM,
 	A_STARTGAME,
-	A_ASK_PLAYER_LIST
+	A_ASK_PLAYER_LIST,
+	A_GET_PLAYER_INFO
 };
 
 enum RESPONSE {
@@ -37,12 +38,9 @@ enum RESPONSE {
 };
 
 typedef struct {
-	char** m;
-	/* map */
-	int** b;
-	/* background */
-	int w;
-	/* width */
+	char** fg; /* foreground */
+	int** bg; /* background */
+	int w; /* width */
 	int h; /*height */
 } Map;
 
@@ -77,6 +75,7 @@ define_vector( Room )
 typedef struct {
 	int room_id;
 	int player_id;
+	int sock_id;
 } SockIdInfo;
 define_vector( SockIdInfo )
 

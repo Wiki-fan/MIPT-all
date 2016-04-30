@@ -72,8 +72,8 @@ int ask_player_or_host()
 		printf( "Try again.\n" );
 	}
 }
-#define CLIENT_BUF_SIZE 80
-#define STR_CLIENT_BUF_SIZE "80"
+#define CLIENT_BUF_SIZE 800
+#define STR_CLIENT_BUF_SIZE "800"
 
 int ask_room_name( char* buf )
 {
@@ -138,6 +138,22 @@ int getrecvlist(int sockfd)
 	return n;
 }
 
+int getplayerlist(int sockfd)
+{
+	int n, i;
+	Player player;
+	n = read_int( sockfd ); /* number of player names */
+	printf("We have %d items:\n", n);
+
+	for (i = 0; i<n; ++i) {
+		read_buf(sockfd, (char*)&player);
+		printf("%d: %3d hp %2d mines %2d x %2d y %s \n", i, player.hp, player.num_of_mines, player.x, player.y, player.name);
+	}
+
+	return n;
+}
+
+
 #define CHK_RESPONSE(NEEDED, MSG) \
 if (read_int(sockfd) == NEEDED) {\
 printf(MSG);\
@@ -188,7 +204,7 @@ int main()
 					send_int( A_ASK_PLAYER_LIST, sockfd );
 					CHK_RESPONSE( R_SENDING_PLAYERS, "Receiving players list\n" );
 					printf("Players:\n");
-					getrecvlist(sockfd);
+					getplayerlist(sockfd);
 					break;
 				case 3:
 					exit(0);
@@ -219,8 +235,11 @@ int main()
 				if( act == A_EXIT ) {
 					break;
 				} else {
-					printf( "Got input %d\n", act );
+					/*printf( "Got input %d\n", act );*/
 					send_int( act, sockfd );
+					read_buf(sockfd, buf);
+					clear();
+					printf("%s", buf);
 				}
 			}
 		}
