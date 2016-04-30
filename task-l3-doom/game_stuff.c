@@ -18,13 +18,20 @@ void GameQueue_push(GameQueue* q, SockIdInfo sock_info, enum ACTION act)
 	temp->sock_info = sock_info;
 	temp->act = act;
 	temp->next = NULL;
-	q->end->next = temp;
+	if (q->end == NULL) {
+		q->begin = q->end = temp;
+	} else {
+		q->end->next = temp;
+	}
 }
 
 Node* GameQueue_pop(GameQueue* q)
 {
 	Node* temp = q->begin;
 	q->begin = q->begin->next;
+	if (q->begin == NULL) {
+		q->end = NULL;
+	}
 	return temp;
 }
 
@@ -36,4 +43,9 @@ void GameQueue_destroy(GameQueue* q)
 		q->begin = q->begin->next;
 		free(temp);
 	}
+}
+
+int GameQueue_empty(GameQueue* q)
+{
+	return (q->begin == NULL);
 }

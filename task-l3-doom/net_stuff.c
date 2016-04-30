@@ -20,18 +20,20 @@
 #include "config_stuff.h"
 #include "common_types.h"
 
-define_vector(Player);
+define_vector( Player );
 typedef struct {
 	int room_id;
 	Vector_Player players;
 	Map map;
 } Room;
 
-define_vector(SockIdInfo);
-define_vector(Room);
+define_vector( SockIdInfo );
+define_vector( Room );
 Vector_Room rooms;
 
 Game game;
+
+static pthread_mutex_t mtx_endqueue = PTHREAD_MUTEX_INITIALIZER;
 
 fd_set master;
 /* master file descriptor list*/
@@ -41,44 +43,44 @@ int fdmax;
 /* max num of file descriptor, so we check only [0, fdmax] */
 int listener_fd, port_num = PORT;
 
-void player_move(int room_id, int player_id, int x, int y)
+void player_move( int room_id, int player_id, int x, int y )
 {
-	Player* player = &(rooms.arr[room_id].players.arr[player_id]);
-	if (rooms.arr[room_id].map.m[player->y+y][player->x + x] != WALL) {
+	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
+	if( rooms.arr[room_id].map.m[player->y + y][player->x + x] != WALL ) {
 		player->x += x;
 		player->y += y;
 	}
 }
 
-void player_init(int room_id, int player_id)
+void player_init( int room_id, int player_id )
 {
-	Player* player = &(rooms.arr[room_id].players.arr[player_id]);
+	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
 	player->x = player->y = 1;
 	player->num_of_mines = NUM_OF_MINES;
 	player->hp = game.initial_health;
 }
 
-void player_mine(int room_id, int player_id)
+void player_mine( int room_id, int player_id )
 {
-	Player* player = &(rooms.arr[room_id].players.arr[player_id]);
-	Map* map = &(rooms.arr[room_id].map);
-	if (map->m[player->y][player->x] == SPACE) {
+	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
+	Map* map = &( rooms.arr[room_id].map );
+	if( map->m[player->y][player->x] == SPACE ) {
 		map->m[player->y][player->x] = MINE;
 		--player->num_of_mines;
 	}
 }
 
-void player_use(int room_id, int player_id)
+void player_use( int room_id, int player_id )
 {
-	Player* player = &(rooms.arr[room_id].players.arr[player_id]);
-	Map* map = &(rooms.arr[room_id].map);
-	if (map->m[player->y][player->x] == BONUS) {
+	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
+	Map* map = &( rooms.arr[room_id].map );
+	if( map->m[player->y][player->x] == BONUS ) {
 		player->hp += map->b[player->y][player->x];
 		--player->num_of_mines;
 	}
 }
 
-void player_attack(int room_id, int player_id)
+void player_attack( int room_id, int player_id )
 {
 	/* TODO: labyrinth DFS */
 }
@@ -114,14 +116,14 @@ void* server_loop( void* args )
 					info.room_id = 0;
 					info.player_id = rooms.arr[info.room_id].players.size;
 					player.hp = 99;
-					Vector_Player_push(&rooms.arr[info.room_id].players, player);
-					Vector_SockIdInfo_set(&sock_info, info, newsock_id);
+					Vector_Player_push( &rooms.arr[info.room_id].players, player );
+					Vector_SockIdInfo_set( &sock_info, info, newsock_id );
 					printf( "new connection: room %d, player #%d\n", info.room_id, info.player_id );
 				} else {
 					/* handle data from a client*/
 					enum ACTION act;
 					int nbytes;
-					CHN1( nbytes = recv( i, &act, sizeof( enum ACTION), 0 ), 27, "Error recv" );
+					CHN1( nbytes = recv( i, &act, sizeof( enum ACTION ), 0 ), 27, "Error recv" );
 					if( nbytes == 0 ) {
 						/* connection closed*/
 						printf( "select: socket %d hung up\n", i );
@@ -129,7 +131,9 @@ void* server_loop( void* args )
 						FD_CLR( i, &master ); /* remove from master set*/
 					} else {
 						printf( "player with id %d from room %d did action %d\n", sock_info.arr[i].player_id, sock_info.arr[i].room_id, act );
-						GameQueue_push(&gq, sock_info.arr[i], act);
+						CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
+						GameQueue_push( &gq, sock_info.arr[i], act );
+						CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
 					}
 				}
 			}
@@ -137,34 +141,44 @@ void* server_loop( void* args )
 	}
 }
 
-void* game_loop(void* args)
+void* game_loop( void* args )
 {
-	GameQueue_init(&gq);
+	GameQueue_init( &gq );
 	Node* node;
-	while(node = GameQueue_pop(&gq)) {
-		switch(node->act) {
-			case A_UP:
-				player_move(node->sock_info.room_id, node->sock_info.player_id, 0, -1);
-				break;
-			case A_DOWN:
-				player_move(node->sock_info.room_id, node->sock_info.player_id, 0, 1);
-				break;
-			case A_LEFT:
-				player_move(node->sock_info.room_id, node->sock_info.player_id, -1, 0);
-				break;
-			case A_RIGHT:
-				player_move(node->sock_info.room_id, node->sock_info.player_id, 1, 0);
-				break;
-			case A_ATTACK:
-				player_attack(node->sock_info.room_id, node->sock_info.player_id);
-				break;
-			case A_MINE:
-				player_mine(node->sock_info.room_id, node->sock_info.player_id);
-				break;
-			case A_USE:
-				player_use(node->sock_info.room_id, node->sock_info.player_id);
-			default:
-				break;
+	while( 1 ) {
+		node = NULL;
+		CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
+		if( !GameQueue_empty( &gq )) {
+			node = GameQueue_pop( &gq );
+		}
+		CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
+
+		if( node != NULL) {
+			LOG(( "Begin to process player %d from room %d with action %d\n", node->sock_info.player_id, node->sock_info.room_id, node->act ));
+			/*switch( node->act ) {
+				case A_UP:
+					player_move( node->sock_info.room_id, node->sock_info.player_id, 0, -1 );
+					break;
+				case A_DOWN:
+					player_move( node->sock_info.room_id, node->sock_info.player_id, 0, 1 );
+					break;
+				case A_LEFT:
+					player_move( node->sock_info.room_id, node->sock_info.player_id, -1, 0 );
+					break;
+				case A_RIGHT:
+					player_move( node->sock_info.room_id, node->sock_info.player_id, 1, 0 );
+					break;
+				case A_ATTACK:
+					player_attack( node->sock_info.room_id, node->sock_info.player_id );
+					break;
+				case A_MINE:
+					player_mine( node->sock_info.room_id, node->sock_info.player_id );
+					break;
+				case A_USE:
+					player_use( node->sock_info.room_id, node->sock_info.player_id );
+				default:
+					break;
+			}*/
 		}
 	}
 }
@@ -198,17 +212,20 @@ int server_init()
 	fdmax = listener_fd;
 
 	/* game stuff init */
-	Vector_Room_init(&rooms, INITIAL_NUM_OF_ROOMS);
+	Vector_Room_init( &rooms, INITIAL_NUM_OF_ROOMS );
 	/* TODO: temporary solution*/
 	Room room;
 	/*room.map = NULL;*/
 	room.room_id = 0;
-	Vector_Player_init(&room.players, INITIAL_NUM_OF_PLAYERS);
-	Vector_Room_push(&rooms, room);
+	Vector_Player_init( &room.players, INITIAL_NUM_OF_PLAYERS );
+	Vector_Room_push( &rooms, room );
 
 
 	pthread_create( &listener_pid, NULL, server_loop, NULL);
-	pthread_join(listener_pid, NULL);
+	pthread_create( &game_loop_pid, NULL, game_loop, NULL);
+	/* this threads should normally last forever */
+	pthread_join( listener_pid, NULL);
+	pthread_join( game_loop_pid, NULL);
 
 	/*bzero( buf,
 		   256 );

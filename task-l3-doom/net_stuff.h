@@ -8,5 +8,6 @@ void GameQueue_init(GameQueue* q);
 void GameQueue_push(GameQueue* q, SockIdInfo sock_info, enum ACTION act);
 Node* GameQueue_pop(GameQueue* q);
 void GameQueue_destroy(GameQueue* q);
+int GameQueue_empty(GameQueue* q);
 
 #endif /* L3__NET_STUFF */

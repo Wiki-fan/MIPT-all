@@ -8,7 +8,7 @@
 #include "net_stuff.h"
 #include "common_types.h"
 
-extern Map map;
+Map map;
 extern Game game;
 
 #define BUF_SIZE 100

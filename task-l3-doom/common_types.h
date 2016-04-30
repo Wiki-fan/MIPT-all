@@ -13,6 +13,13 @@ typedef struct
 } Action;
 
 typedef struct {
+	char** m; /* map */
+	int** b; /* background */
+	int w; /* width */
+	int h; /*height */
+} Map;
+
+typedef struct {
 	int initial_health;
 	int hit_value;
 	int recharge_duration;
@@ -21,14 +28,8 @@ typedef struct {
 	int movement_health_drop;
 	float step_standard_delay;
 	int moratory_duration;
+	Map* map; /* map base, copy for every room */
 } Game;
-
-typedef struct {
-	char** m; /* map */
-	int** b; /* background */
-	int w; /* width */
-	int h; /*height */
-} Map;
 
 typedef struct
 {
@@ -36,8 +37,6 @@ typedef struct
 	int num_of_mines;
 	int hp;
 } Player;
-
-
 
 /* Information about room and player associated with every socket */
 typedef struct {
@@ -71,8 +70,12 @@ err(CODE, MESSAGE);
 if ((COMM) == NULL) \
 err(CODE, MESSAGE);
 
+#define CHN0( COMM, CODE, MESSAGE )\
+if ((COMM) != 0) \
+err(CODE, MESSAGE);
+
 #define NUM_OF_MINES 10
-#define PORT 8084
+#define PORT 8085
 #define BACKLOG 5
 #define HOSTNAME "127.0.0.1"
 #define FIELD_OF_SIGHT 10

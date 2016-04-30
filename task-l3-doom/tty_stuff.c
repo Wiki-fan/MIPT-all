@@ -10,9 +10,6 @@
 #include "common_types.h"
 #include "../common/utils.h"
 
-extern Player player;
-extern Map map;
-
 /* terminal escape symbol */
 #define ESC "\033"
 
@@ -133,7 +130,7 @@ int get_input( enum ACTION* type )
 	return fl;
 }
 
-void render()
+/*void render()
 {
 	int x, y;
 	clear();
@@ -151,7 +148,7 @@ void render()
 		}
 		putchar( '\n' );
 	}
-}
+}*/
 
 void render_all()
 {
