@@ -9,12 +9,17 @@
 #include <fcntl.h>
 
 #include <strings.h>
+#include <unistd.h>
 #include "../common/utils.h"
 #include "game_stuff.h"
 #include "tty_stuff.h"
 #include "config_stuff.h"
 #include "net_stuff.h"
 #include "common_types.h"
+
+enum ROLE {
+	ROLE_HOST, ROLE_PLAYER
+};
 
 int setup_connection()
 {
@@ -54,33 +59,173 @@ int setup_connection()
 
 }
 
-int send_to_server(enum ACTION act, int sockfd) {
-	int n;
+int ask_player_or_host()
+{
+	int response;
 
-	CHN1( n = write( sockfd, &act, sizeof(enum ACTION)), 27, "Socket write error" );
+	while( 1 ) {
+		printf( "What do you want?\n1. Create room on the server.\n2. Play in already created room.\n3. Exit.\n" );
+		scanf( "%d", &response );
+		if( response == 1 || response == 2 || response == 3 ) {
+			return response;
+		}
+		printf( "Try again.\n" );
+	}
+}
+#define CLIENT_BUF_SIZE 80
+#define STR_CLIENT_BUF_SIZE "80"
+
+int ask_room_name( char* buf )
+{
+	printf( "How should I name your room?\n" );
+	scanf( "%" STR_MAX_NAME_LEN "s", buf );
+	/* check if valid and not duplicates */
+}
+
+int ask_player_name( char* buf )
+{
+	printf( "How should I name you?\n" );
+	scanf( "%" STR_MAX_NAME_LEN "s", buf );
+	/* check if valid and not duplicates */
+}
+
+int ask_host_action()
+{
+	int response;
+
+	while( 1 ) {
+		printf( "What do you want?\n1. Start game.\n2. Get list of players in room.\n3. Exit.\n" );
+		scanf( "%d", &response );
+		if( response == 1 || response == 2 || response == 3 ) {
+			return response;
+		}
+		printf( "Try again.\n" );
+	}
+}
+
+int ask_which_room(int room_count)
+{
+	int response;
+
+	while( 1 ) {
+		printf( "Which room do you choose?\n" );
+		scanf( "%d", &response );
+		if( response >= 0 && response < room_count ) {
+			return response;
+		}
+		printf( "Try again.\n" );
+	}
+}
+
+
+int getrecvlist(int sockfd)
+{
+	int n, i;
+	char** recvlist;
+	n = read_int( sockfd ); /* number of player names */
+	printf("We have %d items:\n", n);
+	recvlist = malloc_s( n*sizeof(char*));
+	for (i = 0; i<n; ++i) {
+		recvlist[i] = malloc_s( MAX_NAME_LEN);
+		read_buf(sockfd, recvlist[i]);
+	}
+
+	for (i = 0; i<n; ++i) {
+		printf("%d: %s\n", i, recvlist[i]);
+		free(recvlist[i]);
+	}
+	free(recvlist);
+	return n;
+}
+
+#define CHK_RESPONSE(NEEDED, MSG) \
+if (read_int(sockfd) == NEEDED) {\
+printf(MSG);\
+} else {\
+errx(13, "Wrong response");\
 }
 
 int main()
 {
 	int sockfd;
-	set_canonical();
-	sockfd = setup_connection();
+	enum ROLE role;
+	enum ACTION init_action;
+	int n, i;
+	char buf[CLIENT_BUF_SIZE];
 
-	while(1) {
-		enum ACTION act;
-		int fl;
-		fl = get_input(&act);
-
-		if (fl == 0) {
-			if (act == A_EXIT) {
-				break;
-			} else {
-				printf("Got input %d\n", act);
-				send_to_server(act, sockfd);
-			}
-		}
+	/* Determining role of client */
+	switch( ask_player_or_host()) {
+		case 3:
+			exit( 0 );
+		case 1:
+			role = ROLE_HOST;
+			break;
+		case 2:
+			role = ROLE_PLAYER;
+			break;
+		default:
+			errx( 3, "Unreachable code" );
 	}
 
-	restore();
+	/* Connect */
+	sockfd = setup_connection();
+	printf("Connection established\n");
+
+	if (role == ROLE_HOST) {
+		/* Create room */
+		ask_room_name( buf );
+		send_int( A_CREATEROOM, sockfd );
+		send_buf( sockfd, MAX_NAME_LEN, buf );
+		CHK_RESPONSE( R_CREATED, "Room is created on the server\n" );
+
+		/* Possible actions of host */
+		while (1) {
+			switch(ask_host_action()) {
+				case 1:
+					send_int( A_STARTGAME, sockfd );
+					break;
+				case 2:
+					send_int( A_ASK_PLAYER_LIST, sockfd );
+					CHK_RESPONSE( R_SENDING_PLAYERS, "Receiving players list\n" );
+					printf("Players:\n");
+					getrecvlist(sockfd);
+					break;
+				case 3:
+					exit(0);
+				default:
+					errx( 3, "Unreachable code" );
+			}
+		}
+	} else {
+		/* Receive rooms list  */
+		send_int( A_ASK_ROOMS_LIST, sockfd );
+		CHK_RESPONSE(R_SENDING_ROOMS, "List of rooms received\n");
+		printf("Rooms:\n");
+		i = ask_which_room(getrecvlist(sockfd));
+
+		ask_player_name( buf );
+		send_int( A_JOINROOM, sockfd );
+		send_int( i, sockfd );
+		send_buf( sockfd, MAX_NAME_LEN, buf );
+		CHK_RESPONSE( R_JOINED, "You joined\n" );
+
+		set_canonical();
+		while( 1 ) {
+			enum ACTION act;
+			int fl;
+			fl = get_input( &act );
+
+			if( fl == 0 ) {
+				if( act == A_EXIT ) {
+					break;
+				} else {
+					printf( "Got input %d\n", act );
+					send_int( act, sockfd );
+				}
+			}
+		}
+
+		restore();
+	}
 	return 0;
 }

@@ -2,20 +2,47 @@
 #define TASK_L3__COMMON_TYPES
 #include "vector_impl.h"
 
+#define NUM_OF_MINES 10
+#define PORT 8093
+#define BACKLOG 5
+#define HOSTNAME "127.0.0.1"
+#define FIELD_OF_SIGHT 10
+#define INITIAL_NUM_OF_ROOMS 4
+#define INITIAL_NUM_OF_PLAYERS 4
+
+#define MAX_NAME_LEN 60
+#define STR_MAX_NAME_LEN "60"
+
 enum ACTION {
-	A_UP, A_DOWN, A_LEFT, A_RIGHT, A_MINE, A_USE, A_ATTACK, A_EXIT
+	A_UP,
+	A_DOWN,
+	A_LEFT,
+	A_RIGHT,
+	A_MINE,
+	A_USE,
+	A_ATTACK,
+	A_EXIT,
+	A_CREATEROOM,
+	A_ASK_ROOMS_LIST,
+	A_JOINROOM,
+	A_STARTGAME,
+	A_ASK_PLAYER_LIST
 };
 
-typedef struct
-{
-	int player_id;
-	enum ACTION action;
-} Action;
+enum RESPONSE {
+	R_CREATED,
+	R_SENDING_ROOMS,
+	R_SENDING_PLAYERS,
+	R_JOINED,
+};
 
 typedef struct {
-	char** m; /* map */
-	int** b; /* background */
-	int w; /* width */
+	char** m;
+	/* map */
+	int** b;
+	/* background */
+	int w;
+	/* width */
 	int h; /*height */
 } Map;
 
@@ -31,18 +58,27 @@ typedef struct {
 	Map* map; /* map base, copy for every room */
 } Game;
 
-typedef struct
-{
+typedef struct {
+	char name[MAX_NAME_LEN];
 	int x, y;
 	int num_of_mines;
 	int hp;
 } Player;
+define_vector(Player)
+
+typedef struct {
+	char name[MAX_NAME_LEN];
+	Vector_Player players;
+	Map map;
+} Room;
+define_vector( Room )
 
 /* Information about room and player associated with every socket */
 typedef struct {
 	int room_id;
 	int player_id;
 } SockIdInfo;
+define_vector( SockIdInfo )
 
 struct SNode {
 	struct SNode* next;
@@ -56,7 +92,7 @@ typedef struct {
 	Node* end;
 } GameQueue;
 
-#define LOG(params ) printf params
+#define LOG( params ) printf params
 
 /*#define debug(smth) #ifdef DEBUG\
 printf smth \
@@ -74,12 +110,6 @@ err(CODE, MESSAGE);
 if ((COMM) != 0) \
 err(CODE, MESSAGE);
 
-#define NUM_OF_MINES 10
-#define PORT 8085
-#define BACKLOG 5
-#define HOSTNAME "127.0.0.1"
-#define FIELD_OF_SIGHT 10
-#define INITIAL_NUM_OF_ROOMS 4
-#define INITIAL_NUM_OF_PLAYERS 4
+
 
 #endif /* L3__COMMON_TYPES */

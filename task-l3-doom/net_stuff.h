@@ -4,10 +4,10 @@
 
 int server_init();
 
-void GameQueue_init(GameQueue* q);
-void GameQueue_push(GameQueue* q, SockIdInfo sock_info, enum ACTION act);
-Node* GameQueue_pop(GameQueue* q);
-void GameQueue_destroy(GameQueue* q);
-int GameQueue_empty(GameQueue* q);
+/* Following functions send (or receive) size of buffer in int, and then buffer */
+void send_buf( int sockfd, int n, char* buf );
+int read_buf(int sock_id, char* buf);
+int send_int( int act, int sockfd );
+int read_int( int sock_id );
 
 #endif /* L3__NET_STUFF */
