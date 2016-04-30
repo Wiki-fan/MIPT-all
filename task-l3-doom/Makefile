@@ -7,16 +7,16 @@ DEP_DIRS = ../common
 
 .PHONY:  all clean valgrind $(DEP_DIRS)
 
-CFLAGS += -Wall -pedantic $(DEPS) -ansi
+CFLAGS += -Wall -pedantic $(DEPS) -ansi -pthread
 VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 
 all: $(DEP_DIRS) $(TARGET)
 
 client: client.o $(OBJ) $(DEPS)
-	$(CC) -o $@ $^ -lm
+	$(CC) -o $@ $^ -lm -pthread
 
 server: server.o $(OBJ) $(DEPS)
-	$(CC) -o $@ $^ -lm
+	$(CC) -o $@ $^ -lm -pthread
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -MD $<

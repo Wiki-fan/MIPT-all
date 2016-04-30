@@ -20,7 +20,7 @@
 int main( int argc, char* argv[] )
 {
 	read_config_from_file( "config.cfg" );
-	setup_server();
+	server_init();
 
 	return 0;
 }

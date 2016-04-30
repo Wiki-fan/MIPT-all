@@ -53,15 +53,11 @@ int setup_connection()
 	return 0;*/
 
 }
-#define PLAYER_ID 13
-#define PACKET_SIZE sizeof(int) + sizeof(int)+1
-int send_to_server(enum ACTION act, int sockfd) {
-	Action action;
-	int n;
-	action.player_id = PLAYER_ID;
-	action.action = act;
 
-	CHN1( n = write( sockfd, &action, sizeof(Action)), 27, "Socket write error" );
+int send_to_server(enum ACTION act, int sockfd) {
+	int n;
+
+	CHN1( n = write( sockfd, &act, sizeof(enum ACTION)), 27, "Socket write error" );
 }
 
 int main()

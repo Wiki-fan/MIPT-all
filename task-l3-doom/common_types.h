@@ -1,5 +1,6 @@
 #ifndef TASK_L3__COMMON_TYPES
 #define TASK_L3__COMMON_TYPES
+#include "vector_impl.h"
 
 enum ACTION {
 	A_UP, A_DOWN, A_LEFT, A_RIGHT, A_MINE, A_USE, A_ATTACK, A_EXIT
@@ -36,6 +37,26 @@ typedef struct
 	int hp;
 } Player;
 
+
+
+/* Information about room and player associated with every socket */
+typedef struct {
+	int room_id;
+	int player_id;
+} SockIdInfo;
+
+struct SNode {
+	struct SNode* next;
+	SockIdInfo sock_info;
+	enum ACTION act;
+};
+typedef struct SNode Node;
+
+typedef struct {
+	Node* begin;
+	Node* end;
+} GameQueue;
+
 #define LOG(params ) printf params
 
 /*#define debug(smth) #ifdef DEBUG\
@@ -55,5 +76,7 @@ err(CODE, MESSAGE);
 #define BACKLOG 5
 #define HOSTNAME "127.0.0.1"
 #define FIELD_OF_SIGHT 10
+#define INITIAL_NUM_OF_ROOMS 4
+#define INITIAL_NUM_OF_PLAYERS 4
 
 #endif /* L3__COMMON_TYPES */

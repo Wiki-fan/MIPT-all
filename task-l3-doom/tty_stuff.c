@@ -8,6 +8,7 @@
 #include "config_stuff.h"
 #include "tty_stuff.h"
 #include "common_types.h"
+#include "../common/utils.h"
 
 extern Player player;
 extern Map map;

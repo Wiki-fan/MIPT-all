@@ -1,4 +1,5 @@
 #include <search.h>
+#include <stdlib.h>
 #include "game_stuff.h"
 #include "config_stuff.h"
 #include "net_stuff.h"
@@ -6,62 +7,33 @@
 #include "../common/utils.h"
 #include "common_types.h"
 
-Game game;
-Map map;
-Player player;
-
-struct Node {
-	struct Node* next;
-	int* player_num;
-	enum ACTION act;
-};
-
-typedef struct {
-	struct Node* begin;
-	struct Node* end;
-} GameQueue;
-
-typedef struct {
-	Player* player_array;
-	size_t size;
-	size_t max_size;
-} Vector;
-
-void Vector_init(Vector* v, size_t init_size)
+void GameQueue_init(GameQueue* q)
 {
-	v->player_array = malloc_s(init_size*sizeof(Player));
-	v->max_size = init_size;
-	v->size = 0;
-}
-void Vector_push(Vector* v, Player* elem)
-{
-
+	q->begin = q->end = NULL;
 }
 
-void player_move(Player* player, int x, int y)
+void GameQueue_push(GameQueue* q, SockIdInfo sock_info, enum ACTION act)
 {
-	if (map.m[player->y+y][player->x + x] != WALL) {
-		player->x += x;
-		player->y += y;
+	Node* temp = malloc_s(sizeof(Node));
+	temp->sock_info = sock_info;
+	temp->act = act;
+	temp->next = NULL;
+	q->end->next = temp;
+}
+
+Node* GameQueue_pop(GameQueue* q)
+{
+	Node* temp = q->begin;
+	q->begin = q->begin->next;
+	return temp;
+}
+
+void GameQueue_destroy(GameQueue* q)
+{
+	Node* temp;
+	while (q->begin != NULL) {
+		temp = q->begin;
+		q->begin = q->begin->next;
+		free(temp);
 	}
-}
-
-void player_init(Player* player)
-{
-	player->x = player->y = 1;
-	player->num_of_mines = NUM_OF_MINES;
-	player->hp = game.initial_health;
-}
-
-void player_set_mine(Player* player)
-{
-	if (map.m[player->y][player->x] == SPACE) {
-		map.m[player->y][player->x] = MINE;
-		--player->num_of_mines;
-	}
-}
-
-void player_attack(Player* player)
-{
- /* TODO: labyrinth DFS */
 }
