@@ -15,13 +15,13 @@
 
 static struct termios old_attributes;
 
-/** clear screen */
+/** Clear screen */
 int clear( void )
 {
 	return printf( ESC "[2J" );
 }
 
-/** set canonical terminal mode */
+/** Set canonical terminal mode */
 void set_canonical()
 {
 	struct termios new_attributes;
@@ -46,13 +46,13 @@ void set_canonical()
 	CHN1( tcsetattr( STDIN_FILENO, TCSANOW, &new_attributes ), 22, "Can't set new terminal state" );
 }
 
-/** restore original terminal mode */
+/** Restore original terminal mode */
 void restore()
 {
 	CHN1( tcsetattr( STDIN_FILENO, TCSANOW, &old_attributes ), 20, "Can't restore original terminal state" );
 }
 
-/** Gets input from keyboard.
+/** Get input from keyboard.
  * If keystroke should be processed, enum ACTION* type is set and return is 0.
  * else return is 1 and enum ACTION* type is undefined */
 int get_input( enum ACTION* type )
@@ -117,8 +117,12 @@ int get_input( enum ACTION* type )
 			*type = A_LEFT;
 			fl = 0;
 			break;
-		case 'm': case 'e':
+		case 'f':
 			*type = A_MINE;
+			fl = 0;
+			break;
+		case 'e':
+			*type = A_USE;
 			fl = 0;
 			break;
 		case ' ':
@@ -130,9 +134,10 @@ int get_input( enum ACTION* type )
 	return fl;
 }
 
+/** Render the whole map to the screen */
 void render_all()
 {
-
+	/* TODO: implement */
 }
 
 #undef ESC

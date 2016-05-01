@@ -17,71 +17,67 @@
 #include "net_stuff.h"
 #include "common_types.h"
 
+#define FILENAME_MAX_LEN 256
+
 int main( int argc, char* argv[] )
 {
-	int optind = 0;
-	char log[256];
-	strcpy(log, "log_file.txt");
-	char config[256];
-	strcpy(config, "config.cfg");
-
 	int c;
 	int daemonize = 0;
+	int optind = 0;
+	char log[FILENAME_MAX_LEN];
+	char config[FILENAME_MAX_LEN];
+	strcpy( log, "log_file.txt" );
 
-	do
-	{
-		/*int curind = optind;*/
+	strcpy( config, "config.cfg" );
+
+	do {
 		static struct option long_options[] =
 				{
-						{ "help",    no_argument,       0, 'h' },
-						{ "version", no_argument,       0, 'v' },
-						{ "daemonize", no_argument , 0, 'd' },
-						{ "config", required_argument, 0, 'c'},
-						{ "log", required_argument, 0, 'l'},
-						{ 0, 0,                         0, 0 }
+						{ "help",      no_argument,       0, 'h' },
+						{ "version",   no_argument,       0, 'v' },
+						{ "daemonize", no_argument,       0, 'd' },
+						{ "config",    required_argument, 0, 'c' },
+						{ "log",       required_argument, 0, 'l' },
+						{ 0, 0,                           0, 0 }
 				};
-		c = getopt_long(argc, argv, "hvl:c:d",
-		                long_options, &optind);
+		c = getopt_long( argc, argv, "hvl:c:d", long_options, &optind );
 
-		switch (c)
-		{
+		switch( c ) {
 			case 'h':
-				puts ("Usage:\n./server [--daemonize] [-c config_file] [-l log_file]\n./server -h\n./server -v");
-				exit(0);
+				puts( "Usage:\n./server [--daemonize] [-c config_file] [-l log_file]\n./server -h\n./server -v" );
+				exit( 0 );
 			case 'v':
-				puts ("Version 0.1");
-				exit(0);
+				puts( "Version 0.1" );
+				exit( 0 );
 			case 'l':
-				strncpy(log,  optarg, 256);
+				strncpy( log, optarg, FILENAME_MAX_LEN );
 				break;
 			case 'c':
-				strncpy(config,  optarg, 256);
+				strncpy( config, optarg, FILENAME_MAX_LEN );
 				break;
 			case 'd':
 				daemonize = 1;
 				break;
 			case '?':
-				/* getopt_longs writes error by itself */
-				/*if (optopt)  printf("Bad short opt '%c'\n", optopt);
-				else  printf("Bad long opt \"%s\"\n", argv[curind]);*/
-				errx(11, "Unknown parameter");
+				/* getopt_longs writes error message by itself */
+				errx( 11, "Unknown parameter" );
 
 			case -1:
 				break;
 
 			default:
-				err(3, "Unreachable code");
+				err( 3, "Unreachable code" );
 		}
 	}
-	while (c != -1);
+	while( c != -1 );
 
-	LOG(("Starting server\n"));
-	LOG(("Reading config from %s\n", config));
-	LOG(("Writing log to %s\n", log));
-	LOG(("Daemonize: %s\n", daemonize? "Yes":"No"));
+	LOG(( "Starting server\n" ));
+	LOG(( "Reading config from %s\n", config ));
+	LOG(( "Writing log to %s\n", log ));
+	LOG(( "Daemonize: %s\n", daemonize ? "Yes" : "No" ));
 
 	read_config_from_file( config );
-	server_init();
+	server_start();
 
 	return 0;
 }

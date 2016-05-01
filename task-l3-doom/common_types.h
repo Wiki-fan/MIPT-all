@@ -26,8 +26,7 @@ enum ACTION {
 	A_ASK_ROOMS_LIST,
 	A_JOINROOM,
 	A_STARTGAME,
-	A_ASK_PLAYER_LIST,
-	A_GET_PLAYER_INFO
+	A_ASK_PLAYER_LIST
 };
 
 enum RESPONSE {
@@ -35,12 +34,19 @@ enum RESPONSE {
 	R_SENDING_ROOMS,
 	R_SENDING_PLAYERS,
 	R_JOINED,
+	R_DIED,
+	R_DONE
 };
 
 typedef struct {
-	char** fg; /* foreground */
-	int** bg; /* background */
-	int w; /* width */
+	char** fg;
+	/* foreground: bonuses, walls, spaces */
+	int** bg;
+	/* background: mines, bonus hp delta */
+	int** pl;
+	/* Players id, -1 if no player. Information about mines owner.  */
+	int w;
+	/* width */
 	int h; /*height */
 } Map;
 
@@ -62,7 +68,7 @@ typedef struct {
 	int num_of_mines;
 	int hp;
 } Player;
-define_vector(Player)
+define_vector( Player )
 
 typedef struct {
 	char name[MAX_NAME_LEN];
@@ -108,7 +114,5 @@ err(CODE, MESSAGE);
 #define CHN0( COMM, CODE, MESSAGE )\
 if ((COMM) != 0) \
 err(CODE, MESSAGE);
-
-
 
 #endif /* L3__COMMON_TYPES */

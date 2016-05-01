@@ -25,9 +25,12 @@ Vector_Room rooms;
 Game game;
 
 static pthread_mutex_t mtx_endqueue = PTHREAD_MUTEX_INITIALIZER;
-fd_set master; /* master file descriptor list*/
-fd_set read_fds; /* temp file descriptor list for select()*/
-int fdmax; /* max num of file descriptor, so we check only [0, fdmax] */
+fd_set master;
+/* master file descriptor list*/
+fd_set read_fds;
+/* temp file descriptor list for select()*/
+int fdmax;
+/* max num of file descriptor, so we check only [0, fdmax] */
 int listener_fd, port_num = PORT;
 
 GameQueue gq;
@@ -113,7 +116,7 @@ void* server_loop( void* args )
 								/* init room struct */
 								strcpy( room.name, buf );
 								Vector_Player_init( &room.players, INITIAL_NUM_OF_PLAYERS );
-								copy_map(&map, &room.map);
+								copy_map( &base_map, &room.map );
 
 								/* writing that this socket is host */
 								info.room_id = rooms.size;
@@ -133,31 +136,31 @@ void* server_loop( void* args )
 
 								for( j = 0; j < rooms.arr[temp].players.size; ++j ) {
 									/*send_buf( i, (int)strlen( rooms.arr[temp].players.arr[j].name ), rooms.arr[temp].players.arr[j].name );*/
-									send_buf(i, sizeof(Player), (char*)&rooms.arr[temp].players.arr[j] );
+									send_buf( i, sizeof( Player ), (char*) &rooms.arr[temp].players.arr[j] );
 								}
 								LOG(( "Send list of %d players of room %d to socket %d\n", rooms.arr[temp].players.size, temp, i ));
 								break;
 							case A_ASK_ROOMS_LIST:
 								send_int( R_SENDING_ROOMS, i );
-								send_int( rooms.size, i);
+								send_int( rooms.size, i );
 
 								for( j = 0; j < rooms.size; ++j ) {
-									send_buf( i, (int)strlen( rooms.arr[j].name ), rooms.arr[j].name );
+									send_buf( i, (int) strlen( rooms.arr[j].name ), rooms.arr[j].name );
 								}
 								LOG(( "Send list of rooms to socket %d\n", i ));
 								break;
 							case A_JOINROOM:
 								j = read_int( i ); /* room id */
-								read_buf(i, buf); /* player name */
-								player_init( &player );
-								strcpy(player.name, buf);
+								read_buf( i, buf ); /* player name */
+								player_init( &player, buf );
+
 								info.room_id = j;
 								info.player_id = rooms.arr[info.room_id].players.size;
 								info.sock_id = i;
 								Vector_Player_push( &rooms.arr[info.room_id].players, player );
 
 								Vector_SockIdInfo_set( &sock_info, info, i );
-								send_int(R_JOINED, i);
+								send_int( R_JOINED, i );
 								LOG(( "Player from socket %d was added to room %d as player #%d\n", i, j, info.player_id ));
 								break;
 							case A_UP:
@@ -167,13 +170,13 @@ void* server_loop( void* args )
 							case A_MINE:
 							case A_USE:
 							case A_ATTACK:
-								printf( "Player with id %d from room %d did action %d\n", sock_info.arr[i].player_id, sock_info.arr[i].room_id, act );
+								LOG(( "Player with id %d from room %d did action %d\n", sock_info.arr[i].player_id, sock_info.arr[i].room_id, act ));
 								CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
 								GameQueue_push( &gq, sock_info.arr[i], act );
 								CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
 								break;
 							default:
-								LOG(("Unknown command %d\n", act));
+								LOG(( "Unknown command %d\n", act ));
 
 						}
 					}
@@ -190,8 +193,12 @@ void* game_loop( void* args )
 	Player* player;
 	char c;
 	String str;
+	Map* map;
 
-	String_init(&str);
+	/* For macros variable capture */
+	int player_id;
+
+	String_init( &str );
 	GameQueue_init( &gq );
 	while( 1 ) {
 		node = NULL;
@@ -227,37 +234,53 @@ void* game_loop( void* args )
 				default:
 					break;
 			}
+
 			player = &rooms.arr[node->sock_info.room_id].players.arr[node->sock_info.player_id];
-			for( y = player->y - FIELD_OF_SIGHT + 1; y < player->y + FIELD_OF_SIGHT; ++y ) {
-				for( x = player->x - FIELD_OF_SIGHT + 1; x < player->x + FIELD_OF_SIGHT; ++x ) {
-					if( x >= 0 && x < map.w && y >= 0 && y < map.h ) {
-						if( player->x == x && player->y == y ) {
-							String_push( &str, PLAYER );
+			if( player->hp <= 0 ) {
+				send_int( R_DIED, node->sock_info.sock_id );
+			} else {
+				/* Make player's view buffer. */
+				for( y = player->y - FIELD_OF_SIGHT + 1; y < player->y + FIELD_OF_SIGHT; ++y ) {
+					for( x = player->x - FIELD_OF_SIGHT + 1; x < player->x + FIELD_OF_SIGHT; ++x ) {
+						map = &( rooms.arr[node->sock_info.room_id].map );
+						if( x >= 0 && x < map->w && y >= 0 && y < map->h ) {
+							player_id = node->sock_info.player_id;
+							if( player->x == x && player->y == y ) {
+								String_push( &str, YOU );
+							} else if( ISPLAYER( y, x )) {
+								String_push( &str, PLAYER );
+							} else if( ISOURMINE( y, x )) {
+								String_push( &str, MINE );
+							} else {
+								String_push( &str, map->fg[y][x] );
+							}
 						} else {
-							String_push( &str, map.fg[y][x] );
+							String_push( &str, ' ' );
 						}
-					} else {
-						String_push( &str, ' ' );
 					}
+					String_push( &str, '\n' );
 				}
-				String_push(&str, '\n' );
+				String_push( &str, '\0' );
+
+				send_int( R_DONE, node->sock_info.sock_id );
+				send_buf( node->sock_info.sock_id, sizeof( Player ), (char*) player );
+				send_buf( node->sock_info.sock_id, str.cur_pos, str.buf );
+
+				/*printf("%s", str.buf);*/
+
+				str.cur_pos = 0;
 			}
-			String_push( &str, '\0' );
-			send_buf(node->sock_info.sock_id, str.cur_pos, str.buf);
-			str.cur_pos = 0;
-			/*clear();
-			printf("%s", str.buf);*/
 		}
 	}
 }
 
-void* response_loop(void* args)
+void* response_loop( void* args )
 {
 
 }
 
 /** Init server (open socket, bind, listen, spawn thread) */
-int server_init()
+int server_start()
 {
 	struct sockaddr_in serv_addr;
 	pthread_t listener_pid, game_loop_pid, response_pid;
@@ -288,20 +311,11 @@ int server_init()
 
 	pthread_create( &listener_pid, NULL, server_loop, NULL);
 	pthread_create( &game_loop_pid, NULL, game_loop, NULL);
-	/*pthread_create( &response_pid, NULL, response_loop, NULL);*/
+	/* pthread_create( &response_pid, NULL, response_loop, NULL); */
 	/* this threads should normally last forever */
 	pthread_join( listener_pid, NULL);
 	pthread_join( game_loop_pid, NULL);
 
-	/*bzero( buf,
-		   256 );
-	CHN1( n = read( newsock_id, buf, 255 ), 22, "Can't read the socket" );*/
-
-	/*printf( "message: %s\n", buf );*/
-/*printf("player) with id %d did action %d", buf[0], buf[4]);*/
-
-/* Write a response to the client */
-/*CHN1( n = write( newsock_id, "got message", 18 ), 23, "Can't write to the socket");*/
 	return 0;
 }
 

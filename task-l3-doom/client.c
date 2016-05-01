@@ -103,7 +103,7 @@ int ask_host_action()
 	}
 }
 
-int ask_which_room(int room_count)
+int ask_which_room( int room_count )
 {
 	int response;
 
@@ -118,47 +118,107 @@ int ask_which_room(int room_count)
 }
 
 
-int getrecvlist(int sockfd)
+int getrecvlist( int sockfd )
 {
 	int n, i;
 	char** recvlist;
 	n = read_int( sockfd ); /* number of player names */
-	printf("We have %d items:\n", n);
-	recvlist = malloc_s( n*sizeof(char*));
-	for (i = 0; i<n; ++i) {
-		recvlist[i] = malloc_s( MAX_NAME_LEN);
-		read_buf(sockfd, recvlist[i]);
+	printf( "We have %d items:\n", n );
+	recvlist = malloc_s( n * sizeof( char* ));
+	for( i = 0; i < n; ++i ) {
+		recvlist[i] = malloc_s( MAX_NAME_LEN );
+		read_buf( sockfd, recvlist[i] );
 	}
 
-	for (i = 0; i<n; ++i) {
-		printf("%d: %s\n", i, recvlist[i]);
-		free(recvlist[i]);
+	for( i = 0; i < n; ++i ) {
+		printf( "%d: %s\n", i, recvlist[i] );
+		free( recvlist[i] );
 	}
-	free(recvlist);
+	free( recvlist );
 	return n;
 }
 
-int getplayerlist(int sockfd)
+int getplayerlist( int sockfd )
 {
 	int n, i;
 	Player player;
 	n = read_int( sockfd ); /* number of player names */
-	printf("We have %d items:\n", n);
+	printf( "We have %d items:\n", n );
 
-	for (i = 0; i<n; ++i) {
-		read_buf(sockfd, (char*)&player);
-		printf("%d: %3d hp %2d mines %2d x %2d y %s \n", i, player.hp, player.num_of_mines, player.x, player.y, player.name);
+	for( i = 0; i < n; ++i ) {
+		read_buf( sockfd, (char*) &player );
+		printf( "%d: %3d hp %2d mines %2d x %2d y %s \n", i, player.hp, player.num_of_mines, player.x, player.y, player.name );
 	}
 
 	return n;
 }
 
 
-#define CHK_RESPONSE(NEEDED, MSG) \
+#define CHK_RESPONSE( NEEDED, MSG ) \
 if (read_int(sockfd) == NEEDED) {\
 printf(MSG);\
 } else {\
 errx(13, "Wrong response");\
+}
+
+char buf[CLIENT_BUF_SIZE];
+
+int play( int sockfd )
+{
+	Player player;
+	int i;
+	int isexit;
+
+	/* Receive rooms list  */
+	send_int( A_ASK_ROOMS_LIST, sockfd );
+	CHK_RESPONSE( R_SENDING_ROOMS, "List of rooms received\n" );
+	printf( "Rooms:\n" );
+	i = ask_which_room( getrecvlist( sockfd ));
+
+	ask_player_name( buf );
+	send_int( A_JOINROOM, sockfd );
+	send_int( i, sockfd );
+	send_buf( sockfd, MAX_NAME_LEN, buf );
+	CHK_RESPONSE( R_JOINED, "You joined\n" );
+
+	set_canonical();
+	while( 1 ) {
+		enum ACTION act;
+		int fl;
+		fl = get_input( &act );
+
+		if( fl == 0 ) {
+			if( act == A_EXIT ) {
+				isexit = 1;
+				break;
+			} else {
+				/*printf( "Got input %d\n", act );*/
+				send_int( act, sockfd );
+				i = read_int( sockfd );
+				switch( i ) {
+					case R_DIED:
+						printf( "YOU DIED!!!!\n\n" );
+						isexit = 0;
+						break;
+					case R_DONE:
+						read_buf( sockfd, (char*) &player );
+						read_buf( sockfd, buf );
+						clear();
+						printf( "%s", buf );
+						printf( "%3d hp %2d mines %2dx %2dy %s\n", player.hp, player.num_of_mines, player.x, player.y, player.name );
+						break;
+					default:
+						errx( 13, "Wrong response" );
+				}
+				if( isexit == 0 ) {
+					break;
+				}
+			}
+		}
+	}
+
+	restore();
+	return !isexit;
 }
 
 int main()
@@ -166,8 +226,7 @@ int main()
 	int sockfd;
 	enum ROLE role;
 	enum ACTION init_action;
-	int n, i;
-	char buf[CLIENT_BUF_SIZE];
+	int n;
 
 	/* Determining role of client */
 	switch( ask_player_or_host()) {
@@ -185,9 +244,9 @@ int main()
 
 	/* Connect */
 	sockfd = setup_connection();
-	printf("Connection established\n");
+	printf( "Connection established\n" );
 
-	if (role == ROLE_HOST) {
+	if( role == ROLE_HOST ) {
 		/* Create room */
 		ask_room_name( buf );
 		send_int( A_CREATEROOM, sockfd );
@@ -195,56 +254,25 @@ int main()
 		CHK_RESPONSE( R_CREATED, "Room is created on the server\n" );
 
 		/* Possible actions of host */
-		while (1) {
-			switch(ask_host_action()) {
+		while( 1 ) {
+			switch( ask_host_action()) {
 				case 1:
 					send_int( A_STARTGAME, sockfd );
 					break;
 				case 2:
 					send_int( A_ASK_PLAYER_LIST, sockfd );
 					CHK_RESPONSE( R_SENDING_PLAYERS, "Receiving players list\n" );
-					printf("Players:\n");
-					getplayerlist(sockfd);
+					printf( "Players:\n" );
+					getplayerlist( sockfd );
 					break;
 				case 3:
-					exit(0);
+					exit( 0 );
 				default:
 					errx( 3, "Unreachable code" );
 			}
 		}
 	} else {
-		/* Receive rooms list  */
-		send_int( A_ASK_ROOMS_LIST, sockfd );
-		CHK_RESPONSE(R_SENDING_ROOMS, "List of rooms received\n");
-		printf("Rooms:\n");
-		i = ask_which_room(getrecvlist(sockfd));
-
-		ask_player_name( buf );
-		send_int( A_JOINROOM, sockfd );
-		send_int( i, sockfd );
-		send_buf( sockfd, MAX_NAME_LEN, buf );
-		CHK_RESPONSE( R_JOINED, "You joined\n" );
-
-		set_canonical();
-		while( 1 ) {
-			enum ACTION act;
-			int fl;
-			fl = get_input( &act );
-
-			if( fl == 0 ) {
-				if( act == A_EXIT ) {
-					break;
-				} else {
-					/*printf( "Got input %d\n", act );*/
-					send_int( act, sockfd );
-					read_buf(sockfd, buf);
-					clear();
-					printf("%s", buf);
-				}
-			}
-		}
-
-		restore();
+		while( play( sockfd )) { }
 	}
 	return 0;
 }
