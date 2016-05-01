@@ -2,9 +2,9 @@ TARGET= nucleotide_pack
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
-DEPS = ../common/manipulations.o ../task-s2-gets_safe/safe_string.o ../task-l1-nucleotide_pack/bit_coding.o ../task-l1-nucleotide_pack/nucleotide_pack.o
+DEPS = ../common/utils.o
 #DEPS := $(filter-out ../task-l1-nucleotide_pack/main.o, $(DEPS) )
-DEP_DIRS = ../common ../task-s2-gets_safe ../task-l1-nucleotide_pack
+DEP_DIRS = ../common
 
 .PHONY:  all clean $(DEP_DIRS)
 
