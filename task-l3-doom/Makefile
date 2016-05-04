@@ -1,5 +1,5 @@
 TARGET= client server
-SRC = config_stuff.c game_stuff.c tty_stuff.c net_stuff.c vector_impl.c data_stuff.c
+SRC = config_stuff.c game_stuff.c tty_stuff.c net_stuff.c vector_impl.c data_stuff.c server_stuff.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
 
 DEPS = ../common/utils.o

@@ -16,6 +16,7 @@
 #include "config_stuff.h"
 #include "net_stuff.h"
 #include "common_types.h"
+#include "server_stuff.h"
 
 #define FILENAME_MAX_LEN 256
 

@@ -65,7 +65,7 @@ void read_config_from_file( char* file_name )
 	int x, y;
 	float val;
 	char buf[BUF_SIZE];
-	LOG(( "Starting to read config file\n" ));
+	LOG(( "Starting to read config file" ));
 	inf = fopen_s( file_name, "r" );
 
 	fscanf( inf, "%10s", buf );
@@ -86,7 +86,7 @@ void read_config_from_file( char* file_name )
 	}
 
 	while( fscanf( inf, "%100s", buf ) != 0 ) {
-		LOG(( "Reading %s\n", buf ));
+		LOG(( "Reading %s", buf ));
 		if( !strcmp( buf, "items:" )) {
 			break;
 		}
@@ -117,6 +117,6 @@ void read_config_from_file( char* file_name )
 		base_map.fg[y][x] = BONUS;
 		base_map.bg[y][x] = (int) val;
 	}
-	LOG(( "Config read successfully\n" ));
+	LOG(( "Config read successfully" ));
 
 }

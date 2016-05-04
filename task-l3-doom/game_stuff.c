@@ -153,6 +153,7 @@ void player_use( int room_id, int player_id )
 
 #define MAX( a, b ) (a>b? (a):(b))
 #define MIN( a, b ) (a<b? (a):(b))
+
 /** Use "battle charge". */
 void player_attack( int room_id, int player_id )
 {

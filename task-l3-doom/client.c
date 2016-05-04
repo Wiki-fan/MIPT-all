@@ -17,10 +17,6 @@
 #include "net_stuff.h"
 #include "common_types.h"
 
-enum ROLE {
-	ROLE_HOST, ROLE_PLAYER
-};
-
 int setup_connection()
 {
 	int sock_id, portno, n;
@@ -45,18 +41,6 @@ int setup_connection()
 	CHN1( connect( sock_id, (struct sockaddr*) &serv_addr, sizeof( serv_addr )), 26, "Can't connect to server" );
 
 	return sock_id;
-	/*printf( "message:" );
-	bzero( buffer, 256 );
-	fgets( buffer, 255, stdin );
-
-	CHN1( n = write( sockfd, buffer, strlen( buffer )), 27, "Socket write error" );
-
-	bzero( buffer, 256 );
-	CHN1( n = read( sockfd, buffer, 255 ), 28, "Socket read error" );
-
-	printf( "%s\n", buffer );
-	return 0;*/
-
 }
 
 int ask_player_or_host()
@@ -66,8 +50,15 @@ int ask_player_or_host()
 	while( 1 ) {
 		printf( "What do you want?\n1. Create room on the server.\n2. Play in already created room.\n3. Exit.\n" );
 		scanf( "%d", &response );
-		if( response == 1 || response == 2 || response == 3 ) {
-			return response;
+		switch( response ) {
+			case 1:
+				return A_CREATE_ROOM;
+			case 2:
+				return A_JOINROOM;
+			case 3:
+				return A_EXIT;
+			default:
+				break;
 		}
 		printf( "Try again.\n" );
 	}
@@ -94,10 +85,19 @@ int ask_host_action()
 	int response;
 
 	while( 1 ) {
-		printf( "What do you want?\n1. Start game.\n2. Get list of players in room.\n3. Exit.\n" );
+		printf( "What do you want?\n1. Start game.\n2. Stop game.\n3. Get list of players in room.\n3. Exit.\n" );
 		scanf( "%d", &response );
-		if( response == 1 || response == 2 || response == 3 ) {
-			return response;
+		switch( response ) {
+			case 1:
+				return A_START_GAME;
+			case 2:
+				return A_STOP_GAME;
+			case 3:
+				return A_ASK_PLAYER_LIST;
+			case 4:
+				return A_EXIT;
+			default:
+				break;
 		}
 		printf( "Try again.\n" );
 	}
@@ -154,14 +154,24 @@ int getplayerlist( int sockfd )
 }
 
 
-#define CHK_RESPONSE( NEEDED, MSG ) \
+#define CHK_RESPONSE( NEEDED, MSG )\
 if (read_int(sockfd) == NEEDED) {\
-printf(MSG);\
+printf(MSG); putchar('\n');\
 } else {\
 errx(13, "Wrong response");\
 }
 
 char buf[CLIENT_BUF_SIZE];
+
+/* get screen and player info from sockfd and render it */
+void render( int sockfd, Player* player )
+{
+	read_buf( sockfd, (char*) player );
+	read_buf( sockfd, buf );
+	clear();
+	printf( "%s", buf );
+	printf( "%3d hp %2d mines %2dx %2dy %s\n", player->hp, player->num_of_mines, player->x, player->y, player->name );
+}
 
 int play( int sockfd )
 {
@@ -171,7 +181,7 @@ int play( int sockfd )
 
 	/* Receive rooms list  */
 	send_int( A_ASK_ROOMS_LIST, sockfd );
-	CHK_RESPONSE( R_SENDING_ROOMS, "List of rooms received\n" );
+	CHK_RESPONSE( R_SENDING_ROOMS, "List of rooms received" );
 	printf( "Rooms:\n" );
 	i = ask_which_room( getrecvlist( sockfd ));
 
@@ -179,9 +189,14 @@ int play( int sockfd )
 	send_int( A_JOINROOM, sockfd );
 	send_int( i, sockfd );
 	send_buf( sockfd, MAX_NAME_LEN, buf );
-	CHK_RESPONSE( R_JOINED, "You joined\n" );
+	CHK_RESPONSE( R_JOINED, "You joined" );
+
+	printf( "Waiting for game to start\n" );
+	CHK_RESPONSE( R_GAME_STARTED, "Game started" );
+	CHK_RESPONSE( R_DONE, "Game info sended" );
 
 	set_canonical();
+	render( sockfd, &player );
 	while( 1 ) {
 		enum ACTION act;
 		int fl;
@@ -196,16 +211,20 @@ int play( int sockfd )
 				send_int( act, sockfd );
 				i = read_int( sockfd );
 				switch( i ) {
+					case R_ROOM_CLOSED:
+						printf( "Host closed room\n" );
+						isexit = 0;
+						break;
+					case R_GAME_STOPPED:
+						printf( "Game finished\n" );
+						isexit = 0;
+						break;
 					case R_DIED:
 						printf( "YOU DIED!!!!\n\n" );
 						isexit = 0;
 						break;
 					case R_DONE:
-						read_buf( sockfd, (char*) &player );
-						read_buf( sockfd, buf );
-						clear();
-						printf( "%s", buf );
-						printf( "%3d hp %2d mines %2dx %2dy %s\n", player.hp, player.num_of_mines, player.x, player.y, player.name );
+						render( sockfd, &player );
 						break;
 					default:
 						errx( 13, "Wrong response" );
@@ -224,55 +243,54 @@ int play( int sockfd )
 int main()
 {
 	int sockfd;
-	enum ROLE role;
-	enum ACTION init_action;
 	int n;
 
 	/* Determining role of client */
-	switch( ask_player_or_host()) {
-		case 3:
-			exit( 0 );
-		case 1:
-			role = ROLE_HOST;
-			break;
-		case 2:
-			role = ROLE_PLAYER;
-			break;
-		default:
-			errx( 3, "Unreachable code" );
-	}
+	int act = ask_player_or_host();
 
 	/* Connect */
 	sockfd = setup_connection();
 	printf( "Connection established\n" );
 
-	if( role == ROLE_HOST ) {
-		/* Create room */
-		ask_room_name( buf );
-		send_int( A_CREATEROOM, sockfd );
-		send_buf( sockfd, MAX_NAME_LEN, buf );
-		CHK_RESPONSE( R_CREATED, "Room is created on the server\n" );
+	switch( act ) {
+		case A_CREATE_ROOM:
+			/* Create room */
+			ask_room_name( buf );
+			send_int( A_CREATE_ROOM, sockfd );
+			send_buf( sockfd, MAX_NAME_LEN, buf );
+			CHK_RESPONSE( R_ROOM_CREATED, "Room is created on the server" );
 
-		/* Possible actions of host */
-		while( 1 ) {
-			switch( ask_host_action()) {
-				case 1:
-					send_int( A_STARTGAME, sockfd );
-					break;
-				case 2:
-					send_int( A_ASK_PLAYER_LIST, sockfd );
-					CHK_RESPONSE( R_SENDING_PLAYERS, "Receiving players list\n" );
-					printf( "Players:\n" );
-					getplayerlist( sockfd );
-					break;
-				case 3:
-					exit( 0 );
-				default:
-					errx( 3, "Unreachable code" );
+			/* Possible actions of host */
+			while( 1 ) {
+				switch( ask_host_action()) {
+					case A_START_GAME:
+						send_int( A_START_GAME, sockfd );
+						CHK_RESPONSE( R_GAME_STARTED, "Game started" );
+						break;
+					case A_STOP_GAME:
+						send_int( A_START_GAME, sockfd );
+						CHK_RESPONSE( R_GAME_STOPPED, "Game started" );
+						break;
+					case A_ASK_PLAYER_LIST:
+						send_int( A_ASK_PLAYER_LIST, sockfd );
+						CHK_RESPONSE( R_SENDING_PLAYERS, "Receiving players list" );
+						printf( "Players:\n" );
+						getplayerlist( sockfd );
+						break;
+					case A_EXIT:
+						exit( 0 );
+					default:
+						errx( 3, "Unreachable code" );
+				}
 			}
-		}
-	} else {
-		while( play( sockfd )) { }
+			break;
+		case A_JOINROOM:
+			while( play( sockfd )) { }
+			break;
+		case A_EXIT:
+			return 0;
+		default:
+			errx( 3, "Unreachable code" );
 	}
 	return 0;
 }

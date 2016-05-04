@@ -3,7 +3,7 @@
 #include "vector_impl.h"
 
 #define NUM_OF_MINES 10
-#define PORT 8093
+#define PORT 8099
 #define BACKLOG 5
 #define HOSTNAME "127.0.0.1"
 #define FIELD_OF_SIGHT 10
@@ -21,32 +21,36 @@ enum ACTION {
 	A_MINE,
 	A_USE,
 	A_ATTACK,
+	A_NONE,
 	A_EXIT,
-	A_CREATEROOM,
+	A_CREATE_ROOM,
+	A_CLOSE_ROOM, /* close and delete, disconnect all players */
 	A_ASK_ROOMS_LIST,
 	A_JOINROOM,
-	A_STARTGAME,
+	A_START_GAME,
+	A_STOP_GAME,
 	A_ASK_PLAYER_LIST
 };
 
 enum RESPONSE {
-	R_CREATED,
+	R_ROOM_CREATED,
 	R_SENDING_ROOMS,
 	R_SENDING_PLAYERS,
 	R_JOINED,
 	R_DIED,
-	R_DONE
+	R_DONE,
+	R_GAME_STARTED, /* when host started game */
+	R_GAME_FINISHED, /* when somebody won */
+	R_GAME_STOPPED, /* by host */
+	R_ROOM_CLOSED,
+	R_CHEATER /* for suspiciously wrong actions */
 };
 
 typedef struct {
-	char** fg;
-	/* foreground: bonuses, walls, spaces */
-	int** bg;
-	/* background: mines, bonus hp delta */
-	int** pl;
-	/* Players id, -1 if no player. Information about mines owner.  */
-	int w;
-	/* width */
+	char** fg; /* foreground: bonuses, walls, spaces */
+	int** bg; /* background: mines, bonus hp delta */
+	int** pl; /* Players id, -1 if no player. Information about mines owner.  */
+	int w; /* width */
 	int h; /*height */
 } Map;
 
@@ -67,6 +71,7 @@ typedef struct {
 	int x, y;
 	int num_of_mines;
 	int hp;
+	int sock;
 } Player;
 define_vector( Player )
 
@@ -74,6 +79,7 @@ typedef struct {
 	char name[MAX_NAME_LEN];
 	Vector_Player players;
 	Map map;
+	int is_started;
 } Room;
 define_vector( Room )
 
@@ -97,7 +103,7 @@ typedef struct {
 	Node* end;
 } GameQueue;
 
-#define LOG( params ) printf params
+#define LOG( params ) printf params ; putchar('\n')
 
 /*#define debug(smth) #ifdef DEBUG\
 printf smth \
