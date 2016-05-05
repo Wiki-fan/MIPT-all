@@ -52,6 +52,7 @@ void ban(int sock) {
 
 #define ISHOST(sock) (sock_info.arr[sock].player_id == -1)
 #define MARKHOST(info) info.player_id = -1;
+
 void* server_loop( void* args )
 {
 	int i, j, n;
@@ -81,7 +82,7 @@ void* server_loop( void* args )
 						fdmax = newsock_id;
 					}
 
-					LOG(( "new connection: socket %d\n", i ));
+					LOG(( "new connection: socket %d\n", newsock_id ));
 				} else {
 					/* handle data from a client*/
 					enum ACTION act;
@@ -108,7 +109,7 @@ void* server_loop( void* args )
 
 								/* writing that this socket is host */
 								info.room_id = rooms.size;
-								MARKHOST(info);
+								/*MARKHOST(info);*/ info.player_id = -1;
 								info.sock_id = i;
 								Vector_SockIdInfo_set( &sock_info, info, i );
 
@@ -116,7 +117,7 @@ void* server_loop( void* args )
 								Vector_Room_push( &rooms, room );
 
 								send_int( R_ROOM_CREATED, i );
-								LOG(( "Room with name %s was created by socket %d", room.name, i ));
+								LOG(( "Room #%d with name %s was created by socket %d", info.room_id, room.name, i ));
 								break;
 							case A_CLOSE_ROOM:
 								if (!ISHOST(i)) {
@@ -179,11 +180,11 @@ void* server_loop( void* args )
 									rooms.arr[room_id].is_started = 1;
 									send_to_all_in_room( room_id, R_GAME_STARTED );
 									send_int( R_GAME_STARTED, i );
-									CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
+									/*CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
 									for( j = 0; j < rooms.arr[room_id].players.size; ++j ) {
 										GameQueue_push( &gq, sock_info.arr[rooms.arr[room_id].players.arr[j].sock], A_NONE );
 									}
-									CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
+									CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );*/
 									LOG(( "Game in room %d started", sock_info.arr[i].room_id ));
 								}
 								break;
@@ -203,9 +204,11 @@ void* server_loop( void* args )
 							case A_MINE:
 							case A_USE:
 							case A_ATTACK:
-								LOG(( "Player with id %d from room %d did action %d", sock_info.arr[i].player_id, sock_info.arr[i].room_id, act ));
+							case A_NONE:
+								LOG(( "Player with id %d from room %d did action %d (socket %d)",
+										sock_info.arr[i].player_id, sock_info.arr[i].room_id, act, i ));
 								if( rooms.arr[sock_info.arr[i].room_id].is_started == 0 ) {
-									/* ban player who moves before game is started */
+									/* ban player who moves before the game is started */
 									ban(i);
 								} else {
 									CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
@@ -215,7 +218,6 @@ void* server_loop( void* args )
 								break;
 							default:
 							LOG(( "Unknown command %d", act ));
-
 						}
 					}
 				}
@@ -247,7 +249,7 @@ void* game_loop( void* args )
 		CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
 
 		if( node != NULL) {
-			LOG(( "Begin to process player %d from room %d with action %d\n", node->sock_info.player_id, node->sock_info.room_id, node->act ));
+			LOG(( "Begin to process player %d from room %d with action %d", node->sock_info.player_id, node->sock_info.room_id, node->act ));
 			switch( node->act ) {
 				case A_UP:
 					player_move( node->sock_info.room_id, node->sock_info.player_id, 0, -1 );
@@ -306,7 +308,7 @@ void* game_loop( void* args )
 				send_int( R_DONE, node->sock_info.sock_id );
 				send_buf( node->sock_info.sock_id, sizeof( Player ), (char*) player );
 				send_buf( node->sock_info.sock_id, str.cur_pos, str.buf );
-				/*LOG(("Info sent"));*/
+				LOG(("Info sent to socket %d",node->sock_info.sock_id ));
 
 				/*printf("%s", str.buf);*/
 

@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200901L
+#include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,6 +12,7 @@
 #include <unistd.h>
 #include <strings.h>
 #include <getopt.h>
+
 #include "../common/utils.h"
 #include "game_stuff.h"
 #include "tty_stuff.h"
@@ -20,6 +23,11 @@
 
 #define FILENAME_MAX_LEN 256
 
+static void handler( int sig )
+{
+	LOG(("Exiting on signal SIGTERM"));
+}
+
 int main( int argc, char* argv[] )
 {
 	int c;
@@ -27,10 +35,12 @@ int main( int argc, char* argv[] )
 	int optind = 0;
 	char log[FILENAME_MAX_LEN];
 	char config[FILENAME_MAX_LEN];
-	strcpy( log, "log_file.txt" );
+	struct sigaction sa;
 
+	strcpy( log, "log_file.txt" );
 	strcpy( config, "config.cfg" );
 
+	/* Parse command line options */
 	do {
 		static struct option long_options[] =
 				{
@@ -60,7 +70,7 @@ int main( int argc, char* argv[] )
 				daemonize = 1;
 				break;
 			case '?':
-				/* getopt_longs writes error message by itself */
+				/* getopt_long writes error message by itself */
 				errx( 11, "Unknown parameter" );
 
 			case -1:
@@ -72,10 +82,21 @@ int main( int argc, char* argv[] )
 	}
 	while( c != -1 );
 
-	LOG(( "Starting server\n" ));
-	LOG(( "Reading config from %s\n", config ));
-	LOG(( "Writing log to %s\n", log ));
-	LOG(( "Daemonize: %s\n", daemonize ? "Yes" : "No" ));
+	LOG(( "Starting server" ));
+	LOG(( "Reading config from %s", config ));
+	LOG(( "Writing log to %s", log ));
+	LOG(( "Daemonize: %s", daemonize ? "Yes" : "No" ));
+
+	/* Setting signal handler */
+	memset( &sa, 0, sizeof( sa ));
+	sa.sa_handler = handler;
+	sigfillset( &sa.sa_mask );
+	sa.sa_flags = SA_RESTART;
+
+	if( sigaction( SIGTERM, &sa, NULL) == -1 )
+	{
+		err( 20, "Error setting signal handler" );
+	}
 
 	read_config_from_file( config );
 	server_start();

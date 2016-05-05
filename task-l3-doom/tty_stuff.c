@@ -55,7 +55,7 @@ void restore()
 /** Get input from keyboard.
  * If keystroke should be processed, enum ACTION* type is set and return is 0.
  * else return is 1 and enum ACTION* type is undefined */
-int get_input( enum ACTION* type )
+int get_input( int* type )
 {
 	int fl = 1;
 	int symbol;

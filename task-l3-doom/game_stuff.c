@@ -165,7 +165,7 @@ void player_attack( int room_id, int player_id )
 	Map* map = &( rooms.arr[room_id].map );
 	for( y = MAX( player->y - 5, 1 ); y < MIN( player->y + 5, map->h - 2 ); ++y ) {
 		for( x = MAX( player->x - 5, 1 ); x < MIN( player->x + 5, map->w - 2 ); ++x ) {
-			printf( "%d %d\n", x, y );
+			/*printf( "%d %d\n", x, y );*/
 			if( ISPLAYER( y, x )) {
 				dmg_player_id = rooms.arr[room_id].map.pl[y][x];
 				if( dmg_player_id != player_id ) {

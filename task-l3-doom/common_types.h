@@ -3,7 +3,7 @@
 #include "vector_impl.h"
 
 #define NUM_OF_MINES 10
-#define PORT 8099
+#define PORT 8005
 #define BACKLOG 5
 #define HOSTNAME "127.0.0.1"
 #define FIELD_OF_SIGHT 10
