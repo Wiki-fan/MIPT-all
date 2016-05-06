@@ -1,9 +1,12 @@
+#define _POSIX_C_SOURCE 200901L
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <err.h>
 #include <termios.h>
 #include <string.h>
+#include <time.h>
+#include <signal.h>
 #include "game_stuff.h"
 #include "config_stuff.h"
 #include "tty_stuff.h"
@@ -14,6 +17,33 @@
 #define ESC "\033"
 
 static struct termios old_attributes;
+
+timer_t set_timer(struct itimerspec its)
+{
+	timer_t timerid;
+	struct sigevent sev;
+	sigset_t mask;
+	/* Block timer signal temporarily */
+	printf("Blocking signal %d\n", SIG);
+	sigemptyset(&mask);
+	sigaddset(&mask, SIG);
+	CHN1(sigprocmask(SIG_SETMASK, &mask, NULL), 34, "sigprocmask failed");
+
+	/* Create the timer */
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIG;
+	sev.sigev_value.sival_ptr = &timerid;
+	CHN1(timer_create(CLOCKID, &sev, &timerid), 35, "timer_create failed");
+
+	printf("timer ID is 0x%lx\n", (long) timerid);
+
+	/* Start timer */
+	CHN1( timer_settime( timerid, 0, &its, NULL ), 36, "timer_settime failed" );
+	printf( "Unblocking signal %d\n", SIG );
+	CHN1( sigprocmask( SIG_UNBLOCK, &mask, NULL ), 37, "sigprocmask failed" );
+
+	return timerid;
+}
 
 /** Clear screen */
 int clear( void )

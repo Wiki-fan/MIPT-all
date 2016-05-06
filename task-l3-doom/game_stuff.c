@@ -176,10 +176,11 @@ void player_init( Player* player, Map* map, char* name, int sock )
 	while( fl ) {
 		player->x = rand() % ( game.map.w - 2 ) + 1;
 		player->y = rand() % ( game.map.h - 2 ) + 1;
-		if( /*game.map.fg[player->y][player->x] == SPACE */ISSPACE(player->y, player->x)) {
+		if( ISSPACE(player->y, player->x)) {
 			fl = 0;
 		}
 	}
+	map->pl[player->y][player->x] = -1;
 
 	player->num_of_mines = NUM_OF_MINES;
 	player->hp = game.initial_health;
@@ -213,9 +214,6 @@ void player_use( int room_id, int player_id )
 		map->bg[player->y][player->x] = 0;
 	}
 }
-
-#define MAX( a, b ) (a>b? (a):(b))
-#define MIN( a, b ) (a<b? (a):(b))
 
 /** Use "battle charge". */
 void player_attack( int room_id, int player_id )

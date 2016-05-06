@@ -47,6 +47,25 @@ void ban(int sock) {
 	player_kill(player, &rooms.arr[room_id].map);
 }
 
+void decrease_hp()
+{
+	int i, j;
+	Player* player;
+	for (i = 0; i<rooms.size; ++i) {
+		if (rooms.arr[i].is_exists) {
+			for (j = 0; j<rooms.arr[i].players.size; ++j) {
+				player = &rooms.arr[i].players.arr[j];
+				player_damage(player, game.stay_health_drop );
+				if (player->hp <= 0) {
+					send_int(R_DIED, player->sock);
+					player_kill(player, &rooms.arr[i].map);
+				}
+			}
+		}
+	}
+}
+
+/* How we distinct sockets of players and hosts */
 #define ISHOST(sock) (sock_info.arr[sock].player_id == -1)
 #define MARKHOST(info) info.player_id = -1;
 
@@ -176,13 +195,9 @@ void* server_loop( void* args )
 								} else {
 									room_id = sock_info.arr[i].room_id;
 									rooms.arr[room_id].is_started = 1;
+									rooms.arr[room_id].left_alive = rooms.arr[room_id].players.size;
 									send_to_all_in_room( room_id, R_GAME_STARTED );
-									send_int( R_GAME_STARTED, i );
-									/*CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
-									for( j = 0; j < rooms.arr[room_id].players.size; ++j ) {
-										GameQueue_push( &gq, sock_info.arr[rooms.arr[room_id].players.arr[j].sock], A_NONE );
-									}
-									CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );*/
+									send_int( R_GAME_STARTED, i ); /* Inform host */
 									LOG(( "Game in room %d started", sock_info.arr[i].room_id ));
 								}
 								break;
@@ -249,7 +264,12 @@ void* game_loop( void* args )
 		node = GameQueue_pop( &gq );
 
 		if( node != NULL) {
-			LOG(( "Begin to process player %d from room %d with action %d", node->sock_info.player_id, node->sock_info.room_id, node->act ));
+			LOG(( "Begin to process player %d from room %d with action %d",
+					node->sock_info.player_id, node->sock_info.room_id, node->act ));
+			if (rooms.arr[node->sock_info.room_id].is_exists != 0
+					/* room have not closed; TODO: we could create new room */
+					&& rooms.arr[node->sock_info.room_id].players.arr[node->sock_info.player_id].hp>0
+				/* If player have not died in some ways */ )
 			switch( node->act ) {
 				case A_UP:
 					player_move( node->sock_info.room_id, node->sock_info.player_id, 0, -1 );
@@ -326,12 +346,12 @@ void* game_loop( void* args )
 /** TODO: decide, if we need one. */
 void* response_loop( void* args )
 {
-
 }
 
 void server_cleanup()
 {
 	int i;
+	LOG(("Starting cleanup"));
 	GameQueue_destroy(&gq);
 	for (i = 0; i<rooms.size; ++i) {
 		room_delete(&rooms.arr[i]);
@@ -383,4 +403,3 @@ int server_start()
 
 	return 0;
 }
-

@@ -13,6 +13,10 @@
 #define MAX_NAME_LEN 60
 #define STR_MAX_NAME_LEN "60"
 
+/* Global timer configuration */
+#define SIG SIGALRM
+#define CLOCKID CLOCK_REALTIME
+
 enum ACTION {
 	A_UP,
 	A_DOWN,
@@ -81,6 +85,7 @@ typedef struct {
 	Map map;
 	int is_started;
 	int is_exists;
+	int left_alive;
 } Room;
 define_vector( Room )
 
@@ -89,6 +94,8 @@ typedef struct {
 	int room_id;
 	int player_id;
 	int sock_id;
+	int readed; /* We can read not all data from socket. If we do not, here the number of readed bytes is stored. */
+	int buffer; /* Sometimes we read in buffer. Here we store buffer size if we have not read it all. */
 } SockIdInfo;
 define_vector( SockIdInfo )
 
@@ -121,5 +128,9 @@ err(CODE, MESSAGE);
 #define CHN0( COMM, CODE, MESSAGE )\
 if ((COMM) != 0) \
 err(CODE, MESSAGE);
+
+/** Because we can, our min-max macro */
+#define MAX( a, b ) (a>b? (a):(b))
+#define MIN( a, b ) (a<b? (a):(b))
 
 #endif /* L3__COMMON_TYPES */

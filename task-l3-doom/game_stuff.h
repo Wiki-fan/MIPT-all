@@ -17,6 +17,7 @@ void player_use( int room_id, int player_id );
 void player_attack( int room_id, int player_id );
 
 void player_kill(Player* player, Map* map);
+int player_damage( Player* player, int value );
 
 void map_copy( Map* from, Map* to );
 void map_delete(Map* map);

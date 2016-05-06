@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <strings.h>
 #include <getopt.h>
+#include <time.h>
 
 #include "../common/utils.h"
 #include "game_stuff.h"
@@ -25,7 +26,21 @@
 
 static void handler( int sig )
 {
-	LOG(("Exiting on signal SIGTERM"));
+	switch(sig) {
+		case SIGTERM:
+			LOG(("Exiting on signal SIGTERM"));
+			server_cleanup();
+			break;
+		case SIGINT:
+			LOG(("Exiting on SIGINT"));
+			server_cleanup();
+			break;
+		case SIGALRM:
+			decrease_hp();
+			break;
+		default:
+			err(3, "Unreachable code");
+	}
 }
 
 int main( int argc, char* argv[] )
@@ -36,6 +51,14 @@ int main( int argc, char* argv[] )
 	char log[FILENAME_MAX_LEN];
 	char config[FILENAME_MAX_LEN];
 	struct sigaction sa;
+	sigset_t mask;
+	/* Timer stuff */
+	timer_t timerid;
+	struct sigevent sev;
+	struct itimerspec its;
+
+	/* Setting random seed. */
+	srand((unsigned int)time(NULL));
 
 	/* Default values. */
 	strcpy( log, "log_file.txt" );
@@ -94,10 +117,23 @@ int main( int argc, char* argv[] )
 	sigfillset( &sa.sa_mask );
 	sa.sa_flags = SA_RESTART;
 
-	if( sigaction( SIGTERM, &sa, NULL) == -1 )
-	{
-		err( 20, "Error setting signal handler" );
-	}
+	/* Block timer signal temporarily */
+	sigemptyset(&mask);
+	sigaddset(&mask, SIG);
+	CHN1(sigprocmask(SIG_SETMASK, &mask, NULL), 34, "sigprocmask failed");
+
+	/* Create the timer */
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIG;
+	sev.sigev_value.sival_ptr = &timerid;
+
+	CHN1(timer_create(CLOCKID, &sev, &timerid), 35, "timer_create failed");
+
+	CHN1(sigaction( SIGTERM, &sa, NULL), 20, "Error setting signal handler" );
+	CHN1(sigaction( SIGINT, &sa, NULL), 20, "Error setting signal handler" );
+	CHN1(sigaction( SIGALRM, &sa, NULL), 20, "Error setting signal handler" );
+
+
 
 	read_config_from_file( config );
 	server_start();

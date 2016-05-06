@@ -43,8 +43,6 @@ static void handler(int signum)
 	action = -1;
 }
 
-#define SIG SIGALRM
-#define CLOCKID CLOCK_REALTIME
 #define TIMER_MS_DELAY 100
 #define TIMER_NS_DELAY TIMER_MS_DELAY * 1000000
 
@@ -83,9 +81,7 @@ void play()
 	int i;
 	struct sigaction sa;
 	timer_t timerid;
-	struct sigevent sev;
 	struct itimerspec its;
-	sigset_t mask;
 	int fl = 1;
 	action = -1;
 
@@ -95,26 +91,11 @@ void play()
 	sa.sa_flags = SA_RESTART;
 	CHN1(sigaction(SIG, &sa, NULL), 33, "Error setting sigaction");
 
-	/* Block timer signal temporarily */
-	printf("Blocking signal %d\n", SIG);
-	sigemptyset(&mask);
-	sigaddset(&mask, SIG);
-	CHN1(sigprocmask(SIG_SETMASK, &mask, NULL), 34, "sigprocmask failed");
-
-	/* Create the timer */
-	sev.sigev_notify = SIGEV_SIGNAL;
-	sev.sigev_signo = SIG;
-	sev.sigev_value.sival_ptr = &timerid;
-	CHN1(timer_create(CLOCKID, &sev, &timerid), 35, "timer_create failed");
-
-	printf("timer ID is 0x%lx\n", (long) timerid);
-
 	/* Initialize timer values */
 	its.it_value.tv_sec = 0;
 	its.it_value.tv_nsec = TIMER_NS_DELAY;
 	its.it_interval.tv_sec = 0;
 	its.it_interval.tv_nsec = TIMER_NS_DELAY;
-
 
 	while(1) {
 		/* Receive rooms list  */
@@ -134,12 +115,9 @@ void play()
 		/*CHK_RESPONSE( R_DONE, "Game info sended" );*/
 
 		set_canonical();
+		timerid = set_timer();
 		process_recv( A_NONE );
 
-		/* Start timer */
-		CHN1( timer_settime( timerid, 0, &its, NULL ), 36, "timer_settime failed" );
-		printf( "Unblocking signal %d\n", SIG );
-		CHN1( sigprocmask( SIG_UNBLOCK, &mask, NULL ), 37, "sigprocmask failed" );
 		while( 1 ) {
 			int is_valid;
 
