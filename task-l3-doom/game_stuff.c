@@ -1,15 +1,44 @@
-#include <search.h>
-#include <stdlib.h>
-#include <memory.h>
 #include "game_stuff.h"
-#include "config_stuff.h"
-#include "net_stuff.h"
-#include "tty_stuff.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <err.h>
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <strings.h>
+#include <pthread.h>
+#include <unitypes.h>
+#include <arpa/inet.h>
+#include <sys/select.h>
 #include "../common/utils.h"
+#include "game_stuff.h"
+#include "tty_stuff.h"
+#include "config_stuff.h"
 #include "common_types.h"
+#include "data_stuff.h"
+#include "net_stuff.h"
 
 extern Vector_Room rooms;
 extern Game game;
+extern Vector_SockIdInfo sock_info;
+extern fd_set master;
+
+/** Add room to first free place in room vector. */
+void Vector_Room_add(Vector_Room* rooms, Room elem)
+{
+	int i;
+	for (i = 0; i<rooms->size; ++i) {
+		if (rooms->arr[i].is_exists == 0) {
+			rooms->arr[i] = elem;
+			return;
+		}
+	}
+	Vector_Room_push(rooms, elem);
+}
 
 void GameQueue_init( GameQueue* q )
 {
@@ -55,7 +84,7 @@ int GameQueue_empty( GameQueue* q )
 }
 
 /** Fill room's map using base map. */
-void copy_map( Map* from, Map* to )
+void map_copy( Map* from, Map* to )
 {
 	int i, j;
 	to->h = from->h;
@@ -64,9 +93,9 @@ void copy_map( Map* from, Map* to )
 	to->bg = (int**) malloc_s( to->h * sizeof( int* ));
 	to->pl = (int**) malloc_s( to->h * sizeof( int* ));
 	for( i = 0; i < to->h; ++i ) {
-		to->fg[i] = (char*) malloc_s(( to->w + 1 ) * sizeof( char ));
-		to->bg[i] = (int*) malloc_s(( to->w + 1 ) * sizeof( int ));
-		to->pl[i] = (int*) malloc_s(( to->w + 1 ) * sizeof( int ));
+		to->fg[i] = (char*) malloc_s(( to->w ) * sizeof( char ));
+		to->bg[i] = (int*) malloc_s(( to->w ) * sizeof( int ));
+		to->pl[i] = (int*) malloc_s(( to->w ) * sizeof( int ));
 		memcpy( to->fg[i], from->fg[i], to->w * sizeof( char ));
 		memcpy( to->bg[i], from->bg[i], to->w * sizeof( int ));
 		for( j = 0; j < to->w; ++j ) {
@@ -75,11 +104,44 @@ void copy_map( Map* from, Map* to )
 	}
 }
 
+void map_delete(Map* map)
+{
+	int i;
+	for (i = 0; i<map->h; ++i) {
+		free(map->fg[i]);
+		free(map->bg[i]);
+		free(map->pl[i]);
+	}
+	free(map->fg);
+	free(map->bg);
+	free(map->pl);
+}
+
+/** Delete room, free map and player vector, mark room as nonexistent. */
+void room_delete(Room* room)
+{
+	map_delete(&room->map);
+	Vector_Player_destroy(&room->players);
+	/*sock_info.arr[room.]*/ /* TODO: delete socket? */
+	room->is_exists = 0;
+}
+
 /** Change player's health on value points. Returns 0, if player was killed. */
 int player_damage( Player* player, int value )
 {
 	player->hp += value;
 	return player->hp > 0;
+}
+
+/** Kill player and move it out of map. Close socket. Send him that he died before calling function. */
+void player_kill(Player* player, Map* map)
+{
+	map->pl[player->y][player->x] = -1;
+	player->x = -1;
+	player->y = -1;
+	close(sock_info.arr[player->sock].sock_id);
+	FD_CLR( player->sock, &master ); /* remove from master set*/
+	player->sock = -1;
 }
 
 /** Move player on (x, y). */
@@ -107,23 +169,24 @@ void player_move( int room_id, int player_id, int x, int y )
 }
 
 /** Initial player's parameters. */
-void player_init( Player* player, char* name )
+void player_init( Player* player, Map* map, char* name, int sock )
 {
 	/* Place player randomly */
 	int fl = 1;
 	while( fl ) {
-		player->x = rand() % ( base_map.w - 2 ) + 1;
-		player->y = rand() % ( base_map.h - 2 ) + 1;
-		if( base_map.fg[player->y][player->x] == SPACE ) {
+		player->x = rand() % ( game.map.w - 2 ) + 1;
+		player->y = rand() % ( game.map.h - 2 ) + 1;
+		if( /*game.map.fg[player->y][player->x] == SPACE */ISSPACE(player->y, player->x)) {
 			fl = 0;
 		}
 	}
 
 	player->num_of_mines = NUM_OF_MINES;
 	player->hp = game.initial_health;
+	player->sock = sock;
+	memset(player->name, 0, MAX_NAME_LEN);
 	strcpy( player->name, name );
 }
-
 
 /** Set mine on this tile */
 void player_mine( int room_id, int player_id )

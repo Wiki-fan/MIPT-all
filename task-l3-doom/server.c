@@ -37,6 +37,7 @@ int main( int argc, char* argv[] )
 	char config[FILENAME_MAX_LEN];
 	struct sigaction sa;
 
+	/* Default values. */
 	strcpy( log, "log_file.txt" );
 	strcpy( config, "config.cfg" );
 

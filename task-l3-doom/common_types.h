@@ -3,7 +3,7 @@
 #include "vector_impl.h"
 
 #define NUM_OF_MINES 10
-#define PORT 8005
+#define PORT 8008
 #define BACKLOG 5
 #define HOSTNAME "127.0.0.1"
 #define FIELD_OF_SIGHT 10
@@ -63,7 +63,7 @@ typedef struct {
 	int movement_health_drop;
 	float step_standard_delay;
 	int moratory_duration;
-	Map* map; /* map base, copy for every room */
+	Map map; /* map base, copy for every room */
 } Game;
 
 typedef struct {
@@ -80,6 +80,7 @@ typedef struct {
 	Vector_Player players;
 	Map map;
 	int is_started;
+	int is_exists;
 } Room;
 define_vector( Room )
 

@@ -3,6 +3,5 @@
 #include "common_types.h"
 
 void read_config_from_file( char* file_name );
-extern Map base_map;
 
 #endif /* L3__CONFIG_STUFF */

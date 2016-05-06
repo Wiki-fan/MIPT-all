@@ -23,7 +23,7 @@ server: server.o $(OBJ) $(DEPS)
 include $(wildcard *.d)
 
 valgrind:
-	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) ../??? 1>std.out
+	valgrind $(VALGRIND_OPTIONS) ./server
 
 $(DEP_DIRS):
 	$(MAKE) -C $@

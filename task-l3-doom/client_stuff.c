@@ -28,8 +28,6 @@ int setup_connection()
 	struct sockaddr_in serv_addr;
 	struct hostent* server;
 
-	char buffer[256];
-
 	portno = PORT;
 
 	CHN1( sock_id = socket( AF_INET, SOCK_STREAM, 0 ), 20, "Can't create socket" );

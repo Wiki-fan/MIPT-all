@@ -9,7 +9,6 @@
 #include "net_stuff.h"
 #include "common_types.h"
 
-Map base_map;
 extern Game game;
 
 #define BUF_SIZE 100
@@ -54,7 +53,7 @@ int get_raw( FILE* f, char* buf, int n )
 			break;
 		}
 	}
-	buf[i] = '\0';
+	/*buf[i] = '\0';*/
 	return i;
 }
 
@@ -72,17 +71,17 @@ void read_config_from_file( char* file_name )
 	if( strcmp( buf, "Map" )) {
 		errx( 20, "Map expected in config file" );
 	}
-	fscanf( inf, "%dx%d\n", &base_map.h, &base_map.w );
+	fscanf( inf, "%dx%d\n", &game.map.h, &game.map.w );
 	/* Include borders in our map */
-	base_map.w += 2;
-	base_map.h += 2;
+	game.map.w += 2;
+	game.map.h += 2;
 
-	base_map.fg = (char**) malloc_s( base_map.h * sizeof( char* ));
-	base_map.bg = (int**) malloc_s( base_map.h * sizeof( int* ));
-	for( y = 0; y < base_map.h; ++y ) {
-		base_map.fg[y] = (char*) malloc_s(( base_map.w + 1 ) * sizeof( char ));
-		base_map.bg[y] = (int*) malloc_s(( base_map.w + 1 ) * sizeof( int ));
-		get_raw( inf, base_map.fg[y], base_map.w );
+	game.map.fg = (char**) malloc_s( game.map.h * sizeof( char* ));
+	game.map.bg = (int**) malloc_s( game.map.h * sizeof( int* ));
+	for( y = 0; y < game.map.h; ++y ) {
+		game.map.fg[y] = (char*) malloc_s(( game.map.w ) * sizeof( char ));
+		game.map.bg[y] = (int*) calloc_s( game.map.w, sizeof( int ));
+		get_raw( inf, game.map.fg[y], game.map.w );
 	}
 
 	while( fscanf( inf, "%100s", buf ) != 0 ) {
@@ -114,9 +113,10 @@ void read_config_from_file( char* file_name )
 	}
 
 	while( fscanf( inf, "%d %d %f", &x, &y, &val ) != EOF) {
-		base_map.fg[y][x] = BONUS;
-		base_map.bg[y][x] = (int) val;
+		game.map.fg[y][x] = BONUS;
+		game.map.bg[y][x] = (int) val;
 	}
+
 	LOG(( "Config read successfully" ));
 
 }

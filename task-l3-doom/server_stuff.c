@@ -22,7 +22,8 @@
 #include "data_stuff.h"
 #include "net_stuff.h"
 
-static pthread_mutex_t mtx_endqueue = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mtx_endqueue;
+static pthread_cond_t gq_cond;
 fd_set master; /* master file descriptor list*/
 fd_set read_fds; /* temp file descriptor list for select()*/
 int fdmax; /* max num of file descriptor, so we check only [0, fdmax] */
@@ -35,6 +36,7 @@ Game game;
 GameQueue gq;
 Vector_SockIdInfo sock_info;
 
+/** Send player that he is a cheater and kill him. */
 void ban(int sock) {
 
 	int room_id = sock_info.arr[sock].room_id;
@@ -42,17 +44,13 @@ void ban(int sock) {
 	LOG(("Player %d from room %d, socket %d, was banned",
 			sock_info.arr[sock].player_id, sock_info.arr[sock].room_id, sock_info.arr[sock].sock_id));
 	send_int( R_CHEATER, sock );
-	player->sock = -1;
-	player->x = -1;
-	player->y = -1;
-	close(sock_info.arr[sock].sock_id);
-	FD_CLR( sock, &master ); /* remove from master set*/
-
+	player_kill(player, &rooms.arr[room_id].map);
 }
 
 #define ISHOST(sock) (sock_info.arr[sock].player_id == -1)
 #define MARKHOST(info) info.player_id = -1;
 
+/** Loop where network input is processed. */
 void* server_loop( void* args )
 {
 	int i, j, n;
@@ -104,17 +102,18 @@ void* server_loop( void* args )
 								/* init room struct */
 								strcpy( room.name, buf );
 								room.is_started = 0;
+								room.is_exists = 1;
 								Vector_Player_init( &room.players, INITIAL_NUM_OF_PLAYERS );
-								copy_map( &base_map, &room.map );
+								map_copy( &game.map, &room.map );
 
 								/* writing that this socket is host */
 								info.room_id = rooms.size;
-								/*MARKHOST(info);*/ info.player_id = -1;
+								MARKHOST(info);
 								info.sock_id = i;
 								Vector_SockIdInfo_set( &sock_info, info, i );
 
 								/* add room */
-								Vector_Room_push( &rooms, room );
+								Vector_Room_add( &rooms, room );
 
 								send_int( R_ROOM_CREATED, i );
 								LOG(( "Room #%d with name %s was created by socket %d", info.room_id, room.name, i ));
@@ -127,13 +126,13 @@ void* server_loop( void* args )
 									room_id = sock_info.arr[i].room_id;
 									send_to_all_in_room( room_id, R_ROOM_CLOSED );
 									Vector_Player_destroy( &rooms.arr[room_id].players );
-									/* TODO: delete room */
+									room_delete(&rooms.arr[i]);
 									LOG(( "Room %d closed", room_id ));
 								}
 								break;
 							case A_ASK_PLAYER_LIST:
 								if (!ISHOST(i)) {
-									/* Ban ordinary player who wants to know all abou other players */
+									/* Ban ordinary player who wants to know all about other players */
 									ban(i);
 								} else {
 									room_id = sock_info.arr[i].room_id; /* room id */
@@ -158,8 +157,7 @@ void* server_loop( void* args )
 							case A_JOINROOM:
 								room_id = read_int( i ); /* room id */
 								read_buf( i, buf ); /* player name */
-								player_init( &player, buf );
-								player.sock = i;
+								player_init( &player, &rooms.arr[room_id].map, buf, i );
 
 								info.room_id = room_id;
 								info.player_id = rooms.arr[info.room_id].players.size;
@@ -213,6 +211,7 @@ void* server_loop( void* args )
 								} else {
 									CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
 									GameQueue_push( &gq, sock_info.arr[i], act );
+									pthread_cond_signal(&gq_cond);
 									CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
 								}
 								break;
@@ -227,13 +226,14 @@ void* server_loop( void* args )
 }
 
 /* Loop where game logic is processed. It takes data from game queue and performs actions */
+/* It accesses: gq, players for eack room: modify, rooms, sock_info: read */
 void* game_loop( void* args )
 {
 	Node* node;
 	int x, y;
 	Player* player;
-	String str;
 	Map* map;
+	String str;
 
 	/* For macros variable capture */
 	int player_id;
@@ -243,10 +243,10 @@ void* game_loop( void* args )
 	while( 1 ) {
 		node = NULL;
 		CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
-		if( !GameQueue_empty( &gq )) {
-			node = GameQueue_pop( &gq );
+		while(GameQueue_empty(&gq)) {
+			pthread_cond_wait(&gq_cond, &mtx_endqueue);
 		}
-		CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
+		node = GameQueue_pop( &gq );
 
 		if( node != NULL) {
 			LOG(( "Begin to process player %d from room %d with action %d", node->sock_info.player_id, node->sock_info.room_id, node->act ));
@@ -279,15 +279,19 @@ void* game_loop( void* args )
 			}
 
 			player = &rooms.arr[node->sock_info.room_id].players.arr[node->sock_info.player_id];
+			map = &( rooms.arr[node->sock_info.room_id].map );
 			if( player->hp <= 0 ) {
+				LOG(("Kill player %d from room %d (socket %d)", \
+				node->sock_info.player_id, node->sock_info.room_id, node->sock_info.sock_id));
 				send_int( R_DIED, node->sock_info.sock_id );
+				player_kill(player, map);
 			} else {
+
+				player_id = node->sock_info.player_id;
 				/* Make player's view buffer. */
-				for( y = player->y - FIELD_OF_SIGHT + 1; y < player->y + FIELD_OF_SIGHT; ++y ) {
-					for( x = player->x - FIELD_OF_SIGHT + 1; x < player->x + FIELD_OF_SIGHT; ++x ) {
-						map = &( rooms.arr[node->sock_info.room_id].map );
+				for( y = player->y - FIELD_OF_SIGHT + 1; y < player->y + FIELD_OF_SIGHT-1; ++y ) {
+					for( x = player->x - FIELD_OF_SIGHT + 1; x < player->x + FIELD_OF_SIGHT-1; ++x ) {
 						if( x >= 0 && x < map->w && y >= 0 && y < map->h ) {
-							player_id = node->sock_info.player_id;
 							if( player->x == x && player->y == y ) {
 								String_push( &str, YOU );
 							} else if( ISPLAYER( y, x )) {
@@ -315,12 +319,27 @@ void* game_loop( void* args )
 				str.cur_pos = 0;
 			}
 		}
+		CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
 	}
 }
 
+/** TODO: decide, if we need one. */
 void* response_loop( void* args )
 {
 
+}
+
+void server_cleanup()
+{
+	int i;
+	GameQueue_destroy(&gq);
+	for (i = 0; i<rooms.size; ++i) {
+		room_delete(&rooms.arr[i]);
+	}
+	Vector_Room_destroy(&rooms);
+	Vector_SockIdInfo_destroy(&sock_info);
+
+	map_delete(&game.map);
 }
 
 /** Init server (open socket, bind, listen, spawn threads) */
@@ -353,6 +372,8 @@ int server_start()
 	/* game stuff init */
 	Vector_Room_init( &rooms, INITIAL_NUM_OF_ROOMS );
 
+	pthread_mutex_init(&mtx_endqueue, 0);
+	pthread_cond_init(&gq_cond, 0);
 	pthread_create( &listener_pid, NULL, server_loop, NULL);
 	pthread_create( &game_loop_pid, NULL, game_loop, NULL);
 	/* pthread_create( &response_pid, NULL, response_loop, NULL); */
