@@ -2,10 +2,11 @@
 #define TASK_L3__GAME_STUFF
 #include "common_types.h"
 
-void Vector_Room_add(Vector_Room* rooms, Room elem);
+/* Allows inserts to free space. Returns position of inserted element. */
+int Vector_Room_add(Vector_Room* rooms, Room elem);
 
 void GameQueue_init(GameQueue* q);
-void GameQueue_push(GameQueue* q, SockIdInfo sock_info, enum ACTION act);
+void GameQueue_push(GameQueue* q, SockIdInfo sock_info, int act);
 Node* GameQueue_pop(GameQueue* q);
 void GameQueue_destroy(GameQueue* q);
 int GameQueue_empty(GameQueue* q);

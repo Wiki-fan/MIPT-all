@@ -29,7 +29,38 @@ enum GAME {
 };
 volatile int game;
 
-/* We grab first action from keyboard and send it to server as soon as we can */
+/**Asks server for action and retrieves response. Sets global flag "game".
+ * Uses unsafe printf function, because SIGALRM can not terminate any other unsafe function.
+ */
+int process_recv(int act)
+{
+	int i;
+	/*printf( "Got input %d\n", act );*/
+	send_int( act, sockfd );
+	blocking_read_int( sockfd, &i );
+	switch( i ) {
+		case R_ROOM_CLOSED:
+			printf( "Host closed room\n" );
+			game = G_RESTART;
+			return G_RESTART;
+		case R_GAME_STOPPED:
+			printf( "Game stopped\n" );
+			game = G_RESTART;
+			return G_RESTART;
+		case R_DIED:
+			printf( "YOU DIED!!!!\n\n" );
+			game = G_RESTART;
+			return G_RESTART;
+		case R_DONE:
+			render();
+			game = G_CONTINUE;
+			return G_CONTINUE;
+		default:
+			errx( 13, "Wrong response" );
+	}
+}
+
+/** We grab first action from keyboard and send it to server as soon as we can */
 static void handler(int signum)
 {
 	/*printf("Timer tick\n");*/
@@ -45,36 +76,6 @@ static void handler(int signum)
 
 #define TIMER_MS_DELAY 100
 #define TIMER_NS_DELAY TIMER_MS_DELAY * 1000000
-
-/* Asks server for action and retrieves response. Sets global flag "game".
- * Uses unsafe printf function, because SIGALRM can not terminate any other unsafe function. */
-int process_recv(int act)
-{
-	int i;
-	/*printf( "Got input %d\n", act );*/
-	send_int( act, sockfd );
-	blocking_read_int( sockfd, &i );
-	switch( i ) {
-		case R_ROOM_CLOSED:
-			printf( "Host closed room\n" );
-			game = G_RESTART;
-			return G_RESTART;
-		case R_GAME_STOPPED:
-			printf( "Game finished\n" );
-			game = G_RESTART;
-			return G_RESTART;
-		case R_DIED:
-			printf( "YOU DIED!!!!\n\n" );
-			game = G_RESTART;
-			return G_RESTART;
-		case R_DONE:
-			render();
-			game = G_CONTINUE;
-			return G_CONTINUE;
-		default:
-			errx( 13, "Wrong response" );
-	}
-}
 
 void play()
 {
@@ -104,10 +105,11 @@ void play()
 		printf( "Rooms:\n" );
 		i = ask_which_room( getrecvlist());
 
-		ask_player_name( buf );
+		ask_player_name( buf+sizeof(int) );
 		send_int( A_JOINROOM, sockfd );
-		send_int( i, sockfd );
-		send_buf( sockfd, MAX_NAME_LEN, buf );
+
+		*buf = i;
+		send_buf( sockfd, MAX_NAME_LEN+sizeof(int), buf );
 		CHK_RESPONSE( R_JOINED, "You joined" );
 
 		printf( "Waiting for game to start\n" );
@@ -119,8 +121,6 @@ void play()
 		process_recv( A_NONE );
 
 		while( 1 ) {
-			int is_valid;
-
 			if( action == -1 ) {
 				get_input( &action );
 				/* If we should exit game because user said so */
@@ -153,33 +153,37 @@ void play()
 
 int host()
 {
+	int fl=1;
 	/* Create room */
-	ask_room_name( buf );
-	send_int( A_CREATE_ROOM, sockfd );
-	send_buf( sockfd, MAX_NAME_LEN, buf );
-	CHK_RESPONSE( R_ROOM_CREATED, "Room is created on the server" );
+	while(1) {
+		ask_room_name( buf );
+		send_int( A_CREATE_ROOM, sockfd );
+		send_buf( sockfd, MAX_NAME_LEN, buf );
+		CHK_RESPONSE( R_ROOM_CREATED, "Room is created on the server" );
 
-	/* Possible actions of host */
-	while( 1 ) {
-		switch( ask_host_action()) {
-			case A_START_GAME:
-				send_int( A_START_GAME, sockfd );
-				CHK_RESPONSE( R_GAME_STARTED, "Game started" );
-				break;
-			case A_STOP_GAME:
-				send_int( A_START_GAME, sockfd );
-				CHK_RESPONSE( R_GAME_STOPPED, "Game started" );
-				break;
-			case A_ASK_PLAYER_LIST:
-				send_int( A_ASK_PLAYER_LIST, sockfd );
-				CHK_RESPONSE( R_SENDING_PLAYERS, "Receiving players list" );
-				printf( "Players:\n" );
-				getplayerlist();
-				break;
-			case A_EXIT:
-				exit( 0 );
-			default:
-				errx( 3, "Unreachable code" );
+		/* Possible actions of host */
+		while( fl ) {
+			switch( ask_host_action()) {
+				case A_START_GAME:
+					send_int( A_START_GAME, sockfd );
+					CHK_RESPONSE( R_GAME_STARTED, "Game started" );
+					break;
+				case A_CLOSE_ROOM:
+					send_int( A_CLOSE_ROOM, sockfd );
+					CHK_RESPONSE( R_ROOM_CLOSED, "Game stopped" );
+					fl = 0;
+					break;
+				case A_ASK_PLAYER_LIST:
+					send_int( A_ASK_PLAYER_LIST, sockfd );
+					CHK_RESPONSE( R_SENDING_PLAYERS, "Receiving players list" );
+					printf( "Players:\n" );
+					getplayerlist();
+					break;
+				case A_EXIT:
+					exit( 0 );
+				default:
+					errx( 3, "Unreachable code" );
+			}
 		}
 	}
 }

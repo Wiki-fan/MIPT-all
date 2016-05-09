@@ -14,6 +14,6 @@ int send_int( int act, int sockfd );
 int read_int( int sock_id, int* ans );
 int blocking_read_int( int sockfd, int* ans );
 int blocking_read_buf( int sockfd, char* buf );
-int send_to_all_in_room(int room_id, int response);
+void send_to_all_in_room(int room_id, int response);
 
 #endif /* L3__NET_STUFF */

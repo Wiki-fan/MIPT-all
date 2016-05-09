@@ -24,7 +24,7 @@ Player player;
 
 int setup_connection()
 {
-	int sock_id, portno, n;
+	int sock_id, portno;
 	struct sockaddr_in serv_addr;
 	struct hostent* server;
 
@@ -92,7 +92,7 @@ int ask_host_action()
 			case 1:
 				return A_START_GAME;
 			case 2:
-				return A_STOP_GAME;
+				return A_CLOSE_ROOM;
 			case 3:
 				return A_ASK_PLAYER_LIST;
 			case 4:

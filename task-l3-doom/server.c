@@ -25,20 +25,26 @@
 #define FILENAME_MAX_LEN 256
 #define NSEC_IN_SEC 1000000000
 extern Game game;
+extern int exitcode;
+extern timer_t timerid;
 
 static void handler( int sig )
 {
 	switch(sig) {
 		case SIGTERM:
-			LOG(("Exiting on signal SIGTERM"));
+			LOG(("Exiting on SIGTERM"));
 			server_cleanup();
+			exitcode = SIGTERM;
 			break;
 		case SIGINT:
 			LOG(("Exiting on SIGINT"));
 			server_cleanup();
+			exitcode = SIGINT;
 			break;
 		case SIGALRM:
 			decrease_hp();
+			break;
+		case SIGUSR1:
 			break;
 		default:
 			err(3, "Unreachable code");
@@ -55,7 +61,6 @@ int main( int argc, char* argv[] )
 	struct sigaction sa;
 	sigset_t mask;
 	/* Timer stuff */
-	timer_t timerid;
 	struct sigevent sev;
 	struct itimerspec its;
 
@@ -115,7 +120,7 @@ int main( int argc, char* argv[] )
 	memset( &sa, 0, sizeof( sa ));
 	sa.sa_handler = handler;
 	sigfillset( &sa.sa_mask );
-	sa.sa_flags = SA_RESTART;
+	sa.sa_flags = 0/*SA_RESTART*/;
 
 	/* Block timer signal temporarily */
 	sigemptyset(&mask);

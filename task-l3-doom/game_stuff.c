@@ -28,16 +28,17 @@ extern Vector_SockIdInfo sock_info;
 extern fd_set master;
 
 /** Add room to first free place in room vector. */
-void Vector_Room_add(Vector_Room* rooms, Room elem)
+int Vector_Room_add(Vector_Room* rooms, Room elem)
 {
 	int i;
 	for (i = 0; i<rooms->size; ++i) {
 		if (rooms->arr[i].is_exists == 0) {
 			rooms->arr[i] = elem;
-			return;
+			return i;
 		}
 	}
 	Vector_Room_push(rooms, elem);
+	return rooms->size-1;
 }
 
 void GameQueue_init( GameQueue* q )
@@ -45,7 +46,7 @@ void GameQueue_init( GameQueue* q )
 	q->begin = q->end = NULL;
 }
 
-void GameQueue_push( GameQueue* q, SockIdInfo sock_info, enum ACTION act )
+void GameQueue_push( GameQueue* q, SockIdInfo sock_info, int act )
 {
 	Node* temp = malloc_s( sizeof( Node ));
 	temp->sock_info = sock_info;
@@ -110,11 +111,13 @@ void map_delete(Map* map)
 	for (i = 0; i<map->h; ++i) {
 		free(map->fg[i]);
 		free(map->bg[i]);
-		free(map->pl[i]);
+		if (map->pl != NULL)
+			free(map->pl[i]);
 	}
 	free(map->fg);
 	free(map->bg);
-	free(map->pl);
+	if (map->pl != NULL)
+		free(map->pl);
 }
 
 /** Delete room, free map and player vector, mark room as nonexistent. */
@@ -122,7 +125,6 @@ void room_delete(Room* room)
 {
 	map_delete(&room->map);
 	Vector_Player_destroy(&room->players);
-	/*sock_info.arr[room.]*/ /* TODO: delete socket? */
 	room->is_exists = 0;
 }
 

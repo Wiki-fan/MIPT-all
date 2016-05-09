@@ -37,6 +37,7 @@ int send_buf( int sockfd, int count, char* buf )
 		}
 		sent += n;
 	}
+	return 1;
 }
 
 int send_int( int act, int sockfd )
@@ -50,7 +51,7 @@ int send_int( int act, int sockfd )
 		}
 		sent += n;
 	}
-	return 0;
+	return 1;
 }
 
 int blocking_read_int( int sockfd, int* ans )
@@ -68,7 +69,8 @@ int blocking_read_int( int sockfd, int* ans )
 
 int blocking_read_buf( int sock_id, char* buf )
 {
-	int count, recv = 0, n;
+	int count, recv = 0;
+	ssize_t n;
 	if (blocking_read_int(sockfd, &count) == -1)
 		return -1;
 	while( recv < count ) {
@@ -90,17 +92,17 @@ int read_int( int sock_id, int* ans )
 	SockIdInfo* info = &sock_info.arr[sock_id];
 
 	if (info->reading_what == READING_NOTHING) {
-		info->readed = 0;
+		info->read = 0;
 		info->needed = 0;
 		info->reading_what = READING_INT;
 		info->needed = sizeof( int );
 	}
-	CN1( n = read( sock_id, info->buf + info->readed, info->needed - info->readed ), E_READ );
+	CN1( n = read( sock_id, info->buf + info->read, info->needed - info->read ), E_READ );
 	if (n == 0) { /* End of stream */
 		return -1;
 	}
-	info->readed += n;
-	if( info->readed == info->needed) {
+	info->read += n;
+	if( info->read == info->needed) {
 		memcpy(ans, info->buf, sizeof(int));
 		info->reading_what = READING_NOTHING;
 		return 1;
@@ -111,7 +113,7 @@ int read_int( int sock_id, int* ans )
 int read_buf( int sock_id, char* buf )
 {
 	SockIdInfo* info = &sock_info.arr[sock_id];
-	ssize_t n, recv = 0;
+	ssize_t n;
 	int resp;
 	if (info->reading_what == READING_INT || info->reading_what == READING_NOTHING) {
 		resp = read_int( sock_id, &info->needed );
@@ -129,16 +131,16 @@ int read_buf( int sock_id, char* buf )
 
 	if (info->reading_what != READING_BUF) {
 		info->reading_what = READING_BUF;
-		info->readed = 0;
+		info->read = 0;
 	}
-	CN1( n = read( sock_id, info->buf + info->readed, info->needed - info->readed ), E_READ );
+	CN1( n = read( sock_id, info->buf + info->read, info->needed - info->read ), E_READ );
 	if (n == 0) { /* End of stream */
 		return -1;
 	}
-	info->readed += n;
-	if( info->readed == info->needed) {
+	info->read += n;
+	if( info->read == info->needed) {
 		memcpy(buf, info->buf, info->needed); /* TODO: do we need it actually ? */
-		info->readed = 0;
+		info->read = 0;
 		info->needed = 0;
 		info->reading_what = READING_NOTHING;
 		return 1;
@@ -147,7 +149,7 @@ int read_buf( int sock_id, char* buf )
 	return 0;
 }
 
-int send_to_all_in_room( int room_id, int response )
+void send_to_all_in_room( int room_id, int response )
 {
 	int i;
 

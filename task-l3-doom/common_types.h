@@ -36,7 +36,8 @@ enum ACTION {
 	A_JOINROOM,
 	A_START_GAME,
 	A_STOP_GAME,
-	A_ASK_PLAYER_LIST
+	A_ASK_PLAYER_LIST,
+	A_NULL /* for server use only */
 };
 
 enum RESPONSE {
@@ -104,7 +105,7 @@ typedef struct {
 	int player_id;
 	int sock_id;
 	int reading_what;
-	int readed; /* We can read not all data from socket. If we do not, here the number of readed bytes is stored. */
+	int read; /* We can read not all data from socket. If we do not, here the number of read bytes is stored. */
 	int needed; /* Sometimes we read in buffer. Here we store buffer size if we have not read it all. */
 	char buf[SERVER_BUF_SIZE];
 	int pending_action;
@@ -114,7 +115,7 @@ define_vector( SockIdInfo )
 struct SNode {
 	struct SNode* next;
 	SockIdInfo sock_info;
-	enum ACTION act;
+	int act;
 };
 typedef struct SNode Node;
 
