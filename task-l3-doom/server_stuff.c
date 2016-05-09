@@ -79,12 +79,12 @@ void* server_loop( void* args )
 	char buf[MAX_NAME_LEN];
 	Room room;
 	Player player;
-	SockIdInfo info;
+	SockIdInfo /*info, */*p_info;
 	int room_id;
 
 	while( 1 ) {
 		read_fds = master;
-		CHN1( select( fdmax + 1, &read_fds, NULL, NULL, NULL ), 26, "Error in select" );
+		CN1( select( fdmax + 1, &read_fds, NULL, NULL, NULL ), E_SELECT );
 
 		for( i = 0; i <= fdmax; i++ ) {
 			if( FD_ISSET( i, &read_fds )) {
@@ -92,21 +92,28 @@ void* server_loop( void* args )
 				if( i == listener_fd ) {
 
 					clilen = sizeof( cli_addr );
-					CHN1( newsock_id = accept( listener_fd, (struct sockaddr*) &cli_addr, &clilen ), 23, "Can't accept" );
+					CN1( newsock_id = accept( listener_fd, (struct sockaddr*) &cli_addr, &clilen ), E_ACCEPT );
 
 					FD_SET( newsock_id, &master ); /* add to master set*/
 					if( newsock_id > fdmax ) { /* keep track of the max*/
 						fdmax = newsock_id;
 					}
 
+					Vector_SockIdInfo_alloc( &sock_info, newsock_id);
+					p_info = &sock_info.arr[newsock_id];
+					p_info->sock_id = newsock_id;
+					p_info->reading_what = READING_NOTHING;
+
 					LOG(( "new connection: socket %d\n", newsock_id ));
 				} else {
 					/* handle data from a client*/
-					enum ACTION act;
-					int nbytes;
-					CHN1( nbytes = recv( i, &act, sizeof( enum ACTION ), 0 ), 27, "Error recv" );
-
-					if( nbytes == 0 ) {
+					int act;
+					int resp;
+					/*CHN1( nbytes = recv( i, &act, sizeof( enum ACTION ), 0 ), 27, "Error recv" );*/
+					resp = read_int(i, &act);
+					if (resp == 0)
+						continue; /* Read the rest later */
+					else if( resp == -1 ) {
 						/* connection closed*/
 						/*printf( "Socket %d hung up, player %d from room %d disconnected\n", i, sock_info.arr[i].player_id, sock_info.arr[i].room_id );*/
 						LOG(( "Socket %d hung up", i ));
@@ -115,8 +122,12 @@ void* server_loop( void* args )
 					} else {
 						switch( act ) {
 							case A_CREATE_ROOM:
+								p_info = &sock_info.arr[i];
 								/*receive room name */
-								n = read_buf( i, buf );
+								resp = read_buf( i, buf );
+								if (resp == 0) {
+									p_info->pending_action = A_CREATE_ROOM;
+								}
 
 								/* init room struct */
 								strcpy( room.name, buf );
@@ -126,16 +137,15 @@ void* server_loop( void* args )
 								map_copy( &game.map, &room.map );
 
 								/* writing that this socket is host */
-								info.room_id = rooms.size;
-								MARKHOST(info);
-								info.sock_id = i;
-								Vector_SockIdInfo_set( &sock_info, info, i );
+
+								MARKHOST((*p_info));
 
 								/* add room */
+								p_info->room_id = rooms.size; /* TODO: unneeded if correct add */
 								Vector_Room_add( &rooms, room );
 
 								send_int( R_ROOM_CREATED, i );
-								LOG(( "Room #%d with name %s was created by socket %d", info.room_id, room.name, i ));
+								LOG(( "Room #%d with name %s was created by socket %d", p_info->room_id, room.name, i ));
 								break;
 							case A_CLOSE_ROOM:
 								if (!ISHOST(i)) {
@@ -174,18 +184,21 @@ void* server_loop( void* args )
 								LOG(( "Send list of rooms to socket %d", i ));
 								break;
 							case A_JOINROOM:
-								room_id = read_int( i ); /* room id */
+								p_info = &sock_info.arr[i];
+								if (read_int( i, &room_id) == 0) {
+									sock_info.arr[i].pending_action = act;
+									continue;
+								} /* room id */
 								read_buf( i, buf ); /* player name */
 								player_init( &player, &rooms.arr[room_id].map, buf, i );
+								p_info->room_id = room_id;
+								p_info->player_id = rooms.arr[p_info->room_id].players.size;
+								p_info->sock_id = i;
+								rooms.arr[room_id].map.pl[player.y][player.x] = p_info->player_id;
+								Vector_Player_push( &rooms.arr[p_info->room_id].players, player );
 
-								info.room_id = room_id;
-								info.player_id = rooms.arr[info.room_id].players.size;
-								info.sock_id = i;
-								Vector_Player_push( &rooms.arr[info.room_id].players, player );
-
-								Vector_SockIdInfo_set( &sock_info, info, i );
 								send_int( R_JOINED, i );
-								LOG(( "Player from socket %d was added to room %d as player #%d", i, room_id, info.player_id ));
+								LOG(( "Player from socket %d was added to room %d as player #%d", i, room_id, p_info->player_id ));
 
 								break;
 							case A_START_GAME:
@@ -370,7 +383,7 @@ int server_start()
 
 	LOG(( "Server started" ));
 
-	CHN1( listener_fd = socket( AF_INET, SOCK_STREAM, 0 ), 20, "Can't create socket" );
+	CN1( listener_fd = socket( AF_INET, SOCK_STREAM, 0 ), E_SOCKET );
 
 	/* initialize socket structure */
 	bzero((char*) &serv_addr, sizeof( serv_addr ));
@@ -379,10 +392,10 @@ int server_start()
 	serv_addr.sin_port = htons((uint16_t) port_num );
 
 	/* bind the socket*/
-	CHN1( bind( listener_fd, (struct sockaddr*) &serv_addr, sizeof( serv_addr )), 21, "Can't bind socket" );
+	CN1( bind( listener_fd, (struct sockaddr*) &serv_addr, sizeof( serv_addr )), E_BIND );
 
 	/* listen socket */
-	CHN1( listen( listener_fd, BACKLOG ), 29, "Can't listen" );
+	CN1( listen( listener_fd, BACKLOG ), E_LISTEN );
 
 	/* initialize fd_set structure */
 	FD_ZERO( &master );

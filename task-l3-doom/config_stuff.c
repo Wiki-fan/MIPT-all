@@ -65,8 +65,7 @@ void read_config_from_file( char* file_name )
 	float val;
 	char buf[BUF_SIZE];
 	LOG(( "Starting to read config file" ));
-	inf = fopen_s( file_name, "r" );
-
+	CNULL(inf = fopen_s( file_name, "r" ), E_FOPEN);
 	fscanf( inf, "%10s", buf );
 	if( strcmp( buf, "Map" )) {
 		errx( 20, "Map expected in config file" );

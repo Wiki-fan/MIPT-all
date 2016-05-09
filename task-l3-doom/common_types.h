@@ -1,14 +1,17 @@
 #ifndef TASK_L3__COMMON_TYPES
 #define TASK_L3__COMMON_TYPES
 #include "vector_impl.h"
+#include "client_stuff.h"
+#include "error_stuff.h"
 
 #define NUM_OF_MINES 10
-#define PORT 8008
+#define PORT 8013
 #define BACKLOG 5
 #define HOSTNAME "127.0.0.1"
 #define FIELD_OF_SIGHT 10
 #define INITIAL_NUM_OF_ROOMS 4
 #define INITIAL_NUM_OF_PLAYERS 4
+#define SERVER_BUF_SIZE 800
 
 #define MAX_NAME_LEN 60
 #define STR_MAX_NAME_LEN "60"
@@ -89,13 +92,22 @@ typedef struct {
 } Room;
 define_vector( Room )
 
+enum READINGWHAT {
+	READING_NOTHING=0,
+	READING_INT,
+	READING_BUF
+};
+
 /* Information about room and player associated with every socket */
 typedef struct {
 	int room_id;
 	int player_id;
 	int sock_id;
+	int reading_what;
 	int readed; /* We can read not all data from socket. If we do not, here the number of readed bytes is stored. */
-	int buffer; /* Sometimes we read in buffer. Here we store buffer size if we have not read it all. */
+	int needed; /* Sometimes we read in buffer. Here we store buffer size if we have not read it all. */
+	char buf[SERVER_BUF_SIZE];
+	int pending_action;
 } SockIdInfo;
 define_vector( SockIdInfo )
 
@@ -116,10 +128,6 @@ typedef struct {
 /*#define debug(smth) #ifdef DEBUG\
 printf smth \
 #endif*/
-
-#define CHN1( COMM, CODE, MESSAGE )\
-if ((COMM) == -1) \
-err(CODE, MESSAGE);
 
 #define CH0( COMM, CODE, MESSAGE )\
 if ((COMM) == NULL) \

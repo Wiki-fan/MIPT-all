@@ -23,6 +23,8 @@
 #include "server_stuff.h"
 
 #define FILENAME_MAX_LEN 256
+#define NSEC_IN_SEC 1000000000
+extern Game game;
 
 static void handler( int sig )
 {
@@ -96,10 +98,8 @@ int main( int argc, char* argv[] )
 			case '?':
 				/* getopt_long writes error message by itself */
 				errx( 11, "Unknown parameter" );
-
 			case -1:
 				break;
-
 			default:
 				err( 3, "Unreachable code" );
 		}
@@ -120,20 +120,28 @@ int main( int argc, char* argv[] )
 	/* Block timer signal temporarily */
 	sigemptyset(&mask);
 	sigaddset(&mask, SIG);
-	CHN1(sigprocmask(SIG_SETMASK, &mask, NULL), 34, "sigprocmask failed");
+	CN1(sigprocmask(SIG_SETMASK, &mask, NULL), E_SIGPROCMASK);
 
 	/* Create the timer */
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIG;
 	sev.sigev_value.sival_ptr = &timerid;
 
-	CHN1(timer_create(CLOCKID, &sev, &timerid), 35, "timer_create failed");
+	CN1(timer_create(CLOCKID, &sev, &timerid), E_TIMER_CREATE);
 
-	CHN1(sigaction( SIGTERM, &sa, NULL), 20, "Error setting signal handler" );
-	CHN1(sigaction( SIGINT, &sa, NULL), 20, "Error setting signal handler" );
-	CHN1(sigaction( SIGALRM, &sa, NULL), 20, "Error setting signal handler" );
+	CN1(sigaction( SIGTERM, &sa, NULL), E_SIGACTION );
+	CN1(sigaction( SIGINT, &sa, NULL), E_SIGACTION );
+	CN1(sigaction( SIGALRM, &sa, NULL), E_SIGACTION );
 
+	its.it_interval.tv_sec = 0;
+	its.it_interval.tv_nsec = (__syscall_slong_t)game.step_standard_delay*NSEC_IN_SEC;
+	its.it_value.tv_sec = 0;
+	its.it_value.tv_nsec = (__syscall_slong_t)game.step_standard_delay*NSEC_IN_SEC;
 
+	/* Start timer */
+	CN1( timer_settime( timerid, 0, &its, NULL ), E_TIMER_SETTIME );
+	printf( "Unblocking signal %d\n", SIG );
+	CN1( sigprocmask( SIG_UNBLOCK, &mask, NULL ), E_SIGPROCMASK );
 
 	read_config_from_file( config );
 	server_start();

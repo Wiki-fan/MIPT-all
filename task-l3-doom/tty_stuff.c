@@ -18,7 +18,7 @@
 
 static struct termios old_attributes;
 
-timer_t set_timer(struct itimerspec its)
+timer_t set_timer(struct itimerspec* its)
 {
 	timer_t timerid;
 	struct sigevent sev;
@@ -27,20 +27,20 @@ timer_t set_timer(struct itimerspec its)
 	printf("Blocking signal %d\n", SIG);
 	sigemptyset(&mask);
 	sigaddset(&mask, SIG);
-	CHN1(sigprocmask(SIG_SETMASK, &mask, NULL), 34, "sigprocmask failed");
+	CN1(sigprocmask(SIG_SETMASK, &mask, NULL), E_SIGPROCMASK );
 
 	/* Create the timer */
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIG;
 	sev.sigev_value.sival_ptr = &timerid;
-	CHN1(timer_create(CLOCKID, &sev, &timerid), 35, "timer_create failed");
+	CN1(timer_create(CLOCKID, &sev, &timerid), E_TIMER_CREATE);
 
 	printf("timer ID is 0x%lx\n", (long) timerid);
 
 	/* Start timer */
-	CHN1( timer_settime( timerid, 0, &its, NULL ), 36, "timer_settime failed" );
+	CN1( timer_settime( timerid, 0, its, NULL ), E_TIMER_SETTIME );
 	printf( "Unblocking signal %d\n", SIG );
-	CHN1( sigprocmask( SIG_UNBLOCK, &mask, NULL ), 37, "sigprocmask failed" );
+	CN1( sigprocmask( SIG_UNBLOCK, &mask, NULL ), E_SIGPROCMASK );
 
 	return timerid;
 }
@@ -61,7 +61,7 @@ void set_canonical()
 		errx( 20, "Input is redirected not from terminal" );
 	}
 
-	CHN1( tcgetattr( STDIN_FILENO, &old_attributes ), 21, "Can't get terminal state" );
+	CN1( tcgetattr( STDIN_FILENO, &old_attributes ), E_TCGETATTR );
 	memcpy( &new_attributes, &old_attributes, sizeof( struct termios ));
 
 	/* Disable echoing. */
@@ -73,13 +73,13 @@ void set_canonical()
 	/* Strict one byte reading */
 	new_attributes.c_cc[VTIME] = 0;
 
-	CHN1( tcsetattr( STDIN_FILENO, TCSANOW, &new_attributes ), 22, "Can't set new terminal state" );
+	CN1( tcsetattr( STDIN_FILENO, TCSANOW, &new_attributes ), E_TCSETATTR );
 }
 
 /** Restore original terminal mode */
 void restore()
 {
-	CHN1( tcsetattr( STDIN_FILENO, TCSANOW, &old_attributes ), 20, "Can't restore original terminal state" );
+	CN1( tcsetattr( STDIN_FILENO, TCSANOW, &old_attributes ), E_TCSETATTR );
 }
 
 /** Get input from keyboard.

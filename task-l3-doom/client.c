@@ -53,7 +53,7 @@ int process_recv(int act)
 	int i;
 	/*printf( "Got input %d\n", act );*/
 	send_int( act, sockfd );
-	i = read_int( sockfd );
+	blocking_read_int( sockfd, &i );
 	switch( i ) {
 		case R_ROOM_CLOSED:
 			printf( "Host closed room\n" );
@@ -89,7 +89,7 @@ void play()
 	sa.sa_handler = handler;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART;
-	CHN1(sigaction(SIG, &sa, NULL), 33, "Error setting sigaction");
+	CN1(sigaction(SIG, &sa, NULL), E_SIGACTION);
 
 	/* Initialize timer values */
 	its.it_value.tv_sec = 0;
@@ -115,7 +115,7 @@ void play()
 		/*CHK_RESPONSE( R_DONE, "Game info sended" );*/
 
 		set_canonical();
-		timerid = set_timer();
+		timerid = set_timer(&its);
 		process_recv( A_NONE );
 
 		while( 1 ) {
@@ -141,7 +141,7 @@ void play()
 
 		}
 		/* Stop timer */
-		CHN1( timer_settime( timerid, 0, 0, NULL ), 36, "timer_settime failed" );
+		CN1( timer_settime( timerid, 0, 0, NULL ), E_TIMER_SETTIME );
 		/* Restore original terminal state */
 		restore();
 

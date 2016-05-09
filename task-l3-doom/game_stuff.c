@@ -180,7 +180,6 @@ void player_init( Player* player, Map* map, char* name, int sock )
 			fl = 0;
 		}
 	}
-	map->pl[player->y][player->x] = -1;
 
 	player->num_of_mines = NUM_OF_MINES;
 	player->hp = game.initial_health;

@@ -30,7 +30,7 @@ int setup_connection()
 
 	portno = PORT;
 
-	CHN1( sock_id = socket( AF_INET, SOCK_STREAM, 0 ), 20, "Can't create socket" );
+	CN1( sock_id = socket( AF_INET, SOCK_STREAM, 0 ), E_SOCKET );
 
 	CH0( server = gethostbyname( HOSTNAME ), 25, "No such hostname" );
 
@@ -41,7 +41,7 @@ int setup_connection()
 	serv_addr.sin_port = htons( portno );
 
 	/* Now connect to the server */
-	CHN1( connect( sock_id, (struct sockaddr*) &serv_addr, sizeof( serv_addr )), 26, "Can't connect to server" );
+	CN1( connect( sock_id, (struct sockaddr*) &serv_addr, sizeof( serv_addr )), E_CONNECT );
 
 	return sock_id;
 }
@@ -67,14 +67,14 @@ int ask_player_or_host()
 	}
 }
 
-int ask_room_name( char* buf )
+void ask_room_name( char* buf )
 {
 	printf( "How should I name your room?\n" );
 	scanf( "%" STR_MAX_NAME_LEN "s", buf );
 	/* check if valid and not duplicates */
 }
 
-int ask_player_name( char* buf )
+void ask_player_name( char* buf )
 {
 	printf( "How should I name you?\n" );
 	scanf( "%" STR_MAX_NAME_LEN "s", buf );
@@ -123,12 +123,12 @@ int getrecvlist( )
 {
 	int n, i;
 	char** recvlist;
-	n = read_int( sockfd ); /* number of player names */
+	CN1(blocking_read_int( sockfd, &n ), E_LOSTCONNECTION); /* number of player names */
 	printf( "We have %d items:\n", n );
 	recvlist = malloc_s( n * sizeof( char* ));
 	for( i = 0; i < n; ++i ) {
 		recvlist[i] = malloc_s( MAX_NAME_LEN );
-		read_buf( sockfd, recvlist[i] );
+		blocking_read_buf( sockfd, recvlist[i] );
 	}
 
 	for( i = 0; i < n; ++i ) {
@@ -142,11 +142,11 @@ int getrecvlist( )
 int getplayerlist()
 {
 	int n, i;
-	n = read_int( sockfd ); /* number of player names */
+	CN1(blocking_read_int( sockfd, &n ), E_LOSTCONNECTION); /* number of player names */
 	printf( "We have %d items:\n", n );
 
 	for( i = 0; i < n; ++i ) {
-		read_buf( sockfd, (char*) &player );
+		blocking_read_buf( sockfd, (char*) &player );
 		printf( "%d: %3d hp %2d mines %2d x %2d y %s \n", i, player.hp, player.num_of_mines, player.x, player.y, player.name );
 	}
 
@@ -156,8 +156,8 @@ int getplayerlist()
 /* get screen and player info from sockfd and render it */
 void render()
 {
-	read_buf( sockfd, (char*) &player );
-	read_buf( sockfd, buf );
+	blocking_read_buf( sockfd, (char*) &player );
+	blocking_read_buf( sockfd, buf );
 	clear();
 	printf( "%s", buf );
 	printf( "%3d hp %2d mines %2dx %2dy %s\n", player.hp, player.num_of_mines, player.x, player.y, player.name );
