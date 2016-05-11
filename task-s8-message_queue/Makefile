@@ -3,22 +3,29 @@ TARGET= client server
 DEPS = ../common/utils.o
 DEP_DIRS = ../common
 
-.PHONY:  all clean valgrind $(DEP_DIRS)
+.PHONY:  all clean valgrind_client valgrind_server $(DEP_DIRS)
 
-CFLAGS += -Wall -pedantic $(DEPS) -ansi
+CFLAGS += -Wall -pedantic $(DEPS) -ansi -d _GNU_SOURCE
 VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 
-all: $(DEP_DIRS) $(TARGET) $(TEST)
+all: $(DEP_DIRS) $(TARGET)
 
-$(TARGET): $@.o $(DEPS)
+client: client.o $(DEPS)
+	$(CC) $^ -o $@  -lm
+
+server: server.o $(DEPS)
 	$(CC) -o $@ $^ -lm
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -MD $<
+
 include $(wildcard *.d)
 
-valgrind:
-	valgrind $(VALGRIND_OPTIONS) ./??? 1>std.out
+valgrind_server:
+	valgrind $(VALGRIND_OPTIONS) ./server
+
+valgrind_client:
+	valgrind $(VALGRIND_OPTIONS) ./client
 
 $(DEP_DIRS):
 	$(MAKE) -C $@

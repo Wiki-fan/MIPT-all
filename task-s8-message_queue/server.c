@@ -5,16 +5,7 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/msg.h>
-
-#define REQUEST 1
-#define RESPONSE 2
-
-typedef struct {
-	long mes_type;
-	int a, b;
-	long result;
-	pid_t client;
-} mes_t;
+#include "common_types.h"
 
 key_t key;
 int msgid;
