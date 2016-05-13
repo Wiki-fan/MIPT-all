@@ -32,4 +32,4 @@ $(DEP_DIRS):
 	$(MAKE) -C $@
 
 clean:
-	rm -rf $(TARGET) *.o *.d *.orig
+	rm -rf $(TARGET) *.o *.d *.orig vgcore.*
