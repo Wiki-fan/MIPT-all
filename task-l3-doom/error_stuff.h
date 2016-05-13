@@ -4,17 +4,17 @@
 
 extern char* errmsg[];
 enum ERRCODE {
-	E_LOSTCONNECTION, /* ???*/
+	E_LOSTCONNECTION,
 	E_SIGPROCMASK,
 	E_TIMER_CREATE,
-E_SIGACTION,
-E_TIMER_SETTIME,
+	E_SIGACTION,
+	E_TIMER_SETTIME,
 	E_TCGETATTR,
 	E_TCSETATTR,
 	E_SOCKET,
 	E_CONNECT,
 	E_FOPEN,
-E_READ,
+	E_READ,
 	E_WRITE,
 	E_LISTEN,
 	E_BIND,
@@ -22,12 +22,20 @@ E_READ,
 	E_SELECT
 };
 
-#define CN1( VAL, CODE)\
+#define CN1( VAL, CODE )\
 if ((VAL) == -1) \
-err(CODE, errmsg[CODE]);
+err(CODE, errmsg[CODE] );
 
-#define CNULL( VAL, CODE)\
+#define CNON0( VAL, CODE )\
+if ((VAL) != 0) \
+err(CODE, errmsg[CODE] );
+
+#define CNULL( VAL, CODE )\
 if ((VAL) == NULL) \
-err(CODE, errmsg[CODE]);
+err(CODE, errmsg[CODE] );
+
+#define NFN1(VAL, CODE)\
+if ((VAL) == -1)\
+	perror( errmsg[CODE] );
 
 #endif /* L3__ERROR_STUFF */

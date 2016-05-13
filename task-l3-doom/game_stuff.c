@@ -2,25 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <err.h>
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <netdb.h>
 #include <unistd.h>
-#include <strings.h>
-#include <pthread.h>
-#include <unitypes.h>
-#include <arpa/inet.h>
 #include <sys/select.h>
 #include "../common/utils.h"
-#include "game_stuff.h"
-#include "tty_stuff.h"
-#include "config_stuff.h"
 #include "common_types.h"
-#include "data_stuff.h"
-#include "net_stuff.h"
 
 extern Vector_Room rooms;
 extern Game game;
@@ -123,9 +108,9 @@ void map_delete(Map* map)
 /** Delete room, free map and player vector, mark room as nonexistent. */
 void room_delete(Room* room)
 {
+	room->is_exists = 0;
 	map_delete(&room->map);
 	Vector_Player_destroy(&room->players);
-	room->is_exists = 0;
 }
 
 /** Change player's health on value points. Returns 0, if player was killed. */
@@ -135,12 +120,19 @@ int player_damage( Player* player, int value )
 	return player->hp > 0;
 }
 
-/** Kill player and move it out of map. Close socket. Send him that he died before calling function. */
+/** Kill player and move it out of map. */
 void player_kill(Player* player, Map* map)
 {
+	if (player->y == -1)
+		return;
 	map->pl[player->y][player->x] = -1;
 	player->x = -1;
 	player->y = -1;
+}
+
+/* Close player's socket. Send him that he died before calling function. */
+void player_close_socket(Player* player)
+{
 	close(sock_info.arr[player->sock].sock_id);
 	FD_CLR( player->sock, &master ); /* remove from master set*/
 	player->sock = -1;
@@ -170,8 +162,8 @@ void player_move( int room_id, int player_id, int x, int y )
 	}
 }
 
-/** Initial player's parameters. */
-void player_init( Player* player, Map* map, char* name, int sock )
+/** Initial player's parameters. Initializes barely game stuff, not sock or something. Init map on your own, too. */
+void player_init( Player* player, Map* map)
 {
 	/* Place player randomly */
 	int fl = 1;
@@ -185,9 +177,6 @@ void player_init( Player* player, Map* map, char* name, int sock )
 
 	player->num_of_mines = NUM_OF_MINES;
 	player->hp = game.initial_health;
-	player->sock = sock;
-	memset(player->name, 0, MAX_NAME_LEN);
-	strcpy( player->name, name );
 }
 
 /** Set mine on this tile */

@@ -12,12 +12,13 @@ void GameQueue_destroy(GameQueue* q);
 int GameQueue_empty(GameQueue* q);
 
 void player_move( int room_id, int player_id, int x, int y );
-void player_init( Player* player, Map* map, char* name, int sock);
+void player_init( Player* player, Map* map);
 void player_mine( int room_id, int player_id );
 void player_use( int room_id, int player_id );
 void player_attack( int room_id, int player_id );
 
 void player_kill(Player* player, Map* map);
+void player_close_socket(Player* player);
 int player_damage( Player* player, int value );
 
 void map_copy( Map* from, Map* to );
@@ -48,5 +49,7 @@ void room_delete(Room* room);
 #define PLAYER '@'
 #define YOU '%'
 #define MINE '~'
+
+#define ALIVE(p_player) ((p_player)->x != -1)
 
 #endif /* L3__GAME_STUFF */

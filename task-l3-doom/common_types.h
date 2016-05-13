@@ -5,7 +5,7 @@
 #include "error_stuff.h"
 
 #define NUM_OF_MINES 10
-#define PORT 8013
+#define PORT 8024
 #define BACKLOG 5
 #define HOSTNAME "127.0.0.1"
 #define FIELD_OF_SIGHT 10
@@ -19,6 +19,7 @@
 /* Global timer configuration */
 #define SIG SIGALRM
 #define CLOCKID CLOCK_REALTIME
+#define NSEC_IN_SEC 1000000000
 
 enum ACTION {
 	A_UP,
@@ -33,7 +34,7 @@ enum ACTION {
 	A_CREATE_ROOM,
 	A_CLOSE_ROOM, /* close and delete, disconnect all players */
 	A_ASK_ROOMS_LIST,
-	A_JOINROOM,
+	A_JOIN_ROOM,
 	A_START_GAME,
 	A_STOP_GAME,
 	A_ASK_PLAYER_LIST,
@@ -87,14 +88,15 @@ typedef struct {
 	char name[MAX_NAME_LEN];
 	Vector_Player players;
 	Map map;
-	int is_started;
-	int is_exists;
-	int left_alive;
+	int is_started; /* 1, if game started, 0, if game stopped. */
+	int is_exists; /* If room deleted (or not even created) is 0, else 1. */
+	int left_alive; /* Number of live players */
+	int host_sockid;
 } Room;
 define_vector( Room )
 
 enum READINGWHAT {
-	READING_NOTHING=0,
+	READING_NOTHING,
 	READING_INT,
 	READING_BUF
 };

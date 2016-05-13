@@ -7,7 +7,7 @@ DEP_DIRS = ../common
 
 .PHONY:  all clean valgrind $(DEP_DIRS)
 
-CFLAGS += -Wall -pedantic $(DEPS) -ansi -pthread
+CFLAGS += -Wall -pedantic -ansi -pthread
 VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 
 all: $(DEP_DIRS) $(TARGET)
@@ -22,11 +22,14 @@ server: server.o $(OBJ) $(DEPS)
 	$(CC) $(CFLAGS) -c -MD $<
 include $(wildcard *.d)
 
-valgrind:
+valgrind_server:
 	valgrind $(VALGRIND_OPTIONS) ./server
+
+valgrind_client:
+	valgrind $(VALGRIND_OPTIONS) ./client
 
 $(DEP_DIRS):
 	$(MAKE) -C $@
 
 clean:
-	rm -rf $(TARGET) *.o *.d *.orig
+	rm -rf $(TARGET) *.o *.d *.orig vgcore.*

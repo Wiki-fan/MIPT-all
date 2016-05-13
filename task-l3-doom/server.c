@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 200901L
+#define _POSIX_C_SOURCE 199309L
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -23,33 +23,10 @@
 #include "server_stuff.h"
 
 #define FILENAME_MAX_LEN 256
-#define NSEC_IN_SEC 1000000000
+
 extern Game game;
 extern int exitcode;
 extern timer_t timerid;
-
-static void handler( int sig )
-{
-	switch(sig) {
-		case SIGTERM:
-			LOG(("Exiting on SIGTERM"));
-			server_cleanup();
-			exitcode = SIGTERM;
-			break;
-		case SIGINT:
-			LOG(("Exiting on SIGINT"));
-			server_cleanup();
-			exitcode = SIGINT;
-			break;
-		case SIGALRM:
-			decrease_hp();
-			break;
-		case SIGUSR1:
-			break;
-		default:
-			err(3, "Unreachable code");
-	}
-}
 
 int main( int argc, char* argv[] )
 {
@@ -58,11 +35,6 @@ int main( int argc, char* argv[] )
 	int optind = 0;
 	char log[FILENAME_MAX_LEN];
 	char config[FILENAME_MAX_LEN];
-	struct sigaction sa;
-	sigset_t mask;
-	/* Timer stuff */
-	struct sigevent sev;
-	struct itimerspec its;
 
 	/* Setting random seed. */
 	srand((unsigned int)time(NULL));
@@ -116,39 +88,10 @@ int main( int argc, char* argv[] )
 	LOG(( "Writing log to %s", log ));
 	LOG(( "Daemonize: %s", daemonize ? "Yes" : "No" ));
 
-	/* Setting signal handler */
-	memset( &sa, 0, sizeof( sa ));
-	sa.sa_handler = handler;
-	sigfillset( &sa.sa_mask );
-	sa.sa_flags = 0/*SA_RESTART*/;
-
-	/* Block timer signal temporarily */
-	sigemptyset(&mask);
-	sigaddset(&mask, SIG);
-	CN1(sigprocmask(SIG_SETMASK, &mask, NULL), E_SIGPROCMASK);
-
-	/* Create the timer */
-	sev.sigev_notify = SIGEV_SIGNAL;
-	sev.sigev_signo = SIG;
-	sev.sigev_value.sival_ptr = &timerid;
-
-	CN1(timer_create(CLOCKID, &sev, &timerid), E_TIMER_CREATE);
-
-	CN1(sigaction( SIGTERM, &sa, NULL), E_SIGACTION );
-	CN1(sigaction( SIGINT, &sa, NULL), E_SIGACTION );
-	CN1(sigaction( SIGALRM, &sa, NULL), E_SIGACTION );
-
-	its.it_interval.tv_sec = 0;
-	its.it_interval.tv_nsec = (__syscall_slong_t)game.step_standard_delay*NSEC_IN_SEC;
-	its.it_value.tv_sec = 0;
-	its.it_value.tv_nsec = (__syscall_slong_t)game.step_standard_delay*NSEC_IN_SEC;
-
-	/* Start timer */
-	CN1( timer_settime( timerid, 0, &its, NULL ), E_TIMER_SETTIME );
-	printf( "Unblocking signal %d\n", SIG );
-	CN1( sigprocmask( SIG_UNBLOCK, &mask, NULL ), E_SIGPROCMASK );
+	timerid = create_timer();
 
 	read_config_from_file( config );
+
 	server_start();
 
 	return 0;

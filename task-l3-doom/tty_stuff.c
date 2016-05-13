@@ -18,31 +18,54 @@
 
 static struct termios old_attributes;
 
-timer_t set_timer(struct itimerspec* its)
+/** Creates timer. Bind handler to SIGALRM on your own. */
+timer_t create_timer()
 {
 	timer_t timerid;
 	struct sigevent sev;
-	sigset_t mask;
-	/* Block timer signal temporarily */
-	printf("Blocking signal %d\n", SIG);
-	sigemptyset(&mask);
-	sigaddset(&mask, SIG);
-	CN1(sigprocmask(SIG_SETMASK, &mask, NULL), E_SIGPROCMASK );
-
 	/* Create the timer */
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIG;
 	sev.sigev_value.sival_ptr = &timerid;
 	CN1(timer_create(CLOCKID, &sev, &timerid), E_TIMER_CREATE);
 
-	printf("timer ID is 0x%lx\n", (long) timerid);
+	/*printf("timer ID is 0x%lx\n", (long) timerid);*/
+	return timerid;
+}
+
+/** Blocks SIG signal. This function doesn't work in some reasons. */
+void block_timer_signal()
+{
+	sigset_t mask;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIG);
+	CNON0(pthread_sigmask(SIG_BLOCK, &mask, NULL), E_SIGPROCMASK );
+}
+
+void start_timer(timer_t timerid, struct itimerspec* its )
+{
+	sigset_t mask;
+	/* Block timer signal temporarily */
+	/*printf("Blocking signal %d\n", SIG);*/
+	sigemptyset(&mask);
+	sigaddset(&mask, SIG);
+	CNON0(pthread_sigmask(SIG_BLOCK, &mask, NULL), E_SIGPROCMASK );
 
 	/* Start timer */
 	CN1( timer_settime( timerid, 0, its, NULL ), E_TIMER_SETTIME );
-	printf( "Unblocking signal %d\n", SIG );
-	CN1( sigprocmask( SIG_UNBLOCK, &mask, NULL ), E_SIGPROCMASK );
 
-	return timerid;
+	/*printf( "Unblocking signal %d\n", SIG );*/
+	CNON0( pthread_sigmask( SIG_UNBLOCK, &mask, NULL ), E_SIGPROCMASK );
+}
+
+void stop_timer(timer_t timerid)
+{
+	/* Stop timer */
+	struct itimerspec its = {{0,0}, {0,0}};
+	its.it_value.tv_nsec = 0;
+	its.it_value.tv_sec =0;
+	CN1( timer_settime( timerid, 0, &its, NULL ), E_TIMER_SETTIME );
 }
 
 /** Clear screen */
@@ -85,7 +108,7 @@ void restore()
 /** Get input from keyboard.
  * If keystroke should be processed, enum ACTION* type is set and return is 0.
  * else return is 1 and enum ACTION* type is undefined */
-int get_input( int* type )
+int get_input( volatile int* type )
 {
 	int fl = 1;
 	int symbol;
@@ -125,7 +148,7 @@ int get_input( int* type )
 				default:;
 			}
 			break;
-		case EOF:
+		/*case EOF:*/
 		case 'q':
 		case '\004': /* Ctrl+D */
 			*type = A_EXIT;
@@ -162,12 +185,6 @@ int get_input( int* type )
 		default:;
 	}
 	return fl;
-}
-
-/** Render the whole map to the screen */
-void render_all()
-{
-	/* TODO: implement */
 }
 
 #undef ESC

@@ -14,12 +14,6 @@
 #include <unitypes.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
-#include "../common/utils.h"
-#include "game_stuff.h"
-#include "tty_stuff.h"
-#include "config_stuff.h"
-#include "common_types.h"
-#include "data_stuff.h"
 
 extern Vector_Room rooms;
 extern Vector_SockIdInfo sock_info;

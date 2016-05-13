@@ -1,22 +1,15 @@
+#include "client_stuff.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <err.h>
-
 #include <sys/socket.h>
 #include <netdb.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-
+#include <time.h>
 #include <strings.h>
-#include <unistd.h>
 #include "../common/utils.h"
-#include "game_stuff.h"
 #include "tty_stuff.h"
-#include "config_stuff.h"
 #include "net_stuff.h"
-#include "common_types.h"
-#include "client_stuff.h"
+
 
 char buf[CLIENT_BUF_SIZE];
 int sockfd;
@@ -38,7 +31,7 @@ int setup_connection()
 	serv_addr.sin_family = AF_INET;
 	/* TODO: macros expansion in macros. h_addr don't work */
 	bcopy((char*) server->h_addr_list[0], (char*) &serv_addr.sin_addr.s_addr, server->h_length );
-	serv_addr.sin_port = htons( portno );
+	serv_addr.sin_port = htons( (uint16_t)portno );
 
 	/* Now connect to the server */
 	CN1( connect( sock_id, (struct sockaddr*) &serv_addr, sizeof( serv_addr )), E_CONNECT );
@@ -57,7 +50,7 @@ int ask_player_or_host()
 			case 1:
 				return A_CREATE_ROOM;
 			case 2:
-				return A_JOINROOM;
+				return A_JOIN_ROOM;
 			case 3:
 				return A_EXIT;
 			default:
@@ -78,7 +71,7 @@ void ask_player_name( char* buf )
 {
 	printf( "How should I name you?\n" );
 	scanf( "%" STR_MAX_NAME_LEN "s", buf );
-	/* check if valid and not duplicates */
+	/* TODO: check if valid and not duplicates */
 }
 
 int ask_host_action()
@@ -86,16 +79,18 @@ int ask_host_action()
 	int response;
 
 	while( 1 ) {
-		printf( "What do you want?\n1. Start game.\n2. Stop game.\n3. Get list of players in room.\n4. Exit.\n" );
+		printf( "What do you want?\n1. Start game.\n2. Stop game.\n3. Close room.\n4. Get list of players in room.\n5. Exit.\n" );
 		scanf( "%d", &response );
 		switch( response ) {
 			case 1:
 				return A_START_GAME;
 			case 2:
-				return A_CLOSE_ROOM;
+				return A_STOP_GAME;
 			case 3:
-				return A_ASK_PLAYER_LIST;
+				return A_CLOSE_ROOM;
 			case 4:
+				return A_ASK_PLAYER_LIST;
+			case 5:
 				return A_EXIT;
 			default:
 				break;
@@ -127,7 +122,7 @@ int getrecvlist( )
 	printf( "We have %d items:\n", n );
 	recvlist = malloc_s( n * sizeof( char* ));
 	for( i = 0; i < n; ++i ) {
-		recvlist[i] = malloc_s( MAX_NAME_LEN );
+		recvlist[i] = calloc_s( MAX_NAME_LEN, sizeof(char) );
 		blocking_read_buf( sockfd, recvlist[i] );
 	}
 
@@ -139,6 +134,7 @@ int getrecvlist( )
 	return n;
 }
 
+/** Get and print player's list */
 int getplayerlist()
 {
 	int n, i;
@@ -153,7 +149,7 @@ int getplayerlist()
 	return n;
 }
 
-/* get screen and player info from sockfd and render it */
+/** Get screen and player info and render it */
 void render()
 {
 	blocking_read_buf( sockfd, (char*) &player );
