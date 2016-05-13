@@ -10,7 +10,7 @@ VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CC) -o $@ $^ -lm
+	$(CC) -o $@ $^ -lm -pthread
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -MD $<
