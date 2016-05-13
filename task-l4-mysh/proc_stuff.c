@@ -8,11 +8,9 @@
 #include <wait.h>
 #include <errno.h>
 #include "../common/utils.h"
+#include "error_stuff.h"
 
-#define DROP( COND, MSG ) \
-    if (COND) fprintf(stderr, "%s: %s\n", MSG, strerror(errno));\
-	return 0;
-
+/** Process builtin functions, such as exit, cd (unimplemented). */
 int builtin_func(proc* pr)
 {
 	if (!strcmp(pr->argv[0], "exit")) {
@@ -20,7 +18,7 @@ int builtin_func(proc* pr)
 	} else return 0;
 }
 
-/* redirects streams of process pr */
+/** Redirect streams of process pr */
 int redirect(proc* pr)
 {
 	/* background stuff */
@@ -31,11 +29,11 @@ int redirect(proc* pr)
 
 	/* input stuff */
 	if (pr->infile != 0) {
-		DROP(pr->in = open(pr->infile, O_RDONLY, 0), "Error opening file");
+		NFN1(pr->in = open(pr->infile, O_RDONLY, 0), E_FILE_OPEN);
 	}
-	CHN1(dup2(pr->in, STDIN_FILENO), 30, "Dup2 failed");
+	CN1(dup2(pr->in, STDIN_FILENO), E_DUP2);
 	if (pr->in != STDIN_FILENO) {
-		CHN1(close(pr->in), 31, "Can't close file");
+		CN1(close(pr->in), E_CLOSE);
 	}
 
 	/* output stuff */
@@ -46,11 +44,11 @@ int redirect(proc* pr)
 		} else {
 			flags |= O_TRUNC;
 		}
-		DROP(pr->out = open(pr->outfile, flags, 0700), "Error opening file");
+		NFN1(pr->out = open(pr->outfile, flags, 0700), E_FILE_OPEN);
 	}
-	CHN1(dup2(pr->out, STDOUT_FILENO), 30, "Dup2 failed");
+	CN1(dup2(pr->out, STDOUT_FILENO), E_DUP2);
 	if (pr->out != STDOUT_FILENO) {
-		CHN1(close(pr->out), 31, "Can't close file");
+		CN1(close(pr->out), E_CLOSE);
 	}
 }
 
@@ -62,11 +60,11 @@ pid_t run( proc* pr, int fd_to_close)
 	if (pr->argc == 0 || builtin_func(pr)) {
 		return 0;
 	}
-	CHN1( pid = fork(), 24, "Can't fork process" );
+	CN1( pid = fork(), E_FORK );
 	if( pid == 0 ) {
 		/* child */
 		if (fd_to_close != -1) {
-			CHN1(close(fd_to_close), 33, "Error closing fd");
+			CN1(close(fd_to_close), E_CLOSE);
 		}
 		char *cmdname, *cmdpath;
 		redirect(pr);
@@ -76,14 +74,14 @@ pid_t run( proc* pr, int fd_to_close)
 		} else ++cmdname;
 		cmdpath = pr->argv[0];
 		pr->argv[0] = cmdname;
-		CHN1( execvp( cmdpath, pr->argv ), 25, "Execvp failed" );
-		err( 3, "Unreachable code reached" );
+		CN1( execvp( cmdpath, pr->argv ), E_EXECVP );
+		RAISEX(E_UNREACHABLE);
 	}
 	/* parent */
 	if (pr->in>STDIN_FILENO)
-		close(pr->in);
+		CN1(close(pr->in), E_CLOSE);
 	if (pr->out>STDOUT_FILENO)
-		close(pr->out);
+		CN1(close(pr->out), E_CLOSE);
 	/* print pid for process that runs in background */
 	if (pr->backgr) {
 		printf("[] %d\n", pid);
@@ -99,7 +97,7 @@ void wait_and_display(int pid)
 		if ((wpid = waitpid(-1, &status, 0)) == -1) {
 			if (errno == ECHILD) {
 				return;
-			} else err(33, "waitpid error");
+			} else RAISE(E_WAITPID);
 		}
 		/* debug */
 		/*if (WIFEXITED(status)) {

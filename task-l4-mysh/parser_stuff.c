@@ -4,27 +4,22 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <err.h>
-#include <fcntl.h>
 #include "../common/utils.h"
+#include "error_stuff.h"
 
-#define DROP( MSG ) \
-    fprintf(stderr, "Error: %s\n", MSG);\
-    return T_ERROR;
-
-/*
- * S_NORMAL state is reading next token
+/**S_NORMAL state is reading next token
  * S_GT state is reading << or < token
  * S_INWORD state is reading word (file name or command)
  * S_INQUOTES state is reading quoted string
  */
 typedef enum {
 	S_NORMAL, /* getting token */
-			S_GT, /* first > seen*/
-			S_INWORD, /* reading word (part of command) */
-			S_INQUOTES, /* reading quoted string in command */
+	S_GT, /* first > seen*/
+	S_INWORD, /* reading word (part of command) */
+	S_INQUOTES /* reading quoted string in command */
 } STATE;
 
-/* appends character to buffer */
+/** Appends character to buffer */
 void push( char* buf, int* buf_size, int* cur_pos, char c )
 {
 	buf[*cur_pos] = c;
@@ -34,6 +29,7 @@ void push( char* buf, int* buf_size, int* cur_pos, char c )
 	}
 }
 
+/** Gets next token from input stream */
 TOKEN gettoken( char** buf )
 {
 	int state = S_NORMAL;
@@ -109,13 +105,15 @@ TOKEN gettoken( char** buf )
 				}
 				continue;
 			default:
-				errx( 3, "Unreachable code" );
+				RAISEX(E_UNREACHABLE);
 		}
 	}
 	return T_END;
 }
 
-/* makepipe this process should get input from other by pipe */
+/**Processes current command.
+ * If makepipe, this process should get input from other by pipe. Pipe fd is returned in pipefd.
+ */
 TOKEN process( int* retpid, int makepipe, int* pipefd )
 {
 	/* variadic size buffer for input commands */
@@ -184,16 +182,16 @@ TOKEN process( int* retpid, int makepipe, int* pipefd )
 					term = token;
 				}
 
-				/* creating pipe */
+				/* Creating pipe */
 				if( makepipe ) {
-					CHN1( pipe( pfd ), 32, "Error making pipe" );
+					CN1( pipe( pfd ), E_PIPE );
 					*pipefd = pfd[1];
 					pr.in = pfd[0];
 				}
 
-				/* ckecking if should run in background */
+				/* Checking if should run in background */
 				pr.backgr = (term == T_AMP);
-				CHN1( pid = run( &pr, pfd[1] ), 31, "Error running" );
+				CN1( pid = run( &pr, pfd[1] ), E_RUN );
 
 				/* pid of process to wait */
 				if( token != T_BAR ) {
@@ -206,6 +204,12 @@ TOKEN process( int* retpid, int makepipe, int* pipefd )
 				}
 				free( pr.argv );
 				return term;
+			case T_ERROR:
+				while (token = gettoken( &str )) {
+					if (token == T_BAR || token == T_AMP || token == T_WORD) {
+						break;
+					}
+				}
 			default:
 				errx( 3, "Unreachable code" );
 		}

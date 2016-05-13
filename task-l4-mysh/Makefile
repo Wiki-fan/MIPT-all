@@ -1,7 +1,7 @@
 TARGET= mysh
 TEST= test
 
-SRC = proc_stuff.c parser_stuff.c
+SRC = proc_stuff.c parser_stuff.c error_stuff.c
 OBJ = $(patsubst %.c,%.o,$(SRC))
 TEST_SRC = tests.c
 TEST_OBJ = $(patsubst %.c,%.o,$(TEST_SRC))
@@ -26,7 +26,7 @@ $(TEST): $(SRC) tests.o $(DEPS)
 include $(wildcard *.d)
 
 valgrind:
-	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) ../test 1>std.out
+	valgrind $(VALGRIND_OPTIONS) ./$(TARGET)
 
 $(DEP_DIRS):
 	$(MAKE) -C $@
