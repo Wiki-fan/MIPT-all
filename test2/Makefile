@@ -10,10 +10,7 @@ VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 
 .PHONY:  all clean $(DEP_DIRS) ans1
 
-all: $(DEP_DIRS) $(TARGET)
-
-#%.o: %.c $(DEP_DIRS)
-#	$(CC) $(CFLAGS) -c -MD -lm -pthread $<
+all: ans1
 
 ans1:
 	$(CC) $(CFLAGS) -lm -pthread -o $@ 1.c
