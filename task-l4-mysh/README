@@ -1,9 +1,9 @@
 Simple shell.
-Supports >, <, >>, |, quoted strings.
+Supports >, <, >>, |, &, quoted strings.
 Some errors are treating as major, and shell exits with error code.
 Others are minor, and error just prints to stdout, and execution continues.
 
-TODO: if error encounters in the middle of conveyor, we should skip all remaining tokens.
-In general, error handling is in progress.
-
 Error codes:
+See in error_stuff.h
+
+Ready for check.
