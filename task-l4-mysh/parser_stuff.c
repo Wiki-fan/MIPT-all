@@ -20,12 +20,12 @@ typedef enum {
 } STATE;
 
 /** Appends character to buffer */
-void push( char* buf, int* buf_size, int* cur_pos, char c )
+void push( char** buf, int* buf_size, int* cur_pos, char c )
 {
-	buf[*cur_pos] = c;
+	(*buf)[*cur_pos] = c;
 	if( ++( *cur_pos ) == *buf_size ) {
 		*buf_size *= 2;
-		buf = realloc_s( buf, *buf_size * sizeof( char ));
+		*buf = realloc_s( *buf, *buf_size * sizeof( char ));
 	}
 }
 
@@ -35,14 +35,14 @@ TOKEN gettoken( char** buf )
 	int state = S_NORMAL;
 	int c;
 	int buf_size = 100, cur_pos = 0;
-	*buf = (char*) malloc_s( buf_size * sizeof( char ));
-	while(( c = getchar()) != EOF) {
+	*buf = NULL;
+	while(( c = getchar())) {
 		/* endline backslash processing */
 		if (c =='\\') {
 			/* if after \ goes \n, skip both, if other char, push \ and this char */
 			if(( c = getchar()) != '\n' ) {
-				push( *buf, &buf_size, &cur_pos, '\\' );
-				push( *buf, &buf_size, &cur_pos, (char) c );
+				push( buf, &buf_size, &cur_pos, '\\' );
+				push( buf, &buf_size, &cur_pos, (char) c );
 			}
 			continue;
 		}
@@ -66,10 +66,12 @@ TOKEN gettoken( char** buf )
 						return T_AMP;
 					case '"':
 						state = S_INQUOTES;
+						*buf =  (char*) malloc_s( buf_size * sizeof( char ));
 						continue;
 					default:
 						state = S_INWORD;
-						push( *buf, &buf_size, &cur_pos, (char) c );
+						*buf = (char*) malloc_s( buf_size * sizeof( char ));
+						push( buf, &buf_size, &cur_pos, (char) c );
 						continue;
 				}
 			case S_GT:
@@ -82,10 +84,10 @@ TOKEN gettoken( char** buf )
 			case S_INQUOTES:
 				switch( c ) {
 					case '"':
-						push( *buf, &buf_size, &cur_pos, '\0' );
+						push( buf, &buf_size, &cur_pos, '\0' );
 						return T_WORD;
 					default:
-						push( *buf, &buf_size, &cur_pos, (char) c );
+						push( buf, &buf_size, &cur_pos, (char) c );
 						continue;
 				}
 			case S_INWORD:
@@ -98,10 +100,10 @@ TOKEN gettoken( char** buf )
 					case '\n':
 					case '\t':
 						ungetc( c, stdin );
-						push( *buf, &buf_size, &cur_pos, '\0' );
+						push( buf, &buf_size, &cur_pos, '\0' );
 						return T_WORD;
 					default:
-						push( *buf, &buf_size, &cur_pos, (char) c );
+						push( buf, &buf_size, &cur_pos, (char) c );
 				}
 				continue;
 			default:
@@ -150,7 +152,7 @@ TOKEN process( int* retpid, int makepipe, int* pipefd )
 				if( pr.in != STDIN_FILENO || pr.infile != 0) {
 					DROP( "Extra <" );
 				}
-				if( gettoken( &pr.infile ) != T_WORD ) {
+				if( (token = gettoken( &pr.infile )) != T_WORD ) {
 					DROP( "No file specified after <" );
 				}
 				break;
@@ -160,7 +162,7 @@ TOKEN process( int* retpid, int makepipe, int* pipefd )
 				if( pr.out != STDOUT_FILENO || pr.outfile != 0 ) {
 					DROP( "Extra > or >>" );
 				}
-				if( gettoken( &pr.outfile ) != T_WORD ) {
+				if( (token = gettoken( &pr.outfile )) != T_WORD ) {
 					DROP( "No file specified after > or >>" );
 				}
 				if( token == T_GTGT ) {
@@ -170,6 +172,7 @@ TOKEN process( int* retpid, int makepipe, int* pipefd )
 			case T_BAR:
 			case T_AMP:
 			case T_NL:
+				free(str);
 				pr.argv[pr.argc] = NULL;
 				/* redirect pipes if needed */
 				if( token == T_BAR ) {
@@ -178,6 +181,10 @@ TOKEN process( int* retpid, int makepipe, int* pipefd )
 					}
 					/* running next command and telling it that it should make pipe */
 					term = process( retpid, 1, &pr.out );
+					if (term == T_ERROR) {
+						token = T_ERROR;
+						HANDLE_ERROR;
+					}
 				} else {
 					term = token;
 				}
@@ -205,11 +212,22 @@ TOKEN process( int* retpid, int makepipe, int* pipefd )
 				free( pr.argv );
 				return term;
 			case T_ERROR:
-				while (token = gettoken( &str )) {
-					if (token == T_BAR || token == T_AMP || token == T_WORD) {
+			ERROR_HANDLER:
+
+				while(token != T_NL && token != T_ERROR && ( token = gettoken( &str ))) {
+					free( str );
+					if( token == T_BAR || token == T_AMP || token == T_NL ) {
 						break;
 					}
 				}
+				free( str );
+
+				/* freeing argv */
+				for( i = 0; i < pr.argc; ++i ) {
+					free( pr.argv[i] );
+				}
+				free(pr.argv);
+				return T_ERROR;
 			default:
 				errx( 3, "Unreachable code" );
 		}

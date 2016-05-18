@@ -14,7 +14,12 @@
 int builtin_func(proc* pr)
 {
 	if (!strcmp(pr->argv[0], "exit")) {
-		exit(1);
+		int i;
+		for( i = 0; i < pr->argc; ++i ) {
+			free( pr->argv[i] );
+		}
+		free( pr->argv );
+		exit(0);
 	} else return 0;
 }
 
@@ -50,9 +55,10 @@ int redirect(proc* pr)
 	if (pr->out != STDOUT_FILENO) {
 		CN1(close(pr->out), E_CLOSE);
 	}
+	return 0; /* Success */
 }
 
-/* runs process and redirects input, returns new fd */
+/* runs process and redirects input, returns new fd. -1 on error. */
 pid_t run( proc* pr, int fd_to_close)
 {
 	pid_t pid;
@@ -62,20 +68,29 @@ pid_t run( proc* pr, int fd_to_close)
 	}
 	CN1( pid = fork(), E_FORK );
 	if( pid == 0 ) {
+		char *cmdname, *cmdpath;
 		/* child */
 		if (fd_to_close != -1) {
 			CN1(close(fd_to_close), E_CLOSE);
 		}
-		char *cmdname, *cmdpath;
-		redirect(pr);
+
+		NFN1(redirect(pr), T_MY_REDIRECT);
 		cmdname = strrchr( pr->argv[0], '/' );
 		if( cmdname == NULL) {
 			cmdname = pr->argv[0];
 		} else ++cmdname;
 		cmdpath = pr->argv[0];
 		pr->argv[0] = cmdname;
-		CN1( execvp( cmdpath, pr->argv ), E_EXECVP );
-		RAISEX(E_UNREACHABLE);
+		execvp( cmdpath, pr->argv );
+		/* freeing argv */
+		{
+			int i;
+			for( i = 0; i < pr->argc; ++i ) {
+				free( pr->argv[i] );
+			}
+			free( pr->argv );
+		}
+		RAISE(E_EXECVP);
 	}
 	/* parent */
 	if (pr->in>STDIN_FILENO)

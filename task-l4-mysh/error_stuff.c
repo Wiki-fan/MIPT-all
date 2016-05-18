@@ -12,5 +12,6 @@ char* errmsg[] =
 				"pipe",
 				"run",
 		        "sigaction",
-		        "unsupported signal"
+		        "unsupported signal",
+		        "my redirect fumction"
 		};

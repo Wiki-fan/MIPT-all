@@ -11,15 +11,15 @@ DEP_DIRS = ../common
 
 .PHONY:  all clean test valgrind $(DEP_DIRS)
 
-CFLAGS += -Wall -pedantic $(DEPS) -ansi
-VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
+CFLAGS += -Wall -pedantic -ansi
+VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes --show-leak-kinds=all
 
 all: $(DEP_DIRS) $(TARGET) $(TEST)
 
 $(TARGET): $(SRC) main.o $(DEPS)
-	$(CC) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 $(TEST): $(SRC) tests.o $(DEPS)
-	$(CC) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -MD $<
@@ -32,4 +32,4 @@ $(DEP_DIRS):
 	$(MAKE) -C $@
 
 clean:
-	rm -rf $(TARGET) *.o *.d *.orig vgcore.*
+	rm -rf $(TARGET) $(TEST) *.o *.d *.orig vgcore.*

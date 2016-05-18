@@ -14,7 +14,8 @@ enum ERRCODE {
 	E_PIPE,
 	E_RUN,
 	E_SIGACTION,
-	E_UNSUPPORTED_SIGNAL
+	E_UNSUPPORTED_SIGNAL,
+	T_MY_REDIRECT
 };
 
 #define RAISE(CODE)\
@@ -35,14 +36,32 @@ err(CODE, errmsg[CODE] );
 if ((VAL) == NULL) \
 err(CODE, errmsg[CODE] );
 
+/* Non-fatal negative 1.
+ * Cleanups argv.
+ * Implicitly captures struct proc* pr
+ */
 #define NFN1(VAL, CODE)\
-if ((VAL) == -1)\
-	perror( errmsg[CODE] );\
-return -1;
+	if ((VAL) == -1) {\
+    int i;\
+	/* Freeing args */\
+    for( i = 0; i < pr->argc; ++i ) {\
+        free( pr->argv[i] );\
+    }\
+    free( pr->argv );\
+	    perror( errmsg[CODE] );\
+	    return -1;\
+	}
 
-/** For user-caused errors */
-#define DROP( MSG ) \
+#define ERROR_HANDLER t_error
+#define HANDLE_ERROR goto ERROR_HANDLER
+
+/**For user-caused errors
+ * Cause function to return T_ERROR.
+ */
+#define DROP( MSG ) {\
+    \
     fprintf(stderr, "Error: %s\n", MSG);\
-    return T_ERROR;
+    HANDLE_ERROR; \
+}
 
 #endif /* L3__ERROR_STUFF */
