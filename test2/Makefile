@@ -13,7 +13,7 @@ VALGRIND_OPTIONS += --leak-check=full --read-var-info=yes --track-origins=yes
 all: ans1
 
 ans1:
-	$(CC) $(CFLAGS) -lm -pthread -o $@ 1.c
+	$(CC) $(CFLAGS) -o $@ 1.c -lm -lpthread
 
 valgrind:
 	valgrind $(VALGRIND_OPTIONS) ./ans1

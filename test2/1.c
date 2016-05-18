@@ -1,7 +1,9 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <err.h>
+
 #include "../common/utils.h"
+
 
 #define CHN1(COMM, CODE, MESSAGE)\
 if ((COMM) == -1) \
@@ -57,7 +59,7 @@ void* work_body(void* args)
 	CHN0(pthread_mutex_unlock( &master_mutex ), 9, "unlock");
 }
 
-void calc(char** text, int num)
+int calc(char** text, int num)
 {
 	int i = 0;
 	int numofstrings;
@@ -121,20 +123,58 @@ void calc(char** text, int num)
 			curnumopencoms = 0;
 		}
 	}
-	printf("%d", totalcomms);
 
 	free(works);
+
+    return totalcomms;
 }
 
-int main()
+
+int main(int argc,char **argv)
 {
-	char* text[] = {"/* */ /* /* ",
-			"/**/ /* /*",
-			"/**/",
-			"/**/",
-			"/**/ /**/",
-			"/**/ /* /*",
-	NULL};
-	calc(text,17);
+	char* text[1001];
+    int i;
+
+    FILE *f;
+    
+    text[1000]=NULL;
+
+    if(argc <2)
+    {
+        printf("Please file_name in args\n");
+        return 1;
+    }
+
+    f=fopen(argv[1],"r");
+    if(f==NULL)
+    {
+        printf("Sorry for opening '%s'\n",argv[1]);
+        return 2;
+    }
+
+    for(i=0;i<1000;i++)
+    {
+      text[i]=(char *)malloc(2048*sizeof(char));
+      
+      if(text[i]==NULL)
+      {
+        break;
+      }
+
+      if(fgets(text[i],2048,f) == NULL)
+      {
+        break;
+      }
+    }
+
+    fclose(f);
+
+    printf("result is %d\n",(int)calc(text,17));
+
+    for(i=0;text[i]!=NULL;i++)
+    {
+        free(text[i]);    
+    }
+
 	return 0;
 }
