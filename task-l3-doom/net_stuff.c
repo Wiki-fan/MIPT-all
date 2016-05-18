@@ -65,7 +65,7 @@ int blocking_read_buf( int sock_id, char* buf )
 {
 	int count, recv = 0;
 	ssize_t n;
-	if (blocking_read_int(sockfd, &count) == -1)
+	if (blocking_read_int(sock_id, &count) == -1)
 		return -1;
 	while( recv < count ) {
 		CN1( n = read( sock_id, buf + recv, count - recv ), E_READ );

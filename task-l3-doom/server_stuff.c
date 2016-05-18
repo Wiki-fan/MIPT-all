@@ -61,7 +61,7 @@ void decrease_hp()
 	for( i = 0; i < rooms.size; ++i ) {
 		/* If room exists and game in room is started */
 		if( rooms.arr[i].is_exists == 1 && rooms.arr[i].is_started == 1 ) {
-			if( rooms.arr[i].left_alive == 1 ) {
+			if( rooms.arr[i].left_alive == /*1*/15 ) {
 				send_to_all_in_room( i, R_GAME_FINISHED );
 				send_int( R_GAME_FINISHED, rooms.arr[i].host_sockid ); /* Inform host */
 				rooms.arr[i].is_started = 0;
@@ -70,10 +70,6 @@ void decrease_hp()
 					player = &rooms.arr[i].players.arr[j];
 					if( ALIVE( player )) {
 						player_damage( player, -game.stay_health_drop );
-						/*if( player->hp <= 0 ) {
-							send_int( R_DIED, player->sock );
-							player_kill( player, &rooms.arr[i].map );
-						}*/
 					}
 				}
 			}

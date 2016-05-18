@@ -19,7 +19,8 @@ enum ERRCODE {
 	E_LISTEN,
 	E_BIND,
 	E_ACCEPT,
-	E_SELECT
+	E_SELECT,
+	E_POLL
 };
 
 #define CN1( VAL, CODE )\
@@ -37,5 +38,8 @@ err(CODE, errmsg[CODE] );
 #define NFN1(VAL, CODE)\
 if ((VAL) == -1)\
 	perror( errmsg[CODE] );
+
+#define RAISE(CODE)\
+	err(CODE, errmsg[CODE]);
 
 #endif /* L3__ERROR_STUFF */

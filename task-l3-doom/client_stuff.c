@@ -4,26 +4,30 @@
 #include <err.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <unistd.h>
 #include <time.h>
+#include <poll.h>
 #include <strings.h>
 #include "../common/utils.h"
 #include "tty_stuff.h"
 #include "net_stuff.h"
 
+struct pollfd poll_arr[NUMPOLLS];
 
 char buf[CLIENT_BUF_SIZE];
-int sockfd;
 Player player;
 
-int setup_connection()
+/* Initialize poll_arr */
+void setup_connection()
 {
-	int sock_id, portno;
+	int portno;
 	struct sockaddr_in serv_addr;
 	struct hostent* server;
 
 	portno = PORT;
 
-	CN1( sock_id = socket( AF_INET, SOCK_STREAM, 0 ), E_SOCKET );
+	CN1( poll_arr[P_SOCK].fd = socket( AF_INET, SOCK_STREAM, 0 ), E_SOCKET );
+	poll_arr[P_STDIN].fd = STDIN_FILENO;
 
 	CH0( server = gethostbyname( HOSTNAME ), 25, "No such hostname" );
 
@@ -34,9 +38,9 @@ int setup_connection()
 	serv_addr.sin_port = htons( (uint16_t)portno );
 
 	/* Now connect to the server */
-	CN1( connect( sock_id, (struct sockaddr*) &serv_addr, sizeof( serv_addr )), E_CONNECT );
-
-	return sock_id;
+	CN1( connect( poll_arr[P_SOCK].fd, (struct sockaddr*) &serv_addr, sizeof( serv_addr )), E_CONNECT );
+	poll_arr[P_SOCK].events = POLLIN | POLLERR | POLLHUP;
+	poll_arr[P_STDIN].events = POLLIN | POLLERR | POLLHUP;
 }
 
 int ask_player_or_host()
@@ -79,7 +83,6 @@ int ask_host_action()
 	int response;
 
 	while( 1 ) {
-		printf( "What do you want?\n1. Start game.\n2. Stop game.\n3. Close room.\n4. Get list of players in room.\n5. Exit.\n" );
 		scanf( "%d", &response );
 		switch( response ) {
 			case 1:
@@ -118,12 +121,12 @@ int getrecvlist( )
 {
 	int n, i;
 	char** recvlist;
-	CN1(blocking_read_int( sockfd, &n ), E_LOSTCONNECTION); /* number of player names */
+	CN1(blocking_read_int( poll_arr[P_SOCK].fd, &n ), E_LOSTCONNECTION); /* number of player names */
 	printf( "We have %d items:\n", n );
 	recvlist = malloc_s( n * sizeof( char* ));
 	for( i = 0; i < n; ++i ) {
 		recvlist[i] = calloc_s( MAX_NAME_LEN, sizeof(char) );
-		blocking_read_buf( sockfd, recvlist[i] );
+		blocking_read_buf( poll_arr[P_SOCK].fd, recvlist[i] );
 	}
 
 	for( i = 0; i < n; ++i ) {
@@ -138,11 +141,11 @@ int getrecvlist( )
 int getplayerlist()
 {
 	int n, i;
-	CN1(blocking_read_int( sockfd, &n ), E_LOSTCONNECTION); /* number of player names */
+	CN1(blocking_read_int( poll_arr[P_SOCK].fd, &n ), E_LOSTCONNECTION); /* number of player names */
 	printf( "We have %d items:\n", n );
 
 	for( i = 0; i < n; ++i ) {
-		blocking_read_buf( sockfd, (char*) &player );
+		blocking_read_buf( poll_arr[P_SOCK].fd, (char*) &player );
 		printf( "%d: %3d hp %2d mines %2d x %2d y %s \n", i, player.hp, player.num_of_mines, player.x, player.y, player.name );
 	}
 
@@ -152,8 +155,8 @@ int getplayerlist()
 /** Get screen and player info and render it */
 void render()
 {
-	blocking_read_buf( sockfd, (char*) &player );
-	blocking_read_buf( sockfd, buf );
+	blocking_read_buf( poll_arr[P_SOCK].fd, (char*) &player );
+	blocking_read_buf( poll_arr[P_SOCK].fd, buf );
 	clear();
 	printf( "%s", buf );
 	printf( "%3d hp %2d mines %2dx %2dy %s\n", player.hp, player.num_of_mines, player.x, player.y, player.name );

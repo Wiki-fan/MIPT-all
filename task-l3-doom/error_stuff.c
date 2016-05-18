@@ -16,5 +16,6 @@ char* errmsg[] =
 				"listen",
 		        "bind",
 		        "accept",
-		        "select"
+		        "select",
+		        "poll"
 		};
