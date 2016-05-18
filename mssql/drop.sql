@@ -1,4 +1,4 @@
-use Gallery;
+/*use Gallery;
 drop table Pools_Pictures;
 drop table Tags_Pictures;
 drop table ChildPools;
@@ -10,7 +10,19 @@ drop table Pools;
 drop table Sites;
 drop table Tags;
 drop table Users;
-
+drop function get_pictures_by_tag;
+drop function get_user_artists;
+drop function get_artist_pools;
+drop function pictures_uploaded_in;
+drop function get_count_uploads_artists;
+drop function most_popular_by_uploads_artist;
+drop function pictures_watched_in;
+drop function get_count_watches_artists;
+drop function most_popular_by_watches_artist;
+drop function get_pictures_watched_by_user;
+drop function get_pictures_reposted_by_user;
+drop function get_pictures_watched_not_reposted;
+drop function get_pictures_reposted_not_watched;
 drop type T_PicturesID;
 drop type T_UsersID;
 drop type T_PoolsID;
@@ -22,8 +34,8 @@ drop type T_Pools_PicturesID;
 drop type T_Tags_PicturesID;
 drop type T_RepostsID;
 drop type T_ChildPoolsID;
-go
 use master;
-go
+go*/
+use master;
 drop database Gallery;
 go

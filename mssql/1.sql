@@ -1,4 +1,5 @@
 use Gallery;
+-- 1) Картинка с заданным тегом.
 if object_id (N'get_pictures_by_tag', N'IF') is not null
 	drop function get_pictures_by_tag;
 go

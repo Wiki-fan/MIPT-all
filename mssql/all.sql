@@ -1,5 +1,7 @@
 use Gallery;
 go
+:r drop.sql
+go
 :r create_types.sql
 go
 :r create_tables.sql

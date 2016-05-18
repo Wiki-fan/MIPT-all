@@ -1,4 +1,5 @@
 use Gallery;
+-- 2) Авторы, картинки которых загружает данный человек.
 if object_id (N'get_user_artists', N'IF') is not null
 	drop function get_user_artists;
 go

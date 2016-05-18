@@ -1,4 +1,5 @@
 use Gallery;
+-- 6) Наиболее популярный по просмотрам художник.
 if object_id (N'pictures_watched_in', N'IF') is not null
 	drop function pictures_watched_in;
 go

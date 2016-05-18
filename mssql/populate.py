@@ -34,6 +34,7 @@ def populate_users():
 				RegistrationDate=get_rnd_date()
 			))
 			i += 1
+			time.sleep(0.01)
 
 
 auxverbs = {'a', 'an', 'the', 'of', 'do', 'at', 'does', 'did', 'has', 'have', 'had', 'is', 'am', 'are', 'was', 'were',
@@ -79,6 +80,8 @@ def populate_pictures_and_artists():
 		tags_pictures_i = 0
 		artists_i = 0
 		artists = set()
+		tags = set()
+		pools = set()
 		for row in reader:
 			(name, first_name, last_name) = process_names(row[0])
 			if name not in artists:
@@ -101,28 +104,32 @@ def populate_pictures_and_artists():
 				DateUploaded=get_rnd_date()
 			))
 			for tag in title.split(' '):
-				if tag.lower() not in auxverbs:
-					tags_out.write(fmtstrs.tags.format(ID=tags_i, Name=tag))
-				tags_i += 1
-				tags_pictures_out.write(fmtstrs.tags_pictures.format(
-					ID=tags_pictures_i,
-					TagID="(select ID from Tags where Name='{0}')".format(tag),
+				if tag not in tags:
+					if tag.lower() not in auxverbs:
+						tags_out.write(fmtstrs.tags.format(ID=tags_i, Name=tag))
+					tags_i += 1
+					tags.add(tag)
+					tags_pictures_out.write(fmtstrs.tags_pictures.format(
+						ID=tags_pictures_i,
+						TagID="(select ID from Tags where Name='{0}')".format(tag),
+						PictureID=pictures_i
+					))
+					tags_pictures_i += 1
+			pool = escape(row[8])
+			if pool not in pools:
+				pools_out.write(fmtstrs.pools.format(
+					ID=pools_i,
+					Name=pool,
+					Description="This is a {0}".format(pool)
+				))
+				pools.add(pool)
+				pools_pictures_out.write(fmtstrs.pools_pictures.format(
+					ID=pools_pictures_i,
+					PoolID="(select ID from Pools where Name='{0}')".format(pool),
 					PictureID=pictures_i
 				))
-				tags_pictures_i += 1
-			pool = escape(row[8])
-			pools_out.write(fmtstrs.pools.format(
-				ID=pools_i,
-				Name=pool,
-				Description="This is a {0}".format(pool)
-			))
-			pools_pictures_out.write(fmtstrs.pools_pictures.format(
-				ID=pools_pictures_i,
-				PoolID="(select ID from Pools where Name='{0}')".format(pool),
-				PictureID=pictures_i
-			))
-			pools_pictures_i += 1
-			pools_i += 1
+				pools_pictures_i += 1
+				pools_i += 1
 			pictures_i += 1
 			if pictures_i > number_of_pictures:
 				break  # populate_users()
@@ -146,7 +153,7 @@ def populate_sites():
 			for i in lst:
 				site = i.text
 				url = i['href']
-				print (site)
+				#print (site)
 				# print (url)
 				sites_i += 1
 				sites_out.write(fmtstrs.sites.format(
@@ -198,8 +205,8 @@ def populate_childpools():
 						ChildPoolID=j
 					))
 
-populate_users()
-populate_sites()
+#populate_users()
+#populate_sites()
 populate_pictures_and_artists()
 populate_watches()
-populate_childpools()
+#populate_childpools()

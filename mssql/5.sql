@@ -1,4 +1,6 @@
 use Gallery;
+-- 5) Художник, картины которого загружает больше всего людей.
+-- Вспомогательно: картинки, загруженные за некий период времени и количество загрузок автора за период.
 if object_id (N'pictures_uploaded_in', N'IF') is not null
 	drop function pictures_uploaded_in;
 go

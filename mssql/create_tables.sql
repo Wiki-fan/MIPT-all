@@ -65,7 +65,7 @@ UserID T_UsersID,
 PictureID T_PicturesID,
 Liked bit not null,
 Reposted bit not null,
-SiteID T_SitesID,
+SiteID T_SitesID null,
 WatchDate date not null
 );
 create table Reposts (
