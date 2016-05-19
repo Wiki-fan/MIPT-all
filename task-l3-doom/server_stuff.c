@@ -89,6 +89,23 @@ if (resp == 0) {\
     info->pending_action = A_NULL;\
 }
 
+void close_room(int i)
+{
+	int room_id;
+	if( !ISHOST( i )) {
+		/* Ban ordinary player who wants to close room as host */
+		ban( i );
+	} else {
+		room_id = sock_info.arr[i].room_id;
+
+		rooms.arr[room_id].is_started = 1;
+		send_to_all_in_room( room_id, R_ROOM_CLOSED );
+		send_int( R_ROOM_CLOSED, i );
+		room_delete( &rooms.arr[i] );
+		LOG(( "Room %d closed", room_id ));
+	}
+}
+
 /** Loop where network input is processed. */
 void* server_loop( void* args )
 {
@@ -142,9 +159,17 @@ void* server_loop( void* args )
 						continue; /* Read the rest later */
 					} else if( resp == -1 ) {
 						/* connection closed*/
+						if (ISHOST(i)) {
+							close_room(i);
+							close(i);
+							FD_CLR( i, &master ); /* remove from master set*/
+						} else {
+							room_id = sock_info.arr[i].room_id;
+							Player* player = &rooms.arr[room_id].players.arr[sock_info.arr[i].player_id];
+							player_kill( player, &rooms.arr[room_id].map );
+							player_close_socket( player );
+						}
 						LOG(( "Socket %d hung up", i ));
-						close( i );
-						FD_CLR( i, &master ); /* remove from master set*/
 					} else {
 						switch( act ) {
 							case A_CREATE_ROOM:
@@ -172,18 +197,7 @@ void* server_loop( void* args )
 								LOG(( "Room #%d with name %s was created by socket %d", info->room_id, room.name, i ));
 								break;
 							case A_CLOSE_ROOM:
-								if( !ISHOST( i )) {
-									/* Ban ordinary player who wants to close room as host */
-									ban( i );
-								} else {
-									room_id = sock_info.arr[i].room_id;
-
-									rooms.arr[room_id].is_started = 1;
-									send_to_all_in_room( room_id, R_ROOM_CLOSED );
-									send_int( R_ROOM_CLOSED, i );
-									room_delete( &rooms.arr[i] );
-									LOG(( "Room %d closed", room_id ));
-								}
+								close_room(i);
 								break;
 							case A_ASK_PLAYER_LIST:
 								if( !ISHOST( i )) {
@@ -327,10 +341,12 @@ void* game_loop( void* args )
 
 		/*LOG(( "Begin to process player %d from room %d with action %d",
 				node->sock_info.player_id, node->sock_info.room_id, node->act ));*/
-		if( rooms.arr[node->sock_info.room_id].is_exists != 0
-				/* room have not closed; TODO: we could create new room with same id. But we have only one room. */
-				&& ALIVE( &( rooms.arr[node->sock_info.room_id].players.arr[node->sock_info.player_id] ))
-			/* If player have not died in some ways */ ) {
+		player = &rooms.arr[node->sock_info.room_id].players.arr[node->sock_info.player_id];
+		map = &( rooms.arr[node->sock_info.room_id].map );
+		/* TODO: we could create new room with same id. But we have only one room in the latest modification of task. */
+		/* If player have not died in some ways and room exists */
+		if (rooms.arr[node->sock_info.room_id].is_exists != 0
+				&& ALIVE( &( rooms.arr[node->sock_info.room_id].players.arr[node->sock_info.player_id] ))) {
 			switch( node->act ) {
 				case A_UP:
 					player_move( node->sock_info.room_id, node->sock_info.player_id, 0, -1 );
@@ -358,46 +374,44 @@ void* game_loop( void* args )
 				default:
 					errx( 3, "Unreachable code" );
 			}
-		}
 
-		player = &rooms.arr[node->sock_info.room_id].players.arr[node->sock_info.player_id];
-		map = &( rooms.arr[node->sock_info.room_id].map );
-		if( player->hp <= 0 ) {
-			LOG(( "Kill player %d from room %d (socket %d)", \
+			if( player->hp <= 0 ) {
+				LOG(( "Kill player %d from room %d (socket %d)", \
                 node->sock_info.player_id, node->sock_info.room_id, node->sock_info.sock_id ));
-			send_int( R_DIED, node->sock_info.sock_id );
-			player_kill( player, map );
-		} else {
-			player_id = node->sock_info.player_id;
-			/* Make player's view buffer. */
-			for( y = player->y - FIELD_OF_SIGHT + 1; y < player->y + FIELD_OF_SIGHT - 1; ++y ) {
-				for( x = player->x - FIELD_OF_SIGHT + 1; x < player->x + FIELD_OF_SIGHT - 1; ++x ) {
-					if( x >= 0 && x < map->w && y >= 0 && y < map->h ) {
-						if( player->x == x && player->y == y ) {
-							String_push( &str, YOU );
-						} else if( ISPLAYER( y, x )) {
-							String_push( &str, PLAYER );
-						} else if( ISOURMINE( y, x )) {
-							String_push( &str, MINE );
+				send_int( R_DIED, node->sock_info.sock_id );
+				player_kill( player, map );
+			} else {
+				player_id = node->sock_info.player_id;
+				/* Make player's view buffer. */
+				for( y = player->y - FIELD_OF_SIGHT + 1; y < player->y + FIELD_OF_SIGHT - 1; ++y ) {
+					for( x = player->x - FIELD_OF_SIGHT + 1; x < player->x + FIELD_OF_SIGHT - 1; ++x ) {
+						if( x >= 0 && x < map->w && y >= 0 && y < map->h ) {
+							if( player->x == x && player->y == y ) {
+								String_push( &str, YOU );
+							} else if( ISPLAYER( y, x )) {
+								String_push( &str, PLAYER );
+							} else if( ISOURMINE( y, x )) {
+								String_push( &str, MINE );
+							} else {
+								String_push( &str, map->fg[y][x] );
+							}
 						} else {
-							String_push( &str, map->fg[y][x] );
+							String_push( &str, ' ' );
 						}
-					} else {
-						String_push( &str, ' ' );
 					}
+					String_push( &str, '\n' );
 				}
-				String_push( &str, '\n' );
+				String_push( &str, '\0' );
+
+				send_int( R_DONE, node->sock_info.sock_id );
+				send_buf( node->sock_info.sock_id, sizeof( Player ), (char*) player );
+				send_buf( node->sock_info.sock_id, str.cur_pos, str.buf );
+				/*LOG(( "Info sent to socket %d", node->sock_info.sock_id ));*/
+
+				/*printf("%s", str.buf);*/
+
+				str.cur_pos = 0;
 			}
-			String_push( &str, '\0' );
-
-			send_int( R_DONE, node->sock_info.sock_id );
-			send_buf( node->sock_info.sock_id, sizeof( Player ), (char*) player );
-			send_buf( node->sock_info.sock_id, str.cur_pos, str.buf );
-			/*LOG(( "Info sent to socket %d", node->sock_info.sock_id ));*/
-
-			/*printf("%s", str.buf);*/
-
-			str.cur_pos = 0;
 		}
 
 		CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );

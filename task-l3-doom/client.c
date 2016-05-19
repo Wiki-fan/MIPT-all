@@ -137,6 +137,7 @@ void game_round()
 	set_canonical();
 	start_timer( timerid, &its );
 	process_recv( A_NONE );
+	game = G_CONTINUE;
 
 	while( !(game == G_RESTART || game == G_CHANGE_ROOM || game == G_EXIT) ) {
 		input_loop();

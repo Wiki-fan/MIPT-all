@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <err.h>
-
+#include <errno.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
@@ -18,6 +18,21 @@
 extern Vector_Room rooms;
 extern Vector_SockIdInfo sock_info;
 
+#define CNET(VAL, ERR)\
+{\
+	int ret;\
+	while ( (ret = VAL) == -1) {\
+        if (errno == EAGAIN)\
+            continue;\
+        if (errno == ENOTCONN ) {\
+            return -1;\
+        } else {\
+            perror(ret);\
+            exit(err);\
+        }\
+    }\
+}
+
 int send_buf( int sockfd, int count, char* buf )
 {
 	ssize_t n;
@@ -25,7 +40,7 @@ int send_buf( int sockfd, int count, char* buf )
 	send_int(count, sockfd);
 
 	while( sent < count ) {
-		CN1( n = write( sockfd, buf + sent, count - sent ), E_WRITE );
+		CNET( n = write( sockfd, buf + sent, count - sent ), E_WRITE );
 		if (n == 0) {
 			return -1;
 		}
@@ -39,7 +54,7 @@ int send_int( int act, int sockfd )
 	ssize_t n, sent = 0;
 
 	while( sent < sizeof( int )) {
-		CN1( n = write( sockfd, &act + sent, sizeof( int ) - sent ), E_WRITE );
+		CNET( n = write( sockfd, &act + sent, sizeof( int ) - sent ), E_WRITE );
 		if (n == 0) {
 			return -1;
 		}
@@ -91,7 +106,7 @@ int read_int( int sock_id, int* ans )
 		info->reading_what = READING_INT;
 		info->needed = sizeof( int );
 	}
-	CN1( n = read( sock_id, info->buf + info->read, info->needed - info->read ), E_READ );
+	CNET( n = read( sock_id, info->buf + info->read, info->needed - info->read ), E_READ );
 	if (n == 0) { /* End of stream */
 		return -1;
 	}
@@ -127,7 +142,7 @@ int read_buf( int sock_id, char* buf )
 		info->reading_what = READING_BUF;
 		info->read = 0;
 	}
-	CN1( n = read( sock_id, info->buf + info->read, info->needed - info->read ), E_READ );
+	CNET( n = read( sock_id, info->buf + info->read, info->needed - info->read ), E_READ );
 	if (n == 0) { /* End of stream */
 		return -1;
 	}
