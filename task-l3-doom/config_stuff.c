@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <err.h>
-#include <ctype.h>
 #include "../common/utils.h"
 #include "game_stuff.h"
 #include "net_stuff.h"
@@ -26,8 +25,8 @@ hit_value,
 game.hit_value = (int)val;
 recharge_duration,
 game.recharge_duration = (int)val;
-mining_time,
-game.mining_time = (int)val;
+mining,
+game.mining = (int)val;
 stay_health_drop,
 game.stay_health_drop = (int)val;
 movement_health_drop,
@@ -53,7 +52,6 @@ int get_raw( FILE* f, char* buf, int n )
 			break;
 		}
 	}
-	/*buf[i] = '\0';*/
 	return i;
 }
 
@@ -97,7 +95,7 @@ void read_config_from_file( char* file_name )
 			game.hit_value = (int) val;
 		CASEEQ( buf, "recharge_duration" )
 			game.recharge_duration = (int) val;
-		CASEEQ( buf, "mining_time" )
+		CASEEQ( buf, "mining" )
 			game.mining_time = (int) val;
 		CASEEQ( buf, "stay_health_drop" )
 			game.stay_health_drop = (int) val;
@@ -111,9 +109,13 @@ void read_config_from_file( char* file_name )
 			errx( 21, "Unknown game parameter %s", buf );
 		ENDSWITCH
 	}
+	game.fps = (int)(1.0/game.step_standard_delay);
+	/*game.recharge_duration *= fps;
+	game.mining_time *= fps;
+	game.moratory_duration *= fps;*/
 
 	while( fscanf( inf, "%d %d %f", &x, &y, &val ) != EOF) {
-		game.map.fg[y][x] = BONUS;
+		game.map.fg[y][x] = M_BONUS;
 		game.map.bg[y][x] = (int) val;
 	}
 

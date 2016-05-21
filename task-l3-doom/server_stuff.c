@@ -18,9 +18,10 @@
 #include "common_types.h"
 #include "data_stuff.h"
 #include "net_stuff.h"
+#include "server_action_stuff.h"
 
-static pthread_mutex_t mtx_endqueue;
-static pthread_cond_t gq_cond;
+pthread_mutex_t mtx_endqueue;
+pthread_cond_t gq_cond;
 /* master file descriptor list*/
 fd_set master;
 /* temp file descriptor list for select()*/
@@ -37,87 +38,13 @@ int exitcode = 0;
 
 Vector_Room rooms;
 Game game;
-
 GameQueue gq;
 Vector_SockIdInfo sock_info;
-
-/** Send player that he is a cheater and kill him. */
-void ban( int sock )
-{
-	int room_id = sock_info.arr[sock].room_id;
-	Player* player = &rooms.arr[room_id].players.arr[sock_info.arr[sock].player_id];
-	LOG(( "Player %d from room %d, socket %d, was banned",
-			sock_info.arr[sock].player_id, sock_info.arr[sock].room_id, sock_info.arr[sock].sock_id ));
-	send_int( R_CHEATER, sock );
-	player_kill( player, &rooms.arr[room_id].map );
-	player_close_socket( player );
-}
-
-void decrease_hp()
-{
-	/*LOG(("Decrease HP on timer"));*/
-	int i, j;
-	Player* player;
-	for( i = 0; i < rooms.size; ++i ) {
-		/* If room exists and game in room is started */
-		if( rooms.arr[i].is_exists == 1 && rooms.arr[i].is_started == 1 ) {
-			if( rooms.arr[i].left_alive == /*1*/15 ) {
-				send_to_all_in_room( i, R_GAME_FINISHED );
-				send_int( R_GAME_FINISHED, rooms.arr[i].host_sockid ); /* Inform host */
-				rooms.arr[i].is_started = 0;
-			} else {
-				for( j = 0; j < rooms.arr[i].players.size; ++j ) {
-					player = &rooms.arr[i].players.arr[j];
-					if( ALIVE( player )) {
-						player_damage( player, -game.stay_health_drop );
-					}
-				}
-			}
-		}
-	}
-}
-
-/* How we distinct sockets of players and hosts */
-#define ISHOST( sock ) (sock_info.arr[sock].player_id == -1)
-#define MARKHOST( info ) info.player_id = -1;
-
-#define CHECKRESPONSE() \
-if (resp == 0) {\
-    info->pending_action = act;\
-    continue;\
-} else if (resp == 1) {\
-    info->pending_action = A_NULL;\
-}
-
-void close_room(int i)
-{
-	int room_id;
-	if( !ISHOST( i )) {
-		/* Ban ordinary player who wants to close room as host */
-		ban( i );
-	} else {
-		room_id = sock_info.arr[i].room_id;
-
-		rooms.arr[room_id].is_started = 1;
-		send_to_all_in_room( room_id, R_ROOM_CLOSED );
-		send_int( R_ROOM_CLOSED, i );
-		room_delete( &rooms.arr[i] );
-		LOG(( "Room %d closed", room_id ));
-	}
-}
 
 /** Loop where network input is processed. */
 void* server_loop( void* args )
 {
-	int i, j;
-	int newsock_id;
-	struct sockaddr_in cli_addr;
-	socklen_t clilen;
-	char buf[MAX_NAME_LEN];
-	Room room;
-	Player player;
-	SockIdInfo* info;
-	int room_id;
+	int i;
 
 	block_timer_signal();
 
@@ -129,22 +56,7 @@ void* server_loop( void* args )
 			if( FD_ISSET( i, &read_fds )) {
 				/* accept new connection */
 				if( i == listener_fd ) {
-
-					clilen = sizeof( cli_addr );
-					CN1( newsock_id = accept( listener_fd, (struct sockaddr*) &cli_addr, &clilen ), E_ACCEPT );
-
-					FD_SET( newsock_id, &master ); /* add to master set*/
-					if( newsock_id > fdmax ) { /* keep track of the max*/
-						fdmax = newsock_id;
-					}
-
-					Vector_SockIdInfo_alloc( &sock_info, newsock_id );
-					info = &sock_info.arr[newsock_id];
-					info->sock_id = newsock_id;
-					info->reading_what = READING_NOTHING;
-					info->pending_action = A_NULL;
-
-					LOG(( "new connection: socket %d\n", newsock_id ));
+					accept_connection(i);
 				} else {
 					/* handle data from a client*/
 					int act;
@@ -158,130 +70,29 @@ void* server_loop( void* args )
 					if( resp == 0 ) {
 						continue; /* Read the rest later */
 					} else if( resp == -1 ) {
-						/* connection closed*/
-						if (ISHOST(i)) {
-							close_room(i);
-							close(i);
-							FD_CLR( i, &master ); /* remove from master set*/
-						} else {
-							room_id = sock_info.arr[i].room_id;
-							Player* player = &rooms.arr[room_id].players.arr[sock_info.arr[i].player_id];
-							player_kill( player, &rooms.arr[room_id].map );
-							player_close_socket( player );
-						}
-						LOG(( "Socket %d hung up", i ));
+						close_connection(i);
 					} else {
 						switch( act ) {
 							case A_CREATE_ROOM:
-								info = &sock_info.arr[i];
-								/*receive room name */
-								resp = read_buf( i, buf );
-								CHECKRESPONSE();
-
-								/* init room struct */
-								strcpy( room.name, buf );
-								room.is_started = 0;
-								room.is_exists = 1;
-								room.host_sockid = i;
-								Vector_Player_init( &room.players, INITIAL_NUM_OF_PLAYERS );
-								map_copy( &game.map, &room.map );
-
-								/* Mark that this socket is host */
-								MARKHOST(( *info ));
-
-								/* add room */
-								info->room_id = rooms.size;
-								Vector_Room_add( &rooms, room );
-
-								send_int( R_ROOM_CREATED, i );
-								LOG(( "Room #%d with name %s was created by socket %d", info->room_id, room.name, i ));
+								create_room(i);
 								break;
 							case A_CLOSE_ROOM:
 								close_room(i);
 								break;
 							case A_ASK_PLAYER_LIST:
-								if( !ISHOST( i )) {
-									/* Ban ordinary player who wants to know all about other players */
-									ban( i );
-								} else {
-									room_id = sock_info.arr[i].room_id; /* room id */
-									send_int( R_SENDING_PLAYERS, i );
-									send_int( rooms.arr[room_id].players.size, i );
-
-									for( j = 0; j < rooms.arr[room_id].players.size; ++j ) {
-										send_buf( i, sizeof( Player ), (char*) &rooms.arr[room_id].players.arr[j] );
-									}
-									LOG(( "Send list of %d players of room %d to socket %d", rooms.arr[room_id].players.size, room_id, i ));
-								}
+								ask_players_list(i);
 								break;
 							case A_ASK_ROOMS_LIST:
-								send_int( R_SENDING_ROOMS, i );
-								send_int( rooms.size, i );
-
-								for( j = 0; j < rooms.size; ++j ) {
-									send_buf( i, (int) strlen( rooms.arr[j].name ), rooms.arr[j].name );
-								}
-								LOG(( "Send list of rooms to socket %d", i ));
+								send_rooms_list(i);
 								break;
 							case A_JOIN_ROOM:
-								info = &sock_info.arr[i];
-
-								read_buf( i, buf ); /* player name */
-								CHECKRESPONSE();
-								room_id = *(int*) buf;
-
-								player_init( &player, &rooms.arr[room_id].map );
-								player.sock = i;
-								/* Name */
-								memset( player.name, 0, MAX_NAME_LEN );
-								strcpy( player.name, buf + sizeof( int ));
-
-								/* SockInfo instance */
-								info->room_id = room_id;
-								info->player_id = rooms.arr[info->room_id].players.size;
-								info->sock_id = i;
-								rooms.arr[room_id].map.pl[player.y][player.x] = info->player_id;
-								Vector_Player_push( &rooms.arr[info->room_id].players, player );
-
-								send_int( R_JOINED, i );
-								send_buf( i, sizeof( float ), (char*) &game.step_standard_delay );
-								LOG(( "Player from socket %d was added to room %d as player #%d", i, room_id, info->player_id ));
-
+								join_room(i);
 								break;
 							case A_START_GAME:
-								if( !ISHOST( i )) {
-									/* Ban ordinary player who wants to start game */
-									ban( i );
-								} else {
-									room_id = sock_info.arr[i].room_id;
-
-									rooms.arr[room_id].left_alive = rooms.arr[room_id].players.size;
-									send_to_all_in_room( room_id, R_GAME_STARTED );
-									send_int( R_GAME_STARTED, i ); /* Inform host */
-									LOG(( "Game in room %d started", sock_info.arr[i].room_id ));
-									/* Setting flag AFTER all initialization */
-									rooms.arr[room_id].is_started = 1;
-								}
+								start_game(i);
 								break;
 							case A_STOP_GAME:
-								if( !ISHOST( i )) {
-									/* Ban ordinary player who wants to stop game */
-									ban( i );
-								} else {
-									info = &sock_info.arr[i];
-									room_id = sock_info.arr[i].room_id;
-
-									rooms.arr[room_id].is_started = 0;
-									send_to_all_in_room( sock_info.arr[i].room_id, R_GAME_STOPPED );
-									send_int( R_GAME_STOPPED, i ); /* Inform host */
-									for( j = 0; j < rooms.arr[room_id].players.size; ++j ) {
-										/* Reset player's position and characteristics */
-										rooms.arr[room_id].map.pl[player.y][player.x] = -1;
-										player_init( &rooms.arr[room_id].players.arr[j], &rooms.arr[room_id].map );
-										rooms.arr[room_id].map.pl[player.y][player.x] = info->player_id;
-									}
-									LOG(( "Game in room %d stopped", sock_info.arr[i].room_id ));
-								}
+								stop_game(i);
 								break;
 							case A_UP:
 							case A_DOWN:
@@ -291,17 +102,7 @@ void* server_loop( void* args )
 							case A_USE:
 							case A_ATTACK:
 							case A_NONE:
-								/*LOG(( "Player with id %d from room %d did action %d (socket %d)",
-										sock_info.arr[i].player_id, sock_info.arr[i].room_id, act, i ));*/
-								if( rooms.arr[sock_info.arr[i].room_id].is_started == 0 ) {
-									/* ban player who moves before the game is started */
-									/*ban( i );*/
-								} else {
-									CHN0( pthread_mutex_lock( &mtx_endqueue ), 30, "Error locking mutex" );
-									GameQueue_push( &gq, sock_info.arr[i], act );
-									pthread_cond_signal( &gq_cond );
-									CHN0( pthread_mutex_unlock( &mtx_endqueue ), 31, "Error unlocking mutex" );
-								}
+								do_action(i, act);
 								break;
 							default:
 							LOG(( "Unknown command %d", act ));
@@ -361,7 +162,8 @@ void* game_loop( void* args )
 					player_move( node->sock_info.room_id, node->sock_info.player_id, 1, 0 );
 					break;
 				case A_ATTACK:
-					player_attack( node->sock_info.room_id, node->sock_info.player_id );
+					if ( rooms.arr[node->sock_info.room_id].moratory == 0) /* Can't attack during moratory */
+						player_attack( node->sock_info.room_id, node->sock_info.player_id );
 					break;
 				case A_MINE:
 					player_mine( node->sock_info.room_id, node->sock_info.player_id );
@@ -379,28 +181,37 @@ void* game_loop( void* args )
 				LOG(( "Kill player %d from room %d (socket %d)", \
                 node->sock_info.player_id, node->sock_info.room_id, node->sock_info.sock_id ));
 				send_int( R_DIED, node->sock_info.sock_id );
+				--rooms.arr[node->sock_info.room_id].left_alive;
 				player_kill( player, map );
 			} else {
 				player_id = node->sock_info.player_id;
 				/* Make player's view buffer. */
+				for( y = player->y - FIELD_OF_SIGHT; y < player->y + FIELD_OF_SIGHT; ++y )
+					String_push( &str, M_HORIZONTAL );
+				String_push( &str, '\n' );
 				for( y = player->y - FIELD_OF_SIGHT + 1; y < player->y + FIELD_OF_SIGHT - 1; ++y ) {
+					String_push( &str, M_VERTICAL );
 					for( x = player->x - FIELD_OF_SIGHT + 1; x < player->x + FIELD_OF_SIGHT - 1; ++x ) {
 						if( x >= 0 && x < map->w && y >= 0 && y < map->h ) {
 							if( player->x == x && player->y == y ) {
-								String_push( &str, YOU );
+								String_push( &str, M_YOU );
 							} else if( ISPLAYER( y, x )) {
-								String_push( &str, PLAYER );
+								String_push( &str, M_PLAYER );
 							} else if( ISOURMINE( y, x )) {
-								String_push( &str, MINE );
+								String_push( &str, M_MINE );
 							} else {
 								String_push( &str, map->fg[y][x] );
 							}
 						} else {
-							String_push( &str, ' ' );
+							String_push( &str, M_WALL );
 						}
 					}
+					String_push( &str, M_VERTICAL );
 					String_push( &str, '\n' );
 				}
+				for( y = player->y - FIELD_OF_SIGHT; y < player->y + FIELD_OF_SIGHT; ++y )
+					String_push( &str, M_HORIZONTAL );
+				String_push( &str, '\n' );
 				String_push( &str, '\0' );
 
 				send_int( R_DONE, node->sock_info.sock_id );

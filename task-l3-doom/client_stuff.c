@@ -5,12 +5,12 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-#include <time.h>
 #include <poll.h>
-#include <strings.h>
+#include <memory.h>
 #include "../common/utils.h"
 #include "tty_stuff.h"
 #include "net_stuff.h"
+#include "common_types.h"
 
 struct pollfd poll_arr[NUMPOLLS];
 
@@ -31,10 +31,9 @@ void setup_connection()
 
 	CH0( server = gethostbyname( HOSTNAME ), 25, "No such hostname" );
 
-	bzero((char*) &serv_addr, sizeof( serv_addr ));
+	memset((char*) &serv_addr, 0, sizeof( serv_addr ));
 	serv_addr.sin_family = AF_INET;
-	/* TODO: macros expansion in macros. h_addr don't work */
-	bcopy((char*) server->h_addr_list[0], (char*) &serv_addr.sin_addr.s_addr, server->h_length );
+	memcpy( &serv_addr.sin_addr.s_addr, server->h_addr_list[0], server->h_length );
 	serv_addr.sin_port = htons( (uint16_t)portno );
 
 	/* Now connect to the server */
@@ -49,8 +48,9 @@ int ask_player_or_host()
 
 	while( 1 ) {
 		printf( "What do you want?\n1. Create room on the server.\n2. Play in already created room.\n3. Exit.\n" );
-		scanf( "%d", &response );
-		switch( response ) {
+		if (scanf( "%d", &response ) == 0)
+			scanf("%*[^0-9]");
+		else switch( response ) {
 			case 1:
 				return A_CREATE_ROOM;
 			case 2:
@@ -68,7 +68,7 @@ void ask_room_name( char* buf )
 {
 	printf( "How should I name your room?\n" );
 	scanf( "%" STR_MAX_NAME_LEN "s", buf );
-	/* check if valid and not duplicates */
+	/* TODO: check if valid and not duplicates */
 }
 
 void ask_player_name( char* buf )
@@ -83,8 +83,9 @@ int ask_host_action()
 	int response;
 
 	while( 1 ) {
-		scanf( "%d", &response );
-		switch( response ) {
+		if (scanf( "%d", &response ) == 0)
+			scanf("%*[^0-9]");
+		else switch( response ) {
 			case 1:
 				return A_START_GAME;
 			case 2:
@@ -102,38 +103,46 @@ int ask_host_action()
 	}
 }
 
-int ask_which_room( int room_count )
+void print_host_prompt()
+{
+	printf( "What do you want?\n1. Start game.\n2. Stop game.\n3. Close room.\n4. Get list of players in room.\n5. Exit.\n" );
+}
+
+int ask_which_room()
 {
 	int response;
-
+	int room_count;
 	while( 1 ) {
+		/* Receive rooms list  */
+		send_int( A_ASK_ROOMS_LIST, poll_arr[P_SOCK].fd );
+		CHK_RESPONSE( R_SENDING_ROOMS, "List of rooms received" );
+		printf( "Rooms:\n" );
+		room_count = getrecvlist();
 		printf( "Which room do you choose?\n" );
-		scanf( "%d", &response );
-		if( response >= 0 && response < room_count ) {
+		if (scanf( "%d", &response ) == 0) {
+			scanf( "%*[^0-9]" );
+		}
+		else if( response >= 0 && response < room_count ) {
 			return response;
 		}
 		printf( "Try again.\n" );
 	}
 }
 
-
 int getrecvlist( )
 {
 	int n, i;
-	char** recvlist;
+	char* recv;
+	int num;
 	CN1(blocking_read_int( poll_arr[P_SOCK].fd, &n ), E_LOSTCONNECTION); /* number of player names */
 	printf( "We have %d items:\n", n );
-	recvlist = malloc_s( n * sizeof( char* ));
 	for( i = 0; i < n; ++i ) {
-		recvlist[i] = calloc_s( MAX_NAME_LEN, sizeof(char) );
-		blocking_read_buf( poll_arr[P_SOCK].fd, recvlist[i] );
+		recv = calloc_s( MAX_NAME_LEN, sizeof(char) );
+		blocking_read_int(poll_arr[P_SOCK].fd, &num);
+		blocking_read_buf( poll_arr[P_SOCK].fd, recv );
+		printf( "%d: %s\n", num, recv );
+		free(recv);
 	}
-
-	for( i = 0; i < n; ++i ) {
-		printf( "%d: %s\n", i, recvlist[i] );
-		free( recvlist[i] );
-	}
-	free( recvlist );
 	return n;
 }
 
@@ -146,7 +155,9 @@ int getplayerlist()
 
 	for( i = 0; i < n; ++i ) {
 		blocking_read_buf( poll_arr[P_SOCK].fd, (char*) &player );
-		printf( "%d: %3d hp %2d mines %2d x %2d y %s \n", i, player.hp, player.num_of_mines, player.x, player.y, player.name );
+		if (player.hp>0)
+			printf( "%d: %3d hp %2d mines %2d x %2d y %s \n", i, player.hp, player.num_of_mines, player.x, player.y, player.name );
+		else printf( "%d: %s died\n", i, player.name );
 	}
 
 	return n;

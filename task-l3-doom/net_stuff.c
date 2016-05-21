@@ -1,19 +1,12 @@
 #include "net_stuff.h"
+#include "common_types.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <err.h>
 #include <errno.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <fcntl.h>
-#include <netdb.h>
 #include <unistd.h>
-#include <strings.h>
-#include <pthread.h>
-#include <unitypes.h>
-#include <arpa/inet.h>
-#include <sys/select.h>
 
 extern Vector_Room rooms;
 extern Vector_SockIdInfo sock_info;
@@ -163,8 +156,11 @@ void send_to_all_in_room( int room_id, int response )
 	int i;
 
 	for( i = 0; i < rooms.arr[room_id].players.size; ++i ) {
-		LOG(( "Broadcasting message %d to %d socket", response, rooms.arr[room_id].players.arr[i].sock ));
-		send_int( response, rooms.arr[room_id].players.arr[i].sock );
+		if (rooms.arr[room_id].players.arr[i].sock != -1) {
+			LOG(( "Broadcasting message %d to %d socket", response, rooms.arr[room_id].players.arr[i].sock ));
+			send_int( response, rooms.arr[room_id].players.arr[i].sock );
+		} else {
+			LOG(( "Socket %d already died", response ));
+		}
 	}
 }
-

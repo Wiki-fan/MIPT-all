@@ -128,6 +128,7 @@ void player_kill(Player* player, Map* map)
 	map->pl[player->y][player->x] = -1;
 	player->x = -1;
 	player->y = -1;
+	player->hp = -1;
 }
 
 /* Close player's socket. Send him that he died before calling function. */
@@ -143,6 +144,9 @@ void player_move( int room_id, int player_id, int x, int y )
 {
 	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
 	Map* map = &rooms.arr[room_id].map;
+	if (player->mining > 0)
+		return;
+
 	/* if we go to bonus or space, just move */
 	if( ISSPACE( player->y + y, player->x + x ) || ISBONUS( player->y + y, player->x + x ) || ISOURMINE( player->y + y, player->x + x )) {
 		if( !ISOURMINE( player->y, player->x )) {
@@ -177,6 +181,8 @@ void player_init( Player* player, Map* map)
 
 	player->num_of_mines = NUM_OF_MINES;
 	player->hp = game.initial_health;
+	player->cooldown = 0;
+	player->mining = 0;
 }
 
 /** Set mine on this tile */
@@ -184,9 +190,13 @@ void player_mine( int room_id, int player_id )
 {
 	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
 	Map* map = &( rooms.arr[room_id].map );
-	if( player->num_of_mines > 0 && map->fg[player->y][player->x] == SPACE
+	if (player->mining > 0) {
+		return;
+	}
+	player->mining = game.mining_time;
+	if( player->num_of_mines > 0 && map->fg[player->y][player->x] == M_SPACE
 			&& !ISOURMINE( player->y, player->x )) { /* We can't place mine on bonus or other mine */
-		/*map->fg[player->y][player->x] = MINE;*/
+		/*map->fg[player->y][player->x] = M_MINE;*/
 		map->pl[player->y][player->x] = player_id;
 		map->bg[player->y][player->x] = -game.hit_value;
 		--player->num_of_mines;
@@ -200,7 +210,7 @@ void player_use( int room_id, int player_id )
 	Map* map = &( rooms.arr[room_id].map );
 	if( ISBONUS( player->y, player->x )) {
 		player_damage( player, map->bg[player->y][player->x] );
-		map->fg[player->y][player->x] = SPACE;
+		map->fg[player->y][player->x] = M_SPACE;
 		map->bg[player->y][player->x] = 0;
 	}
 }
@@ -214,6 +224,9 @@ void player_attack( int room_id, int player_id )
 	Player* dmg_player;
 	Player* player = &( rooms.arr[room_id].players.arr[player_id] );
 	Map* map = &( rooms.arr[room_id].map );
+	if (player->cooldown > 0)
+		return;
+	player->cooldown = game.recharge_duration;
 	for( y = MAX( player->y - 5, 1 ); y < MIN( player->y + 5, map->h - 2 ); ++y ) {
 		for( x = MAX( player->x - 5, 1 ); x < MIN( player->x + 5, map->w - 2 ); ++x ) {
 			/*printf( "%d %d\n", x, y );*/
@@ -223,7 +236,6 @@ void player_attack( int room_id, int player_id )
 					dmg_player = &( rooms.arr[room_id].players.arr[dmg_player_id] );
 					player_damage( dmg_player, -game.hit_value );
 				}
-
 			}
 		}
 	}

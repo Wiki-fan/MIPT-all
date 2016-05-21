@@ -1,4 +1,4 @@
-  #ifndef TASK_L3__NET_STUFF
+#ifndef TASK_L3__NET_STUFF
 #define TASK_L3__NET_STUFF
 #include "common_types.h"
 

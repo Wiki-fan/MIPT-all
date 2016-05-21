@@ -52,7 +52,8 @@ enum RESPONSE {
 	R_GAME_FINISHED, /* when somebody won */
 	R_GAME_STOPPED, /* by host */
 	R_ROOM_CLOSED,
-	R_CHEATER /* for suspiciously wrong actions */
+	R_CHEATER, /* for suspiciously wrong actions */
+	R_ALREADY_STARTED /* Connecting to already started game */
 };
 
 typedef struct {
@@ -72,6 +73,7 @@ typedef struct {
 	int movement_health_drop;
 	float step_standard_delay;
 	int moratory_duration;
+	int fps;
 	Map map; /* map base, copy for every room */
 } Game;
 
@@ -81,6 +83,8 @@ typedef struct {
 	int num_of_mines;
 	int hp;
 	int sock;
+	int mining; /* Time of mining when player can't move */
+	int cooldown; /* Battle charge cooldown */
 } Player;
 define_vector( Player )
 
@@ -92,6 +96,8 @@ typedef struct {
 	int is_exists; /* If room deleted (or not even created) is 0, else 1. */
 	int left_alive; /* Number of live players */
 	int host_sockid;
+	int moratory; /* Exceeding moratory time. */
+	int frames;
 } Room;
 define_vector( Room )
 
