@@ -16,13 +16,13 @@ struct Fixture {
 	{
 	}
 
-	my::CDeque<int> deque;
+	CDeque<int> deque;
 	std::deque<int> sdeque;
 	std::deque<int>::iterator siter;
-	my::CDeque<int>::CIterator iter;
-	my::CDeque<int>::CIterator iter2;
+	CDeque<int>::CIterator iter;
+	CDeque<int>::CIterator iter2;
 	std::deque<int>::reverse_iterator rsiter;
-	std::reverse_iterator<my::CDeque<int>::CIterator> riter;
+	std::reverse_iterator<CDeque<int>::CIterator> riter;
 	int i;
 };
 
@@ -100,11 +100,11 @@ BOOST_AUTO_TEST_CASE( PlusMinusOperatorsTest )
 	for( int j = 0; j < 1000; j++ ) {
 		int origin = rand();
 		int offset = rand();
-		my::CDeque<int>::CIterator test = deque.begin() + origin % deque.size() - offset % (( origin ) % deque.size() + 1 );
+		CDeque<int>::CIterator test = deque.begin() + origin % deque.size() - offset % (( origin ) % deque.size() + 1 );
 		std::deque<int>::iterator stest = sdeque.begin() + origin % sdeque.size() - offset % (( origin ) % deque.size() + 1 );
 		BOOST_CHECK( *test == *stest );
-		//test = origin % deque.size() - offset%deque.size() + deque.begin();
-		//stest = sdeque.begin() + origin % deque.size() - offset%deque.size();
+		//test = origin % deq.size() - offset%deq.size() + deq.begin();
+		//stest = sdeque.begin() + origin % deq.size() - offset%deq.size();
 		//BOOST_CHECK( *test == *stest );
 	}
 }
@@ -169,9 +169,9 @@ void TestDeque()
 {
 
 	// �������� ��������������� CConstIterator.
-	//const my::CDeque<int> cdeque = deque;
+	//const my::CDeque<int> cdeque = deq;
 	//my::CDeque<int>::CConstIterator citer;
-	//citer = (deque.cbegin());
+	//citer = (deq.cbegin());
 	//citer++; 
 	// ������ � �� ����� ��������� ���������. ��������!
 	// (*citer) = 13;

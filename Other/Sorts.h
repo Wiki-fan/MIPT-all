@@ -2,9 +2,6 @@
 #include "../stdafx.h"
 #include "Smth.h"
 
-namespace my
-{
-
 //Сортировка слиянием. Принимает указатели на начало, конец, дополнительный буфер соответствующего размера.
 template<typename T>
 void MergeSort( T* start, T* finish, T* buffer )
@@ -66,9 +63,6 @@ void qsort( int l, int r, T* a ) // start, finish и указатель на н�
 	qsort( l, j, a );
 	qsort( i, r, a );
 }
-
-
-} // namespace my
 
 // anti-qsort-debug
 /*int qsort( int *a, int l, int r )

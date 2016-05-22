@@ -87,7 +87,7 @@ void CHeap<T>::siftUp( mysize index )
 		if( arr[index] <= arr[parent] ) {
 			return;
 		}
-		swap( arr[index], arr[parent] );
+		std::swap( arr[index], arr[parent] );
 		index = parent;
 	}
 }

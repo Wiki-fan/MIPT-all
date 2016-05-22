@@ -1,6 +1,9 @@
 ﻿#include "stdafx.h"
 //#define MY_CIN_REDIR
-#include "Graph/GraphTests.h"
+#include "GraphTasks/TradeArbitrage.h"
+#include "GraphTasks/Labyrinth.h"
+#include "GraphTasks/15Solver.h"
+
 int main()
 {
 	srand( static_cast<unsigned int>(time( 0 )));
@@ -10,8 +13,9 @@ int main()
 	std::cin.rdbuf( ifs.rdbuf() );
 #endif
 
-	CGraphTester<int, int, std::list> tester;
-	tester.PerformTests( 10, 1000000 );
+	TestArbitrage();
+	//TestLabyrinth();
+	//TestSolver15();
 
 #ifdef MY_CIN_REDIR
 	std::cin.rdbuf( cinbuf );

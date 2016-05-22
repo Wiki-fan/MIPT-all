@@ -8,10 +8,11 @@ int randBetween( const int l, const int r )
 {
 	return ( rand() % ( r - l )) + l;
 }
-/*size_t randBetween( const size_t l, const size_t r )
+
+size_t randBetween( const size_t l, const size_t r )
 {
 	return ( rand() % ( r - l )) + l;
-}*/
+}
 
 // Тестировщик для класса графа и его обходов.
 template<typename VT, typename ET, template<typename, typename ... args> typename AT>
@@ -19,14 +20,32 @@ class CGraphTester {
 
 public:
 	CGraphTester() = default;
-	~CGraphTester() { }
+	~CGraphTester() {
+		std::cout << "Deletion started" <<std::endl;
+	}
 
 	// Создание рандомного графа с v вершинами и e гранями.
-	void GenRandGraph( size_t v, size_t e )
+	void GenRandPseudoGraph( size_t v, size_t e )
 	{
 		g = new CGraph<VT, ET, AT>( v );
 		for( int i = 0; i < e; ++i ) {
-			g->AddEdge( randBetween( 0, v ), randBetween( 0, v ), randBetween( 0, 10000 ));
+			g->AddEdge( randBetween( static_cast<size_t>(0), v ),
+			            randBetween( static_cast<size_t>(0), v ),
+			            randBetween( -10000, 10000 ));
+		}
+	}
+
+	// Создание рандомного графа с v вершинами и e гранями.
+	void GenRandGraph( size_t v)
+	{
+		std::cout << "Generation started" <<std::endl;
+		g = new CGraph<VT, ET, AT>( v );
+		for (size_t i = 0; i<v; i += rand()%(v / 1000)) {
+			for (size_t j = 0; j<v; j += rand()%(v / 1000)) {
+				 if (rand()%10 == 0) {
+					 g->AddEdge(i, j, randBetween( -10000, 10000 ));
+				 }
+			}
 		}
 	}
 
@@ -67,7 +86,11 @@ public:
 	void PerformTests( size_t n, size_t v )
 	{
 		for( int i = 0; i < n; ++i ) {
-			GenRandGraph( randBetween( 0, v ), randBetween( 0, pow( 2, v * ( v - 1 ) / 2 )) / 300 );
+			/*GenRandGraph( randBetween( static_cast<size_t>(0), v ),
+			              randBetween( static_cast<size_t>(0),
+			                           (int)(pow( 2, std::max(static_cast<size_t>(62), v * ( v - 1 ) / 2 ))) / 300)
+			);*/
+			GenRandGraph(v);
 			TestNonRecursiveDFS();
 			TestBFS();
 			//TestDFS();

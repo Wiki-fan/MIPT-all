@@ -1,8 +1,9 @@
 #include "../stdafx.h"
+#include "MinMaxHeap.h"
 
 int MinMaxHeapTest()
 {
-	my::CHeap<int> h1;
+	CHeap<int> h1;
 	h1.Push( 4 );
 	h1.Push( 6 );
 	h1.Push( 2 );

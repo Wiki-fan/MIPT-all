@@ -7,8 +7,8 @@ template<typename VT, typename ET, template<typename, typename ... args> typenam
 class CGraphTraversal {
 
 public:
-	CGraphTraversal() { }
-	virtual ~CGraphTraversal() { }
+	CGraphTraversal() = default;
+	virtual ~CGraphTraversal() = default;
 
 	// Цвета вершин.
 	enum Color {
@@ -43,7 +43,7 @@ public:
 	const std::vector<Color>& getColors() { return colors; }
 
 	// Запуск обхода графа graph.
-	virtual void Walk( CGraph<VT, ET, AT>& graph )
+	virtual void Walk( const CGraph<VT, ET, AT>& graph )
 	{
 		g = &graph;
 		colors.resize( g->GetSize(), Color::White );
@@ -59,7 +59,7 @@ public:
 protected:
 
 	std::vector<Color> colors;
-	CGraph<VT, ET, AT>* g;
+	CGraph<VT, ET, AT> const * g;
 
 	virtual void walk( size_t start ) = 0;
 };

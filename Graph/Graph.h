@@ -12,7 +12,8 @@ class CGraph {
 	struct CEdge;
 public:
 	// Конструктор по умолчанию - пустой граф.
-	CGraph() { }
+	CGraph() = default;
+	~CGraph() = default;
 
 	//Граф с size вершинами.
 	CGraph( size_t size )
@@ -58,10 +59,8 @@ public:
 private:
 	struct CEdge {
 		ET val;
-		size_t vNum;
+		size_t vNum; // Номер вершины, куда указывает ребро.
 		CEdge( size_t _vNum, ET _val ) : vNum( _vNum ), val( _val ) { }
-		ET getVal() const { return val; }
-		size_t getNum() const { return vNum; }
 	};
 
 	struct CVertex {
@@ -71,9 +70,6 @@ private:
 		~CVertex() { }
 		AT<CEdge> out;
 		AT<CEdge> in;
-		VT getVal() const { return val; }
-		const AT<CEdge>& getIn() const { return in; }
-		const AT<CEdge>& getOut() const { return out; }
 	};
 
 	std::vector<CVertex> vertices;

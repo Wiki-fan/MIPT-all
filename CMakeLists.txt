@@ -61,7 +61,9 @@ set(TESTS_SOURCES
 		BinarySearchTrees/SplayTree.h
 		StructuresForMassModification/SegmentTree.h
 		StructuresForMassModification/SparseTable.h
-		ImplicitTrees/ImplicitSplayTree.h ImplicitTrees/ImplicitTreeTests.h ImplicitTrees/ImplicitTree.h Graph/Graph.h Graph/GraphTraversal.h Graph/GraphTests.h)
+		ImplicitTrees/ImplicitSplayTree.h ImplicitTrees/ImplicitTreeTests.h ImplicitTrees/ImplicitTree.h
+		Graph/Graph.h Graph/GraphTraversal.h Graph/GraphTests.h
+		GraphTasks/TradeArbitrage.h GraphTasks/Labyrinth.h GraphTasks/15Solver.h)
 set(TEST test_${PROJECT_NAME})
 
 set(SOURCE_FILES
@@ -111,6 +113,7 @@ set(SOURCE_FILES
 		Graph/Graph.h
 		Graph/GraphTraversal.h
 		Graph/GraphTests.h
+		GraphTasks/TradeArbitrage.h
 		)
 
 set(Boost_USE_STATIC_LIBS ON)
