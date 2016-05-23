@@ -11,19 +11,20 @@ if object_id (N'most_popular_by_watches_artist', N'IF') is not null
 go
 create function pictures_watched_in(@period date)
 returns table as return (
-	select Watches.PictureID
-		from Watches  
-		where dateadd(day, datediff(day, @period, 0), Watches.WatchDate) 
-			> sysdatetime()
+	select w.PictureID
+		from Watches as w
+		where datediff(day, w.WatchDate, getdate()) < datediff(day, 0,@period)
 )
 go
 create function get_count_watches_artists(@period date )
 returns table as return (
-	select COUNT(ArtistID) as Watches, ArtistID
+	select COUNT(a.ID) as Watches, a.ID as ArtistID
 		from pictures_watched_in(@period) as watched
-			inner join Pictures on watched.PictureID = Pictures.ID 
-			inner join Artists on Pictures.ArtistID = Artists.ID 
-		group by ArtistID
+			inner join Pictures as p
+				on watched.PictureID = p.ID 
+			inner join Artists as a
+				on p.ArtistID = a.ID 
+		group by a.ID
 )
 go
 create function most_popular_by_watches_artist(@period date)
@@ -33,5 +34,7 @@ returns table as return (
 	where Watches = (select MAX(tbl.Watches) as Max from get_count_watches_artists(@period) as tbl) 
 ) 
 go
-select * from most_popular_by_watches_artist(dateadd(month, 1, 0));
+select * from pictures_watched_in(dateadd(year, 2, 0));
+select * from get_count_watches_artists(dateadd(year, 2, 0));
+select * from most_popular_by_watches_artist(dateadd(year, 2, 0));
 go

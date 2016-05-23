@@ -10,31 +10,33 @@ def escape(s):
 	return s.replace("'", "''")
 
 
-number_of_users = 1000
-number_of_watches = 100000
-number_of_pictures = 10000
+number_of_users = 10000
+number_of_watches = 1000000
+number_of_pictures = 1000000000 # large number, so data will end earlier
 
 
-def get_rnd_date():
-	return "CONVERT(DATETIME, '{0}/{1}/{2}', 104)".format(randrange(1, 28), randrange(1, 12), randrange(1900, 2025))
+def get_rnd_date(begin, end):
+	return "CONVERT(DATETIME, '{0}/{1}/{2}', 103)".format(randrange(1, 28), randrange(1, 12), randrange(begin,end))
 
 
 def populate_users():
 	with open('populate_users.sql', "w+", encoding="utf-8") as out:
-		data = requests.get('https://randomuser.me/api/', params={'results': number_of_users}).json()
 		i = 0
-
-		for r in data['results']:
-			out.write(fmtstrs.users.format(
-				ID=i,
-				Name="{0} {1}".format(r['name']['first'], r['name']['last']),
-				FirstName=r['name']['first'],
-				LastName=r['name']['last'],
-				Nickname=r['login']['username'],
-				RegistrationDate=get_rnd_date()
-			))
-			i += 1
-			time.sleep(0.01)
+		for j in range(0, int(number_of_users/100)):
+			data = requests.get('https://randomuser.me/api/', params={'results': 100}).json()
+			
+			for r in data['results']:
+				out.write(fmtstrs.users.format(
+					ID=i,
+					Name="{0} {1}".format(escape(r['name']['first']), escape(r['name']['last'])),
+					FirstName=escape(r['name']['first']),
+					LastName=escape(r['name']['last']),
+					Nickname=escape(r['login']['username']),
+					RegistrationDate=get_rnd_date(1990, 2015)
+				))
+				i += 1
+				#time.sleep(0.01)
+	print('Users generated')
 
 
 auxverbs = {'a', 'an', 'the', 'of', 'do', 'at', 'does', 'did', 'has', 'have', 'had', 'is', 'am', 'are', 'was', 'were',
@@ -100,21 +102,21 @@ def populate_pictures_and_artists():
 				Width=randrange(1, 2001), Height=randrange(1, 2001), Rating=randrange(-20, 21),
 				ArtistID="(select ID from Artists where name='{0}')".format(name),
 				UploaderID=randrange(0, number_of_users),
-				DateCreated=get_rnd_date(),
-				DateUploaded=get_rnd_date()
+				DateCreated=get_rnd_date(1900, 1990),
+				DateUploaded=get_rnd_date(1990, 2015)
 			))
 			for tag in title.split(' '):
 				if tag not in tags:
 					if tag.lower() not in auxverbs:
 						tags_out.write(fmtstrs.tags.format(ID=tags_i, Name=tag))
-					tags_i += 1
-					tags.add(tag)
-					tags_pictures_out.write(fmtstrs.tags_pictures.format(
-						ID=tags_pictures_i,
-						TagID="(select ID from Tags where Name='{0}')".format(tag),
-						PictureID=pictures_i
-					))
-					tags_pictures_i += 1
+						tags_i += 1
+						tags.add(tag)
+				tags_pictures_out.write(fmtstrs.tags_pictures.format(
+					ID=tags_pictures_i,
+					TagID="(select ID from Tags where Name='{0}')".format(tag),
+					PictureID=pictures_i
+				))
+				tags_pictures_i += 1
 			pool = escape(row[8])
 			if pool not in pools:
 				pools_out.write(fmtstrs.pools.format(
@@ -123,20 +125,25 @@ def populate_pictures_and_artists():
 					Description="This is a {0}".format(pool)
 				))
 				pools.add(pool)
+				pools_i += 1
+			if randrange(0, 10) == 0:
 				pools_pictures_out.write(fmtstrs.pools_pictures.format(
 					ID=pools_pictures_i,
 					PoolID="(select ID from Pools where Name='{0}')".format(pool),
 					PictureID=pictures_i
 				))
 				pools_pictures_i += 1
-				pools_i += 1
 			pictures_i += 1
+			if pictures_i % 1000 == 0:
+				picture_out.write('go\n')
+				pools_pictures_out.write('go\n')
+				tags_pictures_out.write('go\n')
 			if pictures_i > number_of_pictures:
 				break  # populate_users()
+	print('Pictures populated')
 
 
-sites_i = 0
-
+sites_i = 110
 
 def populate_sites():
 	with open('populate_sites.sql', "w+", encoding="utf-8") as sites_out:
@@ -162,11 +169,13 @@ def populate_sites():
 					Name=escape(site)
 				))
 			time.sleep(5)
+	print('Sites populated')
 
 
 def populate_watches():
 	with open('populate_watches.sql', "w+", encoding="utf-8") as watches_out, \
 			open('populate_reposts.sql', "w+", encoding="utf-8") as reposts_out:
+		global sites_i
 		watches_i = 0
 		reposts_i = 0
 		for i in range(0, number_of_watches):
@@ -178,9 +187,12 @@ def populate_watches():
 				Liked='1' if randrange(0, 2) else '0',
 				Reposted='1' if is_reposted else '0',
 				SiteID= randrange(0, sites_i) if is_reposted else 'null',
-				WatchDate= get_rnd_date()
+				WatchDate= get_rnd_date(1990, 2015)
 			))
 			watches_i += 1
+			if watches_i % 1000 == 0:
+				watches_out.write('go\n')
+				reposts_out.write('go\n')
 			if is_reposted == 1:
 				reposts_out.write(fmtstrs.reposts.format(
 					ID=reposts_i,
@@ -188,6 +200,7 @@ def populate_watches():
 					Message='This picture is awesome'
 				))
 				reposts_i += 1
+	print('Watches populated')
 
 
 def populate_childpools():
@@ -205,7 +218,7 @@ def populate_childpools():
 						ChildPoolID=j
 					))
 
-#populate_users()
+populate_users()
 #populate_sites()
 populate_pictures_and_artists()
 populate_watches()

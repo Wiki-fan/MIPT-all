@@ -12,10 +12,10 @@ if object_id (N'most_popular_by_uploads_artist', N'IF') is not null
 go
 create function pictures_uploaded_in(@period date)
 returns table as return (
-	select Pictures.*
-		from Pictures
-		where dateadd(day, datediff(day, @period, 0), Pictures.DateUploaded) 
-			> sysdatetime()
+	select p.*
+		from Pictures as p
+		where /*dateadd(day, datediff(day, @period, 0), p.DateUploaded) > getdate()*/
+		datediff(day, p.DateUploaded, getdate()) < datediff(day, 0,@period)
 )
 go
 create function get_count_uploads_artists(@period date )
@@ -32,5 +32,7 @@ returns table as return (
 	where Uploads = (select MAX(tbl.Uploads) as Max from get_count_uploads_artists(@period) as tbl) 
 ) 
 go
-select * from most_popular_by_uploads_artist(dateadd(month, 1, 0));
+select * from pictures_uploaded_in(dateadd(year, 5, 0))
+select * from get_count_uploads_artists(dateadd(year, 5, 0))
+select * from most_popular_by_uploads_artist(dateadd(year, 5, 0));
 go
