@@ -25,7 +25,7 @@ int main()
 	int act = ask_player_or_host();
 
 	game = G_CONTINUE;
-	
+
 	/* Connect */
 	setup_connection();
 	printf( "Connection established\n" );

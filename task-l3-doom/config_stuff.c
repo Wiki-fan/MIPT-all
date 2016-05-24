@@ -76,6 +76,7 @@ void read_config_from_file( char* file_name )
 	game.map.fg = (char**) malloc_s( game.map.h * sizeof( char* ));
 	game.map.bg = (int**) malloc_s( game.map.h * sizeof( int* ));
 	game.map.pl = NULL;
+	game.map.splash = NULL;
 	for( y = 0; y < game.map.h; ++y ) {
 		game.map.fg[y] = (char*) malloc_s(( game.map.w ) * sizeof( char ));
 		game.map.bg[y] = (int*) calloc_s( game.map.w, sizeof( int ));

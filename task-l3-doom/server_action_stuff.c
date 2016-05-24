@@ -11,6 +11,7 @@
 #include <sys/select.h>
 #include "game_stuff.h"
 #include "net_stuff.h"
+#include "common_types.h"
 
 extern fd_set master;
 extern fd_set read_fds;
@@ -52,7 +53,7 @@ void decrease_hp()
 			for( j = 0; j < rooms.arr[i].players.size; ++j ) {
 				player = &rooms.arr[i].players.arr[j];
 				if( ALIVE( player )) {
-					player_damage( player, -game.stay_health_drop );
+					player_damage( player, -(player->is_moving?game.movement_health_drop:game.stay_health_drop) );
 					if( rooms.arr[i].frames ) {
 						/* Decrease player things */
 						if( player->cooldown > 0 ) {
@@ -142,14 +143,12 @@ void send_rooms_list( int i )
 	LOG(( "Send list of rooms to socket %d", i ));
 }
 
-void create_room( int i )
+void create_room( int i)
 {
-	int resp;
 	SockIdInfo* info = &sock_info.arr[i];
 	Room room;
 	/*receive room name */
-	resp = read_buf( i, buf );
-	/*CHECKRESPONSE();*/
+	read_buf( i, buf );
 
 	/* init room struct */
 	strcpy( room.name, buf );
@@ -179,7 +178,6 @@ void join_room( int i )
 	SockIdInfo* info = &sock_info.arr[i];
 
 	read_buf( i, buf ); /* player name */
-	/*CHECKRESPONSE();*/
 	room_id = *(int*) buf;
 
 	if( rooms.arr[room_id].is_started ) {

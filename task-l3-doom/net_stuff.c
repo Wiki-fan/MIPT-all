@@ -20,8 +20,8 @@ extern Vector_SockIdInfo sock_info;
         if (errno == ENOTCONN ) {\
             return -1;\
         } else {\
-            perror(ret);\
-            exit(err);\
+            perror("net failed");\
+            exit(ERR);\
         }\
     }\
 }

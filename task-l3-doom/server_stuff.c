@@ -172,6 +172,7 @@ void* game_loop( void* args )
 					player_use( node->sock_info.room_id, node->sock_info.player_id );
 					break;
 				case A_NONE:
+					player->is_moving = 0;
 					break;
 				default:
 					errx( 3, "Unreachable code" );

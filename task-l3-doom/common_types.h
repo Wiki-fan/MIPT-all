@@ -1,10 +1,12 @@
 #ifndef TASK_L3__COMMON_TYPES
 #define TASK_L3__COMMON_TYPES
 #include "vector_impl.h"
+#include "queue_impl.h"
 #include "client_stuff.h"
 #include "error_stuff.h"
 
 #define NUM_OF_MINES 10
+#define BATTLE_CHARGE_RADIUS 10
 #define PORT 8024
 #define BACKLOG 5
 #define HOSTNAME "127.0.0.1"
@@ -60,6 +62,7 @@ typedef struct {
 	char** fg; /* foreground: bonuses, walls, spaces */
 	int** bg; /* background: mines, bonus hp delta */
 	int** pl; /* Players id, -1 if no player. Information about mines owner.  */
+	char** splash; /* Data about splash. */
 	int w; /* width */
 	int h; /*height */
 } Map;
@@ -85,6 +88,7 @@ typedef struct {
 	int sock;
 	int mining; /* Time of mining when player can't move */
 	int cooldown; /* Battle charge cooldown */
+	int is_moving;
 } Player;
 define_vector( Player )
 

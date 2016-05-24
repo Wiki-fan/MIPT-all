@@ -35,6 +35,7 @@ void room_delete(Room* room);
 #define ISMINE(y, x) ( (map->fg[y][x] == M_SPACE \
 	&& map->bg[y][x] != 0\
 	&& map->pl[y][x] != player_id) ? 1:0 )
+#define ISWALL(y, x) ( map->fg[y][x] == M_WALL )
 #define ISSPACE(y, x) ( (map->fg[y][x] == M_SPACE && map->pl[y][x] == -1) ? 1:0)
 #define ISBONUS(y, x) ( (map->fg[y][x] == M_BONUS && (map->pl[y][x] == -1 || map->pl[y][x] == player_id)) ? 1:0)
 #define ISPLAYER(y, x) ( ( ( (map->fg[y][x] == M_SPACE && map->bg[y][x] == 0) || map->fg[y][x] == M_BONUS)  && map->pl[y][x] != -1)  ? 1:0)
