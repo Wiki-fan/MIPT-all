@@ -1,11 +1,16 @@
 use Gallery;
 go 
-create unique index TagsIDX on Tags(ID);
+/*drop index Tags.TagsIDX
+drop index Watches.WatchesIDX
+drop index Watches.WatchesPictureIDX
+drop index Watches.WatchesUserIDX
+drop index Watches.WatchesLikedIDX*/
+/*create unique index TagsIDX on Tags(ID);
 create unique index WatchesIDX on Watches(ID);
 create index WatchesPictureIDX on Watches(PictureID) include (UserID);
 create unique index WatchesUserIDX on Watches(UserID);
 create index WatchesLikedIDX on Watches(Liked) include (PictureID);
-go
+go*/
 if object_id('get_artist_like_count', 'FN') is not null
 	drop function get_artist_like_count;
 go
