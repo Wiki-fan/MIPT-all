@@ -23,32 +23,38 @@ if object_id('get_user_most_popular_pools', 'IF') is not null
 go
 create function get_user_most_popular_pools(@id T_UsersID, @count int)
 returns table as 
-	return select top(@count) /*count(t.ID),*/ t.Name
+	return select top(@count) /*count(t.ID),*/ po.Name
 	from Pools as po
 		inner join Pools_Pictures as pp
-			on po.ID = pp.TagID
+			on po.ID = pp.PoolID
 		inner join Pictures as pic
 			on pic.ID = pp.PictureID
 		inner join Watches as w 
 			on pic.ID = w.PictureID
 	where w.UserID = @id
-	group by p.Name
-	order by count(p.ID) desc
+	group by po.Name
+	order by count(po.ID) desc
 go
-if object_id('artist_view', 'V') is not null
-	drop view artist_view;
+if object_id('user_view', 'V') is not null
+	drop view user_view;
 go
-create view artist_view
+create view user_view
 as
-	select a.Name, 
+	select u.Name, 
+	u.Nickname,
+	(select * from get_user_most_popular_tags(u.ID, 1)) as mpt,
+	(select * from get_user_most_popular_tags(u.ID, 2) except select * from get_user_most_popular_tags(u.ID, 1)) as mpt2,
+	(select * from get_user_most_popular_pools(u.ID, 1)) as mpp,
+	(select * from get_user_most_popular_pools(u.ID, 2) except select * from get_user_most_popular_pools(u.ID, 1)) as mpp2
 
-	(select * from get_artist_like_count(a.ID)) as likes,
 
-	(select * from get_most_popular_tags(a.ID, 1)) as mpt,
-	(select * from get_most_popular_tags(a.ID, 2) except select * from get_most_popular_tags(a.ID, 1)) as mpt2,
-
-	(select * from get_avg_age(a.ID)) as avg_date
-from Artists as a
+from Users as u
 go
-select * from artist_view
+select top 100 * from user_view
+go
+update user_view
+set Nickname='WonderfulUser'
+where Name=(select Name from Users where ID=2)
+go
+select * from User where ID=2
 go
