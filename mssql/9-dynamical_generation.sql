@@ -35,18 +35,38 @@ returns table as return (
 	where Watches = (select MAX(tbl.Watches) as Max from get_count_watches_artists_between(@begin, @end) as tbl) 
 ) 
 go
+if object_id (N'get_stat', N'P') is not null
+	drop procedure get_stat;
+go
+create procedure get_stat(@years int) as 
 begin
-declare @i int = 2;
-while @i < 15
-begin
-declare @query varchar(1000) = CONCAT('select * from most_popular_by_watches_artist_between(dateadd(year,',
-CONVERT(nvarchar(2), @i),
-', 0),dateadd(year,',
-CONVERT(nvarchar(2), @i-1),
-', 0))');
-set @i = @i + 1;
-print (@query);
-exec (@query);
-end;
+	declare @i int = 2,
+			@query varchar(max);
+	set @query = 'select Year, ArtistID, Watches from (';
+
+	set @query = @query + 
+		CONCAT('(select ',CONVERT(nvarchar(2), @i-1),' as Year, ArtistID, Watches from most_popular_by_watches_artist_between(dateadd(year,',
+		CONVERT(nvarchar(2), @i),
+		', 0),dateadd(year,',
+		CONVERT(nvarchar(2), @i-1),
+		', 0))) ');
+	set @i = @i + 1;
+	print (@query);
+	while @i < @years
+	begin
+		set @query = @query + 
+		CONCAT(' UNION (select ',CONVERT(nvarchar(2), @i-1),' as Year, ArtistID, Watches from most_popular_by_watches_artist_between(dateadd(year,',
+		CONVERT(nvarchar(2), @i),
+		', 0),dateadd(year,',
+		CONVERT(nvarchar(2), @i-1),
+		', 0)))');
+		set @i = @i + 1;
+		print (@query);
+	end;
+	set @query = @query + ') as tbl';
+	print (@query);
+	exec (@query);
 end
+go
+exec get_stat 15;
 go
