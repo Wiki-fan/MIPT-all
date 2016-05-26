@@ -18,18 +18,19 @@ char buf[CLIENT_BUF_SIZE];
 Player player;
 
 /* Initialize poll_arr */
-void setup_connection()
+void setup_connection(char* hostname, int port)
 {
 	int portno;
 	struct sockaddr_in serv_addr;
 	struct hostent* server;
 
-	portno = PORT;
+	printf("Connecting to host %s  port %d\n", hostname, port);
+	portno = port;
 
 	CN1( poll_arr[P_SOCK].fd = socket( AF_INET, SOCK_STREAM, 0 ), E_SOCKET );
 	poll_arr[P_STDIN].fd = STDIN_FILENO;
 
-	CH0( server = gethostbyname( HOSTNAME ), 25, "No such hostname" );
+	CH0( server = gethostbyname( hostname ), 25, "No such hostname" );
 
 	memset((char*) &serv_addr, 0, sizeof( serv_addr ));
 	serv_addr.sin_family = AF_INET;

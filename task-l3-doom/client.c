@@ -14,20 +14,31 @@
 /*for debug */
 volatile int cnt;
 
-volatile int action;
+int action;
 extern struct pollfd poll_arr[NUMPOLLS];
 
-volatile int game;
+int game;
 
-int main()
+int port;
+
+int main(int argc, char* argv[])
 {
+	if (!(argc == 2 || argc == 3)) {
+		printf("Usage:\n./client <hostname> [port = 8086]\n");
+		exit(0);
+	}
+	if (argc == 3) {
+		port = atoi(argv[2]);
+	} else {
+		port = 8086;
+	}
 	/* Determining role of client */
 	int act = ask_player_or_host();
 
 	game = G_CONTINUE;
 
 	/* Connect */
-	setup_connection();
+	setup_connection(argv[1], port);
 	printf( "Connection established\n" );
 
 	switch( act ) {

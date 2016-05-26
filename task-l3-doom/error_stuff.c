@@ -17,5 +17,7 @@ char* errmsg[] =
 		        "bind",
 		        "accept",
 		        "select",
-		        "poll"
+		        "poll",
+		        "freopen",
+		        "Wrong parameters"
 		};

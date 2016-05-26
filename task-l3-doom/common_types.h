@@ -7,9 +7,7 @@
 
 #define NUM_OF_MINES 10
 #define BATTLE_CHARGE_RADIUS 10
-#define PORT 8024
 #define BACKLOG 5
-#define HOSTNAME "127.0.0.1"
 #define FIELD_OF_SIGHT 10
 #define INITIAL_NUM_OF_ROOMS 4
 #define INITIAL_NUM_OF_PLAYERS 4
@@ -153,5 +151,7 @@ err(CODE, MESSAGE);
 /** Because we can, our min-max macro */
 #define MAX( a, b ) (a>b? (a):(b))
 #define MIN( a, b ) (a<b? (a):(b))
+
+extern int port;
 
 #endif /* L3__COMMON_TYPES */

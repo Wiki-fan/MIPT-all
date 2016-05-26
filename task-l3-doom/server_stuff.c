@@ -29,7 +29,7 @@ fd_set read_fds;
 /* max num of file descriptor, so we check only [0, fdmax] */
 int fdmax;
 
-int listener_fd, port_num = PORT;
+int listener_fd, port_num;
 timer_t timerid;
 
 pthread_t listener_pid, game_loop_pid;
@@ -286,6 +286,8 @@ int server_start()
 	struct itimerspec its;
 
 	LOG(( "Server started" ));
+
+	port_num = port;
 
 	CN1( listener_fd = socket( AF_INET, SOCK_STREAM, 0 ), E_SOCKET );
 

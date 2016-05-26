@@ -20,7 +20,9 @@ enum ERRCODE {
 	E_BIND,
 	E_ACCEPT,
 	E_SELECT,
-	E_POLL
+	E_POLL,
+	E_FREOPEN,
+	E_WRONG_PARAMETERS
 };
 
 #define CN1( VAL, CODE )\

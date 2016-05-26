@@ -9,7 +9,7 @@ enum POLL_DESC {
 	P_SOCK, P_STDIN
 };
 
-void setup_connection();
+void setup_connection(char* hostname, int port);
 int ask_player_or_host();
 void ask_room_name( char* buf );
 void ask_player_name( char* buf );
