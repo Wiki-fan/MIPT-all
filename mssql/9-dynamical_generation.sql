@@ -6,9 +6,6 @@ go
 if object_id (N'get_count_watches_artists_between', N'IF') is not null
 	drop function get_count_watches_artists_between;
 go
-if object_id (N'most_popular_by_watches_artist_between', N'IF') is not null
-	drop function most_popular_by_watches_artist_between;
-go
 create function pictures_watched_between(@begin date, @end date)
 returns table as return (
 	select w.PictureID
@@ -28,13 +25,6 @@ returns table as return (
 		group by a.ID
 )
 go
-create function most_popular_by_watches_artist_between(@begin date, @end date)
-returns table as return (
-	select ArtistID, Watches
-	from get_count_watches_artists_between(@begin, @end)
-	where Watches = (select MAX(tbl.Watches) as Max from get_count_watches_artists_between(@begin, @end) as tbl) 
-) 
-go
 if object_id (N'get_stat', N'P') is not null
 	drop procedure get_stat;
 go
@@ -42,28 +32,38 @@ create procedure get_stat(@years int) as
 begin
 	declare @i int = 2,
 			@query varchar(max);
-	set @query = 'select Year, ArtistID, Watches from (';
-
+	set @query = 'select Artists.ID as [Artist ID], ';
+	set @query = @query + CONCAT('Year',CONVERT(nvarchar(2), @i-1), '.Watches as [Year ',CONVERT(nvarchar(2), @i-1),']');
+	set @i = @i + 1;
+	while @i < @years+2
+	begin
+		set @query = @query + CONCAT(', Year',CONVERT(nvarchar(2), @i-1), '.Watches as [Year ',CONVERT(nvarchar(2), @i-1),']');
+		set @i = @i + 1;
+		--print (@query);
+	end;
+	set @query = @query + ' from '
+	set @i = 2;
+	set @query = @query + '(select ID from Artists) as Artists ';
 	set @query = @query + 
-		CONCAT('(select ',CONVERT(nvarchar(2), @i-1),' as Year, ArtistID, Watches from most_popular_by_watches_artist_between(dateadd(year,',
+		CONCAT('left join (select ArtistID, Watches from get_count_watches_artists_between(dateadd(year,',
 		CONVERT(nvarchar(2), @i),
 		', 0),dateadd(year,',
 		CONVERT(nvarchar(2), @i-1),
-		', 0))) ');
+		', 0))) as Year',CONVERT(nvarchar(2), @i-1), ' on Artists.ID = Year',CONVERT(nvarchar(2), @i-1),'.ArtistID' );
 	set @i = @i + 1;
-	print (@query);
-	while @i < @years
+	--print (@query);
+	while @i < @years+2
 	begin
 		set @query = @query + 
-		CONCAT(' UNION (select ',CONVERT(nvarchar(2), @i-1),' as Year, ArtistID, Watches from most_popular_by_watches_artist_between(dateadd(year,',
+		CONCAT(' left join (select ArtistID, Watches from get_count_watches_artists_between(dateadd(year,',
 		CONVERT(nvarchar(2), @i),
 		', 0),dateadd(year,',
 		CONVERT(nvarchar(2), @i-1),
-		', 0)))');
+		', 0))) as Year',CONVERT(nvarchar(2), @i-1),' on Artists.ID = Year', CONVERT(nvarchar(2), @i-1), '.ArtistID');
 		set @i = @i + 1;
-		print (@query);
+		--print (@query);
 	end;
-	set @query = @query + ') as tbl';
+	set @query = @query + ' order by Artists.ID asc';
 	print (@query);
 	exec (@query);
 end
