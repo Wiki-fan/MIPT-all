@@ -44,15 +44,16 @@ void decrease_hp()
 	for( i = 0; i < rooms.size; ++i ) {
 		/* If room exists and game in room is started */
 		if( rooms.arr[i].is_exists == 1 && rooms.arr[i].is_started == 1 ) {
-			if( rooms.arr[i].left_alive <= 1 ) {
-				send_to_all_in_room( i, R_GAME_FINISHED );
-				send_int( R_GAME_FINISHED, rooms.arr[i].host_sockid ); /* Inform host */
-				rooms.arr[i].is_started = 0;
-				continue;
-			}
 			for( j = 0; j < rooms.arr[i].players.size; ++j ) {
 				player = &rooms.arr[i].players.arr[j];
 				if( ALIVE( player )) {
+					if( rooms.arr[i].left_alive <= 1 ) {
+						player_kill(player, &rooms.arr[sock_info.arr[player->sock].room_id].map);
+						send_to_all_in_room( i, R_GAME_FINISHED );
+						send_int( R_GAME_FINISHED, rooms.arr[i].host_sockid ); /* Inform host */
+						rooms.arr[i].is_started = 0;
+						continue;
+					}
 					player_damage( player, -(player->is_moving?game.movement_health_drop:game.stay_health_drop) );
 					if( rooms.arr[i].frames ) {
 						/* Decrease player things */
@@ -184,6 +185,7 @@ void join_room( int i )
 		send_int( R_ALREADY_STARTED, i );
 	}
 	/*player_init( &player, &rooms.arr[room_id].map );*/
+	memset(&player, 0, sizeof(Player));
 	player.sock = i;
 	/* Name */
 	memset( player.name, 0, MAX_NAME_LEN );

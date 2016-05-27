@@ -91,7 +91,7 @@ int main( int argc, char* argv[] )
 	if (*log != '\0') {
 		CNULL(freopen(log, "a", stdin), E_FREOPEN);
 	}
-	
+
 	LOG(( "Starting server" ));
 	LOG(( "Reading config from %s", config ));
 	LOG(( "Writing log to %s", *log == '\0'? "stdout":log ));

@@ -120,7 +120,7 @@ void map_delete( Map* map )
 void room_delete( Room* room )
 {
 	room->is_exists = 0;
-	map_delete( &room->map );
+	map_delete( &(room->map) );
 	Vector_Player_destroy( &room->players );
 }
 
@@ -175,11 +175,12 @@ void player_move( int room_id, int player_id, int x, int y )
 		player->x += x;
 		player->y += y;
 		player_damage( player, map->bg[player->y][player->x] );
+		map->bg[player->y][player->x] = 0;
+		map->pl[player->y][player->x] = player_id;
 		if (player->hp < 0) {
 			player_kill(player, map);
 		}
-		map->bg[player->y][player->x] = 0;
-		map->pl[player->y][player->x] = player_id;
+
 	}
 }
 
@@ -284,6 +285,6 @@ void player_attack( int room_id, int player_id )
 				/*printf("##");*/
 			}
 		}
-		printf("\n");
+		/*printf("\n");*/
 	}
 }

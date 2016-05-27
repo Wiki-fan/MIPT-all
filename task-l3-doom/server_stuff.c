@@ -7,7 +7,6 @@
 #include <signal.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <unistd.h>
 #include <pthread.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
@@ -239,7 +238,10 @@ void server_cleanup()
 	GameQueue_destroy( &gq );
 	LOG(( "GQ destroyed" ));
 	for( i = 0; i < rooms.size; ++i ) {
-		room_delete( &rooms.arr[i] );
+		if (rooms.arr[i].is_exists == 1) {
+			LOG(( "Destroying room %d", i ));
+			room_delete( &rooms.arr[i] );
+		}
 	}
 	LOG(( "Rooms destroyed" ));
 	Vector_Room_destroy( &rooms );

@@ -23,10 +23,10 @@ server: server.o $(OBJ) $(DEPS)
 include $(wildcard *.d)
 
 valgrind_server:
-	valgrind $(VALGRIND_OPTIONS) ./server
+	valgrind $(VALGRIND_OPTIONS) ./server -p 8086
 
 valgrind_client:
-	valgrind $(VALGRIND_OPTIONS) ./client
+	valgrind $(VALGRIND_OPTIONS) ./client 127.0.0.1
 
 $(DEP_DIRS):
 	$(MAKE) -C $@
