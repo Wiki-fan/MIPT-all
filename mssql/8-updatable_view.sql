@@ -56,5 +56,5 @@ update user_view
 set Nickname='WonderfulUser'
 where Name=(select Name from Users where ID=2)
 go
-select * from User where ID=2
+select * from Users where ID=2
 go
