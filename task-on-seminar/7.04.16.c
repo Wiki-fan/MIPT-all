@@ -4,6 +4,7 @@
  * p1 p2 p3
  * Распечатать из любого из данных процессов эту иерархию в правильном порядке. Звёздочкой отмечать текущий процесс.
  */
+#define _POSIX_C_SOURCE 200901L
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -16,7 +17,7 @@ volatile pid_t p0, t, p1,p2,p3, id;
 volatile int pipefd[2];
 volatile char succ = 0;
 
-void hndlr1(int sig)
+void hndlr1(int signal)
 {
     if (signal == SIGUSR1)
     {
@@ -29,7 +30,7 @@ void hndlr1(int sig)
         exit(0);
     }
 }
-void hndlr2(int sig)
+void hndlr2(int signal)
 {
     if (signal == SIGUSR1)
     {
@@ -40,7 +41,17 @@ void hndlr2(int sig)
         exit(0);
     }
 }
-void hndlr3(int sig);
+void hndlr3(int signal)
+{
+    if (signal == SIGUSR1)
+    {
+        read(pipefd[0], &p3, sizeof(pid_t));
+        print_info(p2);
+        close(pipefd[0]);
+        close(pipefd[1]);
+        exit(0);
+    }
+}
 void succ_hndlr(int sig)
 {
     if (sig == SIGUSR2)
@@ -57,7 +68,7 @@ void print_info(pid_t pid)
     }
     else
     {
-        printf("p0:%ul\n", (unsigned long int)pid);
+        printf("p0:%lu\n", (unsigned long int)pid);
     }
     if (pid == p1)
     {
@@ -65,7 +76,7 @@ void print_info(pid_t pid)
     }
     else
     {
-        printf("p1:%ul\n", (unsigned long int)pid);
+        printf("p1:%lu\n", (unsigned long int)pid);
     }
     if (pid == p2)
     {
@@ -73,7 +84,7 @@ void print_info(pid_t pid)
     }
     else
     {
-        printf("p2:%ul\n", (unsigned long int)pid);
+        printf("p2:%lu\n", (unsigned long int)pid);
     }
     if (pid == p3)
     {
@@ -81,7 +92,7 @@ void print_info(pid_t pid)
     }
     else
     {
-        printf("p3:%ul\n", (unsigned long int)pid);
+        printf("p3:%lu\n", (unsigned long int)pid);
     }
 }
 int main()

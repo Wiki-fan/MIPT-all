@@ -2,20 +2,21 @@
 #define TASK_L3__ERROR_STUFF
 
 extern char* errmsg[];
-enum ERRCODE {
-	E_OPEN,
-	E_CLOSE,
-	E_WAITPID,
-	E_EXECVP,
-	E_FORK,
-	E_DUP2,
-	E_FILE_OPEN,
-	E_UNREACHABLE,
-	E_PIPE,
-	E_RUN,
-	E_SIGACTION,
-	E_UNSUPPORTED_SIGNAL,
-	T_MY_REDIRECT
+enum ERRCODE
+{
+    E_OPEN,
+    E_CLOSE,
+    E_WAITPID,
+    E_EXECVP,
+    E_FORK,
+    E_DUP2,
+    E_FILE_OPEN,
+    E_UNREACHABLE,
+    E_PIPE,
+    E_RUN,
+    E_SIGACTION,
+    E_UNSUPPORTED_SIGNAL,
+    T_MY_REDIRECT
 };
 
 #define RAISE(CODE)\

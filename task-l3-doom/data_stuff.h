@@ -1,10 +1,11 @@
 #ifndef TASK_L3__DATA_STUFF
 #define TASK_L3__DATA_STUFF
 
-typedef struct {
-	char *buf;
-	int buf_size;
-	int cur_pos;
+typedef struct
+{
+    char *buf;
+    int buf_size;
+    int cur_pos;
 } String;
 
 /* appends character to buffer */

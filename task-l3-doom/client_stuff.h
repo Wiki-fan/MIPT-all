@@ -5,8 +5,9 @@
 #define CLIENT_BUF_SIZE 800
 #define STR_CLIENT_BUF_SIZE "800"
 #define NUMPOLLS 2
-enum POLL_DESC {
-	P_SOCK, P_STDIN
+enum POLL_DESC
+{
+    P_SOCK, P_STDIN
 };
 
 void setup_connection(char* hostname, int port);
