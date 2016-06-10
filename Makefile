@@ -1,10 +1,10 @@
-TARGET: akos.pdf akos-lectures.pdf
+TARGET: akos-seminars.pdf akos-lectures.pdf
 
 all: TARGET
 
-akos.pdf: akos.tex
+akos-seminars.pdf: akos-seminars.tex
 	#latexmk -pdf -pdflatex="pdflatex --shell-escape -interaction=nonstopmode" -use-make akos.tex
-	pdflatex -shell-escape akos
+	pdflatex -shell-escape akos-seminars
 
 akos-lectures.pdf: akos-lectures.tex
 	#latexmk -pdf -pdflatex="pdflatex --shell-escape -interaction=nonstopmode" -use-make akos-lectures.tex
