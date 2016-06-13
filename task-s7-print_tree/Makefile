@@ -17,7 +17,7 @@ $(TARGET): $(OBJ)
 include $(wildcard *.d)
 
 valgrind:
-	valgrind $(VALGRIND_OPTIONS) ./$(TARGET) 1>std.out
+	valgrind $(VALGRIND_OPTIONS) ./$(TARGET)
 
 clean:
 	rm -rf $(TARGET) *.o *.d  *.orig
