@@ -5,7 +5,7 @@ project(didactic_woof)
 set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "" FORCE)
 #set(CMAKE_CONFIGURATION_TYPES "Release;Debug;MyDebug" CACHE STRING "" FORCE)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-write-strings -Werror")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wno-write-strings -Wall -pthread")
 #SET(CMAKE_CXX_FLAGS_MYDEBUG "-gdwarf-2 -Wall -Wabi -g -p" CACHE STRING
 #		"My debug."
 #		FORCE)
@@ -63,7 +63,7 @@ set(TESTS_SOURCES
 		StructuresForMassModification/SparseTable.h
 		ImplicitTrees/ImplicitSplayTree.h ImplicitTrees/ImplicitTreeTests.h ImplicitTrees/ImplicitTree.h
 		Graph/Graph.h Graph/GraphTraversal.h Graph/GraphTests.h
-		GraphTasks/TradeArbitrage.h GraphTasks/Labyrinth.h GraphTasks/15Solver.h)
+		GraphTasks/TradeArbitrage.h GraphTasks/Labyrinth.h GraphTasks/15Solver.h Parallel/tree_mutex.cpp Parallel/tree_mutex.h)
 set(TEST test_${PROJECT_NAME})
 
 set(SOURCE_FILES
@@ -116,16 +116,23 @@ set(SOURCE_FILES
 		GraphTasks/TradeArbitrage.h
 		)
 
+set(PARALLEL
+		Parallel/tree_mutex.h
+		Parallel/tree_mutex.cpp
+		)
+
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.59.0 COMPONENTS unit_test_framework REQUIRED)
 if (Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
+
 	add_executable(didactic_woof ${SOURCE_FILES})
 	target_link_libraries(didactic_woof ${Boost_LIBRARIES})
+	add_executable(parallel ${PARALLEL})
 
-	add_executable(${TEST} ${TESTS_SOURCES})
+	add_executable(${TEST} ${TESTS_SOURCES} ${PARALLEL})
 	target_link_libraries(${TEST} ${Boost_LIBRARIES})
 	enable_testing()
 	add_test(${TEST} ${TEST})

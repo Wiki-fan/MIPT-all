@@ -1,8 +1,6 @@
 ﻿#include "stdafx.h"
 //#define MY_CIN_REDIR
-#include "GraphTasks/TradeArbitrage.h"
-#include "GraphTasks/Labyrinth.h"
-#include "GraphTasks/15Solver.h"
+#include "Parallel/tree_mutex.h"
 
 int main()
 {
@@ -13,9 +11,9 @@ int main()
 	std::cin.rdbuf( ifs.rdbuf() );
 #endif
 
-	TestArbitrage();
-	//TestLabyrinth();
-	//TestSolver15();
+	MutexTreeTester tester;
+	for(int i = 0; i<4; ++i)
+		tester.test(36, 10000);
 
 #ifdef MY_CIN_REDIR
 	std::cin.rdbuf( cinbuf );

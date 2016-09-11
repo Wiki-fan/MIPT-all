@@ -42,6 +42,8 @@ void mfassert( char* file, unsigned int line, bool check, char* format = "", ...
 // Подставляемая функция assert'а, выводящая "error" и выходящая с кодом 1.
 void mfrassert( bool check, ... );
 
+void debug(char* format, ...);
+
 // Мой кастомный assert. 
 // ifndef NO_MY_DEBUG пишет файл, строку и сообщение об ошибке (если таковое имеется). 
 // Иначе просто выводит "error" и выходит с кодом 1.
