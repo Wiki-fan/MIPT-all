@@ -1,9 +1,11 @@
 #!/bin/python3
 import re
+import sys, os
 #main_file_name = input("Main file:\n>")
-main_file_name = "main.cpp"
+os.chdir('Flow')
+main_file_name = sys.argv[1]
 outf = open("result.cpp", "w")
-included = set()
+included = set({main_file_name})
 
 def work(main_file_name, outf):
     try:
@@ -24,8 +26,6 @@ def work(main_file_name, outf):
             if not name+'.cpp' in included:
                 included.add(name+'.cpp')
                 work(name+'.cpp', outf)
-        elif res.search("^.*override.$", s):
-            s.erase('override') # check
         else:
             outf.write(s)
     outf.write('\n')

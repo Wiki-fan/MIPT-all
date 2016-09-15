@@ -58,7 +58,7 @@ public:
 		~CMetaIterator() { };
 
 		// Префиксный инкремент.
-		self_type operator++();
+        self_type& operator++();
 		// Постфиксный инкремент.
 		self_type operator++( int )
 		{
@@ -67,7 +67,7 @@ public:
 			return ret;
 		}
 		// Префиксный декремент.
-		self_type operator--();
+        self_type& operator--();
 		// Постфиксный декремент.
 		self_type operator--( int )
 		{
@@ -78,12 +78,12 @@ public:
 
 		self_type operator+( difference_type a ) const; // Плюс.
 		self_type operator-( difference_type a ) const; // Минус.
-		self_type operator+=( difference_type a )
+        self_type& operator+=(difference_type a)
 		{
 			*this = ( *this ) + a;
 			return *this;
 		}
-		self_type operator-=( difference_type a )
+        self_type& operator-=(difference_type a)
 		{
 			*this = ( *this ) - a;
 			return *this;
