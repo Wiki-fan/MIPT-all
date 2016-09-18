@@ -26,7 +26,12 @@ set(PARALLEL
 set(MAXIMAL_FLOW
 		Flow/maximal_flow.cpp
 		Flow/maximal_flow.h
-		Flow/Network.h Flow/Dinic.h)
+		Flow/Network.h Flow/Dinic.h Flow/birthday.cpp Flow/birthday.h Flow/Hopcroft-Karp.h Flow/Graph.h Flow/IGraph.h)
+set(BIRTHDAY
+		Flow/birthday.cpp
+		Flow/birthday.h
+		Flow/Network.h
+		Flow/Dinic.h)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
@@ -39,6 +44,7 @@ if (Boost_FOUND)
 	target_link_libraries(didactic_woof ${Boost_LIBRARIES})
 	add_executable(parallel ${PARALLEL})
 	add_executable(flow ${MAXIMAL_FLOW})
+	add_executable(birthday ${BIRTHDAY})
 
 	add_executable(${TEST} ${TESTS_SOURCES} ${PARALLEL})
 	target_link_libraries(${TEST} ${Boost_LIBRARIES})

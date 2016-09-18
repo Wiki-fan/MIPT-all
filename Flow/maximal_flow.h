@@ -8,7 +8,7 @@ class MaximalFlow {
 public:
     void find() {
         while (true) {
-            Network<int> net;
+            Network<uint, int, int> net;
             uint n;
             vtype s, t;
             std::cin >> n;
@@ -22,11 +22,11 @@ public:
                 vtype u, v;
                 int c;
                 std::cin >> u >> v >> c;
-                net.insertEdge(u - 1, v - 1, c);
+                net.insertUndirectedEdge(u - 1, v - 1, c);
             }
 
-            Dinic<int> dinic;
-            std::cout << dinic.findMaxFlow(net) << std::endl;
+            Dinic<uint, int, int> dinic;
+            std::cout << dinic.findMaxFlow(&net) << std::endl;
         }
     }
 };
