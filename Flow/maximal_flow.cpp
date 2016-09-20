@@ -11,7 +11,7 @@ int main() {
     std::cin.rdbuf( ifs.rdbuf() );
 #endif
 
-    MaximalFlow flow;
+    MaximalFlow<uint, int> flow;
     flow.find();
 
 #ifdef MY_CIN_REDIR

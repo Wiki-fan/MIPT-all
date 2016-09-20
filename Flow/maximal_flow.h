@@ -4,11 +4,12 @@
 #include "Network.h"
 #include <iostream>
 
+template<typename vtype, typename etype>
 class MaximalFlow {
 public:
     void find() {
         while (true) {
-            Network<uint, int, int> net;
+            Network<vtype, etype, int> net;
             uint n;
             vtype s, t;
             std::cin >> n;
@@ -25,7 +26,7 @@ public:
                 net.insertUndirectedEdge(u - 1, v - 1, c);
             }
 
-            Dinic<uint, int, int> dinic;
+            Dinic<vtype, etype, int> dinic;
             std::cout << dinic.findMaxFlow(&net) << std::endl;
         }
     }

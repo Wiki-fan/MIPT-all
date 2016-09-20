@@ -34,6 +34,24 @@ set(BIRTHDAY
 		Flow/Network.h
 		Flow/Dinic.h)
 
+set(PARQUET
+		Flow/BadParquet.cpp
+		Flow/BadParquet.h
+		Flow/Dinic.h
+		Flow/Network.h)
+
+set(CHANGINGFLOW
+		Flow/changing_flow.cpp
+		Flow/changing_flow.h
+		Flow/Dinic.h
+		Flow/Network.h Flow/edmonds_karp.h)
+
+set(VERYCHANGINGFLOW
+		Flow/very_changing_flow.cpp
+		Flow/very_changing_flow.h
+		Flow/Dinic.h
+		Flow/Network.h Flow/edmonds_karp.h)
+
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -46,6 +64,9 @@ if (Boost_FOUND)
 	add_executable(parallel ${PARALLEL})
 	add_executable(flow ${MAXIMAL_FLOW})
 	add_executable(birthday ${BIRTHDAY})
+	add_executable(parquet ${PARQUET})
+	add_executable(changing_flow ${CHANGINGFLOW})
+	add_executable(very_changing_flow ${VERYCHANGINGFLOW})
 
 	add_executable(${TEST} ${TESTS_SOURCES} ${PARALLEL})
 	target_link_libraries(${TEST} ${Boost_LIBRARIES})

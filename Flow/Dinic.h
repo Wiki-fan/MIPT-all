@@ -7,19 +7,23 @@
 template<typename vtype, typename etype, typename FlowType>
 class Dinic {
 public:
-    int findMaxFlow(Network<vtype, etype, FlowType>* net_) {
-        int maxFlow = 0;
+    size_t findMaxFlow(Network<vtype, etype, FlowType>* net_) {
         net = net_;
         d.resize(net->getVertexCount());
+        return performFind();
+    }
+protected:
+    std::vector<FlowType> d; // Shortest paths from s to vertex.
+
+    Network<vtype, etype, FlowType>* net;
+
+    size_t performFind() {
+        size_t maxFlow = 0;
         while (bfs())
             while (int flow = dfs(net->getSource(), INT_MAX))
                 maxFlow += flow;
         return maxFlow;
     }
-private:
-    std::vector<int> d; // Shortest paths from s to vertex.
-
-    Network<vtype, etype, FlowType>* net;
 
     bool bfs() {
         std::queue<vtype> q;
@@ -41,7 +45,7 @@ private:
     }
 
     // Blocking flow search.
-    int dfs(vtype v, int flow) {
+    FlowType dfs(vtype v, FlowType flow) {
         if (flow == 0 || v == net->getTarget())
             return flow;
         for (auto it = net->begin(v); it != net->end(); ++it) {

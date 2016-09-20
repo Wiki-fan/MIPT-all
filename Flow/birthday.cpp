@@ -1,7 +1,7 @@
 #include "birthday.h"
 #include <stdlib.h>
 #include <fstream>
-//#define MY_CIN_REDIR
+#define MY_CIN_REDIR
 
 int main() {
     srand(static_cast<unsigned int>(time(0)));
@@ -11,9 +11,12 @@ int main() {
     std::cin.rdbuf( ifs.rdbuf() );
 #endif
 
-    Birthday<uint, int> bd;
-    bd.solve();
-
+    int k;
+    std::cin >> k;
+    for (int i = 0; i < k; ++i) {
+        Birthday<uint, int> bd;
+        bd.solve();
+    }
 #ifdef MY_CIN_REDIR
     std::cin.rdbuf( cinbuf );
 #endif

@@ -7,14 +7,10 @@ template<typename vtype, typename etype>
 class Birthday {
 public:
     void solve() {
-        int k;
-        std::cin >> k;
-        for (int i = 0; i < k; ++i) {
-            read();
-            findMaximalFlow();
-            findWays();
-            printResult();
-        }
+        read();
+        findMaximalFlow();
+        findWays();
+        printResult();
     }
 
 private:
@@ -63,9 +59,6 @@ private:
             net.insertDirectedEdge(s, j, 1);
         for (vtype j = getFemaleIndex(1); j <= getFemaleIndex(gCount); ++j)
             net.insertDirectedEdge(j, t, 1);
-        /*for (int i = 0; i<net.edges.size(); ++i) {
-            printf("%ud %ud\n", net.edges[i].u, net.edges[i].v);
-        }*/
     }
 
     void findMaximalFlow() {
