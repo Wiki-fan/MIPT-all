@@ -52,6 +52,12 @@ set(VERYCHANGINGFLOW
 		Flow/Dinic.h
 		Flow/Network.h Flow/edmonds_karp.h)
 
+set(HAMMINGDISTANCE
+		Flow/Hamming.cpp
+		Flow/Hamming.h
+		Flow/Dinic.h
+		Flow/Network.h)
+
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -67,6 +73,7 @@ if (Boost_FOUND)
 	add_executable(parquet ${PARQUET})
 	add_executable(changing_flow ${CHANGINGFLOW})
 	add_executable(very_changing_flow ${VERYCHANGINGFLOW})
+	add_executable(hamming_distance ${HAMMINGDISTANCE})
 
 	add_executable(${TEST} ${TESTS_SOURCES} ${PARALLEL})
 	target_link_libraries(${TEST} ${Boost_LIBRARIES})

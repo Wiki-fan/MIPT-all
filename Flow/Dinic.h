@@ -13,6 +13,8 @@ public:
         return performFind();
     }
 protected:
+    const FlowType Infinity = std::numeric_limits<FlowType>::max();
+
     std::vector<FlowType> d; // Shortest paths from s to vertex.
 
     Network<vtype, etype, FlowType>* net;
@@ -20,14 +22,14 @@ protected:
     size_t performFind() {
         size_t maxFlow = 0;
         while (bfs())
-            while (int flow = dfs(net->getSource(), INT_MAX))
+            while (int flow = dfs(net->getSource(), Infinity))
                 maxFlow += flow;
         return maxFlow;
     }
 
     bool bfs() {
         std::queue<vtype> q;
-        d.assign(d.size(), INT_MAX);
+        d.assign(d.size(), Infinity);
         net->resetDeleted();
         d[net->getSource()] = 0;
         q.push(net->getSource());
@@ -35,13 +37,13 @@ protected:
             vtype u = q.front();
             q.pop();
             for (auto it = net->begin(u); it != net->end(); ++it) {
-                if (it.getResidualCapacity() > 0 && d[it.getFinish()] == INT_MAX) {
+                if (it.getResidualCapacity() > 0 && d[it.getFinish()] == Infinity) {
                     d[it.getFinish()] = d[u] + 1;
                     q.push(it.getFinish());
                 }
             }
         }
-        return d[net->getTarget()] != INT_MAX;
+        return d[net->getTarget()] != Infinity;
     }
 
     // Blocking flow search.

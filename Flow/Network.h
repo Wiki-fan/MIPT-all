@@ -107,7 +107,8 @@ public:
 
     vtype getSource() { return s; }
     vtype getTarget() { return t; }
-    uint getVertexCount() { return n; }
+    vtype getVertexCount() { return n; }
+    etype getEdgesCount() { return edges.size(); }
     void setSource(vtype s_) { s = s_; }
     void setTarget(vtype t_) { t = t_; }
     void insertUndirectedEdge(vtype u, vtype v, FlowType c) {
