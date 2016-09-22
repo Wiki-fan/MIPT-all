@@ -1,7 +1,7 @@
 #include "Hamming.h"
 #include <stdlib.h>
 #include <fstream>
-#define MY_CIN_REDIR
+//#define MY_CIN_REDIR
 
 int main() {
     //srand(static_cast<unsigned int>(time(0)));

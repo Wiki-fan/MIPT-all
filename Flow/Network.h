@@ -34,15 +34,13 @@ public:
             edge = &graph->edges[e];
         }
 
-        bool hasNext() { return edge->next != graph->NullEdge; }
+        inline bool hasNext() { return edge->next != graph->NullEdge; }
 
-        bool operator==(const NetworkEdgeIterator& other) const { return graph == other.graph && e == other.e; }
-        bool operator!=(const NetworkEdgeIterator& other) const { return !(*this == other); }
+        inline bool operator==(const NetworkEdgeIterator& other) const { return graph == other.graph && e == other.e; }
+        inline bool operator!=(const NetworkEdgeIterator& other) const { return !(*this == other); }
 
         // Set start pointer to the next edge or to NullEdge if no other left.
-        void remove() {
-            /*if (graph->vertices[v].first == graph->vertices[v].last)
-                graph->vertices[v].last = edge->next;*/
+        inline void remove() {
             graph->vertices[v].first = edge->next;
         }
 
@@ -56,22 +54,22 @@ public:
             return *this;
         }
 
-        bool isDeleted() { return edge->deleted; }
-        void markAsDeleted() { edge->deleted = true; }
-        void markReverseAsDeleted() { graph->edges[BackEdge(e)].deleted = true; }
-        void unmarkAsDeleted() { edge->deleted = false; }
+        inline bool isDeleted() { return edge->deleted; }
+        inline void markAsDeleted() { edge->deleted = true; }
+        inline void markReverseAsDeleted() { graph->edges[BackEdge(e)].deleted = true; }
+        inline void unmarkAsDeleted() { edge->deleted = false; }
 
-        FlowType getFlow() { return edge->f; }
-        int getCapacity() { return edge->c; }
-        vtype getStart() { return edge->u; }
-        vtype getFinish() { return edge->v; }
-        etype getEdgeNumber() { return e; }
-        FlowType getResidualCapacity() { return getCapacity() - getFlow(); }
-        void pushFlow(FlowType f) {
+        inline FlowType getFlow() { return edge->f; }
+        inline int getCapacity() { return edge->c; }
+        inline vtype getStart() { return edge->u; }
+        inline vtype getFinish() { return edge->v; }
+        inline etype getEdgeNumber() { return e; }
+        inline FlowType getResidualCapacity() { return getCapacity() - getFlow(); }
+        inline void pushFlow(FlowType f) {
             edge->f += f;
             graph->edges[BackEdge(e)].f -= f;
         }
-        void pushCapacity(FlowType c) {
+        inline void pushCapacity(FlowType c) {
             edge->c += c;
             //graph->edges[BackEdge(e)].c -= c;
         }
@@ -82,8 +80,8 @@ public:
         Network* graph;
         Edge* edge;
 
-        etype BackEdge(etype e) {
-            return e ^ 1;
+        etype BackEdge(etype edgeNum) {
+            return edgeNum ^ 1;
         }
 
         bool isBackward(etype edge) { return (edge & 1) == 1; }
@@ -105,21 +103,21 @@ public:
         edges.clear();
     }
 
-    vtype getSource() { return s; }
-    vtype getTarget() { return t; }
-    vtype getVertexCount() { return n; }
-    etype getEdgesCount() { return edges.size(); }
-    void setSource(vtype s_) { s = s_; }
-    void setTarget(vtype t_) { t = t_; }
-    void insertUndirectedEdge(vtype u, vtype v, FlowType c) {
+    inline vtype getSource() { return s; }
+    inline vtype getTarget() { return t; }
+    inline vtype getVertexCount() { return n; }
+    inline etype getEdgesCount() { return edges.size(); }
+    inline void setSource(vtype s_) { s = s_; }
+    inline void setTarget(vtype t_) { t = t_; }
+    inline void insertUndirectedEdge(vtype u, vtype v, FlowType c) {
         insertEdgeLocal(u, v, c, 0);
         insertEdgeLocal(v, u, c, 0);
     }
-    void insertDirectedEdge(vtype u, vtype v, FlowType c) {
+    inline void insertDirectedEdge(vtype u, vtype v, FlowType c) {
         insertEdgeLocal(u, v, c, 0);
         insertEdgeLocal(v, u, 0, 0);
     }
-    void insertRemainEdge(vtype u, vtype v, FlowType c) {
+    inline void insertRemainEdge(vtype u, vtype v, FlowType c) {
         insertEdgeLocal(u, v, c, 0);
         insertEdgeLocal(v, u, -c, 0);
     }
@@ -151,7 +149,7 @@ private:
         bool deleted = false;
         vtype u, v;
         FlowType c, f;
-        etype prev = NullEdge, next = NullEdge;
+        etype next = NullEdge;
         Edge(vtype u, vtype v, FlowType c, FlowType f)
                 : u(u), v(v), c(c), f(f) {}
     };
@@ -171,7 +169,6 @@ private:
             etype tmp = vertices[u].last;
             // Set previous and next.
             edges[tmp].next = edges.size() - 1;
-            edges.back().prev = tmp;
         }
         // Set last.
         vertices[u].last = edges.size() - 1;
