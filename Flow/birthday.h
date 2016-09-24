@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include "Network.h"
-#include "Dinic.h"
+#include "dinic.h"
 
 template<typename vtype, typename etype>
 class Birthday {
@@ -62,7 +62,7 @@ private:
     }
 
     void findMaximalFlow() {
-        Dinic<uint, int, int> dinic;
+        dinic<uint, int, int> dinic;
         dinic.findMaxFlow(&net);
     }
 

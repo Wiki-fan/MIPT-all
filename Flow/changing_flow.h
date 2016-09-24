@@ -1,10 +1,10 @@
 #pragma once
 #include <iostream>
 #include "Network.h"
-#include "Dinic.h"
+#include "dinic.h"
 
 template<typename vtype, typename etype, typename FlowType>
-class ChangingFlow : public Dinic<vtype, etype, FlowType> {
+class ChangingFlow : public dinic<vtype, etype, FlowType> {
     Network<vtype, etype, int> net;
 public:
     void solve() {
@@ -13,28 +13,28 @@ public:
 
 private:
 
-    using Dinic<vtype, etype, FlowType>::d;
-    using Dinic<vtype, etype, FlowType>::dfs;
-    using Dinic<vtype, etype, FlowType>::bfs;
-    using Dinic<vtype, etype, FlowType>::performFind;
-    using Dinic<vtype, etype, FlowType>::findMaxFlow;
+    using dinic<vtype, etype, FlowType>::distance;
+    using dinic<vtype, etype, FlowType>::dfs;
+    using dinic<vtype, etype, FlowType>::bfs;
+    using dinic<vtype, etype, FlowType>::performFind;
+    using dinic<vtype, etype, FlowType>::findMaxFlow;
     int dfsModify(int v, int flow) {
 
         if (flow == 0 || v == net.getTarget())
             return flow;
         for (auto it = net.begin(v); it != net.end(); ++it) {
             if (it.isDeleted()) {
-                it.remove();
+                it.shiftBeginToNext();
             } else {
 
-                if (d[it.getFinish()] != d[it.getStart()] + 1)
+                if (distance[it.getFinish()] != distance[it.getStart()] + 1)
                     continue;
                 int pushed = dfsModify(it.getFinish(), std::min(flow, it.getResidualCapacity()));
                 if (pushed != 0) {
                     it.pushFlow(pushed);
                     return pushed;
                 }
-                it.remove();
+                it.shiftBeginToNext();
             }
 
         }

@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "Network.h"
-#include "Dinic.h"
+#include "dinic.h"
 
 class BadParquet {
 public:
@@ -13,7 +13,7 @@ public:
         read();
 
         if (2 * A > B) {
-            Dinic<uint, int, int> dinic;
+            dinic<uint, int, int> dinic;
             size_t max_flow = dinic.findMaxFlow(&net);
             std::cout << ((missing_tiles_count - max_flow * 2) * A + max_flow * B);
         } else {

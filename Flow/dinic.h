@@ -1,21 +1,19 @@
 #pragma once
 #include "Network.h"
-#include <climits>
 #include <queue>
-#include <memory>
 
 template<typename vtype, typename etype, typename FlowType>
-class Dinic {
+class dinic {
 public:
     size_t findMaxFlow(Network<vtype, etype, FlowType>* net_) {
         net = net_;
-        d.resize(net->getVertexCount());
+        distance.resize(net->getVertexCount());
         return performFind();
     }
 protected:
     const FlowType Infinity = std::numeric_limits<FlowType>::max();
 
-    std::vector<FlowType> d; // Shortest paths from s to vertex.
+    std::vector<FlowType> distance; // Shortest paths from s to vertex.
 
     Network<vtype, etype, FlowType>* net;
 
@@ -29,21 +27,21 @@ protected:
 
     bool bfs() {
         std::queue<vtype> q;
-        d.assign(d.size(), Infinity);
-        net->resetDeleted();
-        d[net->getSource()] = 0;
+        distance.assign(distance.size(), Infinity);
+        net->resetBegins();
+        distance[net->getSource()] = 0;
         q.push(net->getSource());
         while (!q.empty()) {
             vtype u = q.front();
             q.pop();
             for (auto it = net->begin(u); it != net->end(); ++it) {
-                if (it.getResidualCapacity() > 0 && d[it.getFinish()] == Infinity) {
-                    d[it.getFinish()] = d[u] + 1;
+                if (it.getResidualCapacity() > 0 && distance[it.getFinish()] == Infinity) {
+                    distance[it.getFinish()] = distance[u] + 1;
                     q.push(it.getFinish());
                 }
             }
         }
-        return d[net->getTarget()] != Infinity;
+        return distance[net->getTarget()] != Infinity;
     }
 
     // Blocking flow search.
@@ -51,14 +49,14 @@ protected:
         if (flow == 0 || v == net->getTarget())
             return flow;
         for (auto it = net->begin(v); it != net->end(); ++it) {
-            if (d[it.getFinish()] != d[it.getStart()] + 1)
+            if (distance[it.getFinish()] != distance[it.getStart()] + 1)
                 continue;
             int pushed = dfs(it.getFinish(), std::min(flow, it.getResidualCapacity()));
             if (pushed != 0) {
                 it.pushFlow(pushed);
                 return pushed;
             }
-            it.remove();
+            it.shiftBeginToNext();
         }
         return 0;
     }

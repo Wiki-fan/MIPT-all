@@ -1,4 +1,4 @@
-#include "BadParquet.h"
+#include "bad_parquet.h"
 #include <stdlib.h>
 #include <fstream>
 //#define MY_CIN_REDIR
