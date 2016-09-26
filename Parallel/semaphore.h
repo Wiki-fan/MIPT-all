@@ -4,8 +4,10 @@
 #include <condition_variable>
 #include <atomic>
 
+//When semaphore is 0 some thread is captured it
 class Semaphore {
 public:
+    Semaphore() {}
     Semaphore(int counter_) : counter(counter_) {}
 
     // leave

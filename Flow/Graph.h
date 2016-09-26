@@ -17,13 +17,17 @@ public:
     }
 
     // Добавить ребро u -> v.
-    void insertEdge(size_t u, size_t v, EST data) {
+    void insertDirectedEdge(size_t u, size_t v, EST data) {
+        insertEdgeLocal(u, v, data);
+    }
+
+    void insertUndirectedEdge(size_t u, size_t v, EST data) {
         insertEdgeLocal(u, v, data);
         insertEdgeLocal(v, u, data);
     }
 
     // Получить значение вершины с номером vNum.
-    VST GetVertexVal(vtype vNum) {
+    VST& GetVertexVal(vtype vNum) {
         return vertices[vNum].val;
     }
 
@@ -36,9 +40,9 @@ public:
 private:
     struct GraphEdge : public IGraph::Edge {
         vtype u, v;
-        etype prev = NullEdge, next = NullEdge;
+        etype next = NullEdge;
         GraphEdge(vtype u, vtype v, EST data)
-                : u(u), v(v), stored(data) {}
+                : u(u), v(v), val(data) {}
     };
 
     static const vtype NullEdge = -1;
@@ -54,7 +58,6 @@ private:
             etype tmp = vertices[u].last;
             // Set previous and next.
             edges[tmp].next = edges.size() - 1;
-            edges.back().prev = tmp;
         }
         // Set last.
         vertices[u].last = edges.size() - 1;

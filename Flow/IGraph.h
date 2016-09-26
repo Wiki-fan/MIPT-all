@@ -43,14 +43,15 @@ public:
     }*/
 
     // Получить количество вершин.
-    virtual size_t GetSize() = 0;
+    virtual vtype getVerticesCount() = 0;
+    virtual etype getEdgesCount() = 0;
 
 protected:
     struct Edge {
-        EST stored;
+        EST val;
         virtual vtype getV() = 0;
         virtual vtype getU() = 0;
-        virtual vtype getStored() { return stored; }
+        virtual vtype getStored() { return val; }
     };
 
     struct Vertex {
@@ -61,14 +62,11 @@ protected:
         virtual vtype getStored() = 0;
     };
 
-    //std::vector<Vertex> vertices;
-
     class IGraphEdgeIterator : public std::iterator<std::forward_iterator_tag, Edge> {
     public:
         virtual IGraphEdgeIterator(IGraph& IGraph_, vtype v_, bool first) = 0;
 
         virtual bool hasNext() = 0;
-        //bool hasPrev() { return edge->prev != igraph->NullEdge; }
 
         virtual bool operator==(const IGraphEdgeIterator& other) const = 0;
         virtual bool operator!=(const IGraphEdgeIterator& other) const = 0;
@@ -76,11 +74,6 @@ protected:
         virtual IGraphEdgeIterator& operator++() = 0;
 
     private:
-        /*vtype v; // Vertex that iterator belongs to.
-        etype e;
-        IGraph* igraph;
-        Edge* edge;*/
-
         friend class IGraph;
     };
 };

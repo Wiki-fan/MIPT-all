@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <iostream>
 #include <thread>
+#include <vector>
 
 class RobotWithCondvars {
 public:
@@ -36,7 +37,7 @@ private:
 
 class RobotWithSemaphores {
 public:
-    RobotWithSemaphores() : sem(2) {}
+    RobotWithSemaphores():sem1(-1), sem2(-1) {};
 
     void start() {
         std::thread t0(&RobotWithSemaphores::step, this, 0);
@@ -46,14 +47,18 @@ public:
     }
 
 private:
-    Semaphore sem;
-
+    Semaphore sem1, sem2;
+    bool current = 0;
     void step(int leg) {
         for (int i = 0; i < 1000; ++i) {
-            sem.wait();
-            std::cout << (leg == 0 ? "left" : "right") << std::endl;
-            std::cout.flush();
-            sem.post();
+            if(leg == current) {
+                sem1.wait();
+                std::cout << (leg == 0 ? "left" : "right") << std::endl;
+                std::cout.flush();
+                sem1.post();
+                sem2.wait();
+                sem2.post();
+            }
         }
 
     }
