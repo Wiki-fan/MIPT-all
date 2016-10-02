@@ -1,9 +1,9 @@
 #!/bin/python3
+# First parameter is a directory to change. Second is file name.
 import re
 import sys, os
-#main_file_name = input("Main file:\n>")
-os.chdir('Flow')
-main_file_name = sys.argv[1]
+os.chdir(sys.argv[1])
+main_file_name = sys.argv[2]
 outf = open("result.cpp", "w")
 included = set({main_file_name})
 
@@ -17,7 +17,7 @@ def work(main_file_name, outf):
         #print (s)
         if s.startswith("#pragma once"):
             continue
-        elif s.startswith('#include "'):
+        elif s.startswith('#include "') or s.startswith('#include"'):
             name = s.split('"')[1].split('.')[0]
             print (name)
             if not (name+'.h' in included):
