@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "Network.h"
+#include "network.h"
 #include "dinic.h"
 
 template<typename vtype, typename etype>
@@ -62,7 +62,7 @@ private:
     }
 
     void findMaximalFlow() {
-        dinic<uint, int, int> dinic;
+        Dinic<uint, int, int> dinic;
         dinic.findMaxFlow(&net);
     }
 

@@ -63,7 +63,7 @@ private:
         vertices[u].last = edges.size() - 1;
     }
 
-    class GraphEdgeIterator : public std::iterator<std::forward_iterator_tag, Edge> {
+    class GraphEdgeIterator : IGraphEdgeIterator {
     public:
         GraphEdgeIterator(Graph& graph_, vtype v_, bool first) {
             graph = &graph_;
@@ -76,8 +76,13 @@ private:
             }
         }
 
+        GraphEdgeIterator(Graph& graph_, etype num) {
+            graph = &graph_;
+            e = num;
+            edge = &graph->edges[e];
+        }
+
         bool hasNext() { return edge->next != graph->NullEdge; }
-        //bool hasPrev() { return edge->prev != graph->NullEdge; }
 
         bool operator==(const GraphEdgeIterator& other) const { return graph == other.graph && e == other.e; }
         bool operator!=(const GraphEdgeIterator& other) const { return !(*this == other); }
@@ -93,7 +98,7 @@ private:
         }
 
     private:
-        vtype v; // Vertex that iterator belongs to.
+        vtype v; // NetworkVertex that iterator belongs to.
         etype e;
         Graph* graph;
         GraphEdge* edge;

@@ -20,18 +20,18 @@ public:
     /*// Добавить вершину со значением val. Возвращает номер добавленной вершины.
     size_t AddVertex( VT val )
     {
-        vertices.push_back( Vertex( val ));
+        vertices.push_back( NetworkVertex( val ));
         return vertices.size()-1;
     }*/
 
     /*// Получить контейнер рёбер, входящих в вершину.
-    const AT<Edge>& GetIncomingEdges( size_t vNum ) const
+    const AT<NetworkEdge>& GetIncomingEdges( size_t vNum ) const
     {
         return vertices[vNum].in;
     }
 
     // Получить контейнер рёбер, выходящих из вершины.
-    const AT<Edge>& GetOutcomingEdges( size_t vNum ) const
+    const AT<NetworkEdge>& GetOutcomingEdges( size_t vNum ) const
     {
         return vertices[vNum].out;
     }*/
@@ -64,7 +64,7 @@ protected:
 
     class IGraphEdgeIterator : public std::iterator<std::forward_iterator_tag, Edge> {
     public:
-        virtual IGraphEdgeIterator(IGraph& IGraph_, vtype v_, bool first) = 0;
+        //virtual IGraphEdgeIterator(IGraph& IGraph_, vtype v_, bool first) = 0;
 
         virtual bool hasNext() = 0;
 

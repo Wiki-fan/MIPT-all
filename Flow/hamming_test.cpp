@@ -3,7 +3,7 @@
 #include <boost/format.hpp>
 #include <iostream>
 #include <fstream>
-#include "Network.h"
+#include "network.h"
 #include "hamming.h"
 
 BOOST_AUTO_TEST_CASE(HammingTest) {

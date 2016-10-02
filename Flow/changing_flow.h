@@ -1,10 +1,10 @@
 #pragma once
 #include <iostream>
-#include "Network.h"
+#include "network.h"
 #include "dinic.h"
 
 template<typename vtype, typename etype, typename FlowType>
-class ChangingFlow : public dinic<vtype, etype, FlowType> {
+class ChangingFlow : public Dinic<vtype, etype, FlowType> {
     Network<vtype, etype, int> net;
 public:
     void solve() {
@@ -13,11 +13,13 @@ public:
 
 private:
 
-    using dinic<vtype, etype, FlowType>::distance;
-    using dinic<vtype, etype, FlowType>::dfs;
-    using dinic<vtype, etype, FlowType>::bfs;
-    using dinic<vtype, etype, FlowType>::performFind;
-    using dinic<vtype, etype, FlowType>::findMaxFlow;
+    using Dinic<vtype, etype, FlowType>::distance;
+    using Dinic<vtype, etype, FlowType>::dfs;
+    using Dinic<vtype, etype, FlowType>::bfs;
+    using Dinic<vtype, etype, FlowType>::performFind;
+    using Dinic<vtype, etype, FlowType>::findMaxFlow;
+    using Dinic<vtype, etype, FlowType>::Infinity;
+
     int dfsModify(int v, int flow) {
 
         if (flow == 0 || v == net.getTarget())
@@ -55,7 +57,7 @@ private:
         for (it = net.begin(u); it != net.end() && it.getFinish() != v; ++it)
             it.markAsDeleted();
         if (bfs()) {
-            int flow = dfsModify(net.getSource(), INT_MAX);
+            int flow = dfsModify(net.getSource(), Infinity);
             if (flow == 0) {
                 it.pushCapacity(-1);
                 it.pushFlow(-1);

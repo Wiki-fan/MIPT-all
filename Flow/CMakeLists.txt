@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 
 set(ALGO
 		dinic.h
-		Network.h
+		network.h
 		edmonds_karp.h)
 set(MAXIMAL_FLOW
 		maximal_flow.cpp
@@ -42,9 +42,9 @@ set(ALLFLOWS
 		hamming.cpp
 		hamming.h
 		dinic.h
-		Network.h hamming_test.cpp
+		network.h hamming_test.cpp
 		IGraph.h
-		Graph.h)
+		Graph.h NewNetwork.h)
 
 #find_package (Boost 1.59.0 COMPONENTS unit_test_framework REQUIRED)
 #include_directories(${Boost_INCLUDE_DIRS})

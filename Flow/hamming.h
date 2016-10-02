@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
-#include "Network.h"
+#include "network.h"
 #include "dinic.h"
 
 template<typename vtype, typename etype, typename FlowType>
@@ -10,7 +10,7 @@ public:
     void solve() {
         read();
         {
-            dinic<vtype, etype, FlowType> dinic;
+            Dinic<vtype, etype, FlowType> dinic;
             flow = dinic.findMaxFlow(&net);
         }
         bfs();

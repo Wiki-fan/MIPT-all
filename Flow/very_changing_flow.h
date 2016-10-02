@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "Network.h"
+#include "network.h"
 #include "dinic.h"
 
 template<typename vtype, typename etype, typename FlowType>
@@ -22,7 +22,7 @@ private:
             std::cin >> x >> y >> c;
             net.insertDirectedEdge(x - 1, y - 1, c);
         }
-        dinic<vtype, etype, FlowType> dinic;
+        Dinic<vtype, etype, FlowType> dinic;
         std::cout << dinic.findMaxFlow(&net) << std::endl;
         uint t;
         std::cin >> t;
@@ -40,7 +40,7 @@ private:
                     break;
                 }
             }
-            dinic < vtype, etype, FlowType > dinic2;
+            Dinic < vtype, etype, FlowType > dinic2;
             net.resetBegins();
             net.resetFlow();
             std::cout << dinic2.findMaxFlow(&net) << std::endl;

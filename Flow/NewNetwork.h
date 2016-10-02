@@ -2,56 +2,36 @@
 #include <vector>
 #include <limits>
 #include <cstddef>
+#include "Graph.h"
 
 using uint = unsigned int;
 
-template<typename vtype, typename etype, typename FlowType>
-class Network {
+template<typename vtype, typename etype, typename FlowType, typename VST, typename EST>
+class Network :public Graph<vtype, etype, VST, EST> {
 private:
 
-    struct Edge;
-    struct Vertex;
+    struct NetworkEdge;
+    struct NetworkVertex;
 public:
-    class NetworkEdgeIterator : public std::iterator<std::forward_iterator_tag, Edge> {
+    class NetworkEdgeIterator : public GraphEdgeIterator {
     public:
         NetworkEdgeIterator() = default;
 
-        NetworkEdgeIterator(Network& graph_, vtype v_, bool first) {
-            graph = &graph_;
-            if (first) {
-                v = v_;
-                e = graph->vertices[v].first;
-                edge = &graph->edges[e];
-            } else {
-                e = graph->NullEdge;
-            }
-        }
+        NetworkEdgeIterator(Network& graph_, vtype v_, bool first) :GraphEdgeIterator(graph_, v_, first) {}
 
-        NetworkEdgeIterator(Network& graph_, etype num) {
-            graph = &graph_;
-            e = num;
-            edge = &graph->edges[e];
-        }
+        NetworkEdgeIterator(Network& graph_, etype num):GraphEdgeIterator(graph_, num) {}
 
-        inline bool hasNext() { return edge->next != graph->NullEdge; }
+        using GraphEdgeIterator::hasNext;
 
-        inline bool operator==(const NetworkEdgeIterator& other) const { return graph == other.graph && e == other.e; }
-        inline bool operator!=(const NetworkEdgeIterator& other) const { return !(*this == other); }
+        using GraphEdgeIterator::operator==;
+        using GraphEdgeIterator::operator!=;
 
         // Set start pointer to the next edge or to NullEdge if no other left.
         inline void shiftBeginToNext() {
             graph->vertices[v].first = edge->next;
         }
 
-        NetworkEdgeIterator& operator++() {
-            if (!hasNext()) {
-                e = graph->NullEdge;
-            } else {
-                e = edge->next;
-                edge = &graph->edges[e];
-            }
-            return *this;
-        }
+        using GraphEdgeIterator::operator++;
 
         inline bool isDeleted() { return edge->deleted; }
         inline void markAsDeleted() { edge->deleted = true; }
@@ -73,10 +53,10 @@ public:
         }
 
     private:
-        vtype v; // Vertex that iterator belongs to.
+        vtype v; // NetworkVertex that iterator belongs to.
         etype e;
         Network* graph;
-        Edge* edge;
+        NetworkEdge* edge;
 
         etype BackEdge(etype edgeNum) {
             return edgeNum ^ 1;
@@ -138,26 +118,31 @@ public:
 private:
     static const etype NullEdge = std::numeric_limits<etype>::max();
     vtype s, t;
-    std::vector<Edge> edges;
-    std::vector<Vertex> vertices; // First and last (according to time of addition) edges of vertex.
+    std::vector<NetworkEdge> edges;
+    std::vector<NetworkVertex> vertices; // First and last (according to time of addition) edges of vertex.
 
-    struct Edge {
-        bool deleted = false;
-        vtype from, to;
+    struct FlowData
+    {
         FlowType capacity, flow;
-        etype next = NullEdge;
-        Edge(vtype u, vtype v, FlowType c, FlowType f)
-                : from(u), to(v), capacity(c), flow(f) {}
+        EST data;
     };
 
-    struct Vertex {
+    struct NetworkEdge :public GraphEdge {
+        bool deleted = false;
+        vtype from, to;
+
+        etype next = NullEdge;
+        NetworkEdge(vtype u, vtype v, FlowType c, FlowType f, EST data) : GraphEdge(u, v, data), capacity(c), flow(f) {}
+    };
+
+    struct NetworkVertex {
         etype first = NullEdge;
         etype last = NullEdge;
         etype backup_first = NullEdge;
     };
 
     void insertEdgeLocal(vtype from, vtype to, FlowType capacity, FlowType flow) {
-        edges.push_back(Edge(from, to, capacity, flow));
+        edges.push_back(NetworkEdge(from, to, capacity, flow));
         // Set first if necessary.
         if (vertices[from].first == NullEdge) {
             vertices[from].backup_first = vertices[from].first = edges.size() - 1;
