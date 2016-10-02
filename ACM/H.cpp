@@ -1,6 +1,5 @@
 #include "H.h"
 
-
 int main() {
     H h;
     h.solve();

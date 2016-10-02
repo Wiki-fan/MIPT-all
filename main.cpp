@@ -1,7 +1,4 @@
-﻿#include "stdafx.h"
-#define MY_CIN_REDIR
-
-
+﻿
 #include <iostream>
 #include <thread>
 #include <atomic>
@@ -9,20 +6,19 @@
 #include <vector>
 #include <queue>
 #include <limits.h>
-
+#include <stdio.h>
+#include <algorithm>
 class Network {
 
 
 	static const int MYNULL = -1;
-
 	struct MyEdge {
-		int from;
-		int to;
-		int capacity;
-		int flow = 0;
-		int previous_edge = MYNULL;
-		int next_edge = MYNULL;
-		int marked = 0;
+		short int from;
+		short int to;
+		short int capacity = 0;
+		short int flow = 0;
+		short int previous_edge = MYNULL;
+		short int next_edge = MYNULL;
 
 		MyEdge(int f, int t, int c) {
 			from = f;
@@ -33,12 +29,11 @@ class Network {
 
 	struct MyVertex {
 		int first_edge = MYNULL;
-		int last_edge = MYNULL;
 	};
 
-	std::vector<MyEdge> allEdges;
-	std::vector<MyVertex> allVertexes;
-	std::vector<int> iteratorBegins;
+	std::vector <MyEdge> allEdges;
+	std::vector <MyVertex> allVertexes;
+	std::vector <short int> iteratorBegins;
 	size_t nw_size = 0;
 	size_t edges_count = 0;
 	size_t source;
@@ -50,7 +45,6 @@ public:
 	class NetworkEdgesIterator {
 		size_t EdgeNum;
 		Network* myNetwork;
-
 		int vertex;
 	public:
 		int position;
@@ -94,46 +88,26 @@ public:
 		bool isNull() {
 			return (position == MYNULL);
 		}
-		NetworkEdgesIterator& operator++() {
+		NetworkEdgesIterator& operator ++ () {
 			if (position != MYNULL)
 				position = myNetwork->allEdges[position].next_edge;
 			return *this;
 		}
-		NetworkEdgesIterator& operator++(int) {
+		NetworkEdgesIterator& operator ++ (int) {
 			if (position != MYNULL)
 				position = myNetwork->allEdges[position].next_edge;
-			return *this;
-		}
-		NetworkEdgesIterator& operator--() {
-			if (position != MYNULL)
-				position = myNetwork->allEdges[position].previous_edge;
 			return *this;
 		}
 
-		NetworkEdgesIterator& operator--(int) {
-			if (position != MYNULL)
-				position = myNetwork->allEdges[position].previous_edge;
-			return *this;
-		}
-		bool operator==(const NetworkEdgesIterator& other) {
+		bool operator == (const NetworkEdgesIterator &other) {
 			return (position == other.position);
 		}
-		bool operator!=(const NetworkEdgesIterator& other) {
+		bool operator != (const NetworkEdgesIterator &other) {
 			return (position != other.position);
 		}
 
 		bool isBackEdge() {
 			return position % 2;
-		}
-
-		void getMark() {
-			myNetwork->allEdges[position].marked = 1;
-		}
-		void getBackMark() {
-			myNetwork->allEdges[myNetwork->backEdge(position)].marked = 1;
-		}
-		bool isMarked() {
-			return myNetwork->allEdges[position].marked;
 		}
 	};
 
@@ -156,7 +130,6 @@ public:
 	void insertEdge(size_t new_from, size_t new_to, int new_capacity) {
 		subInsertEdge(new_from, new_to, new_capacity);
 		subInsertEdge(new_to, new_from, 0);
-		//subInsertEdge(new_to, new_from, -new_capacity);
 	}
 
 
@@ -174,21 +147,14 @@ public:
 	NetworkEdgesIterator begin(size_t vertex_number) {
 		return NetworkEdgesIterator(this, vertex_number, allVertexes[vertex_number].first_edge);
 	}
-	NetworkEdgesIterator end(size_t vertex_number) {
-		return NetworkEdgesIterator(this, vertex_number, allVertexes[vertex_number].last_edge);
-	}
 
 	void NetworkResize(int network_size) {
 		nw_size = network_size;
-		allEdges.clear();
 		allVertexes.resize(nw_size);
 		edges_count = 0;
-		iteratorBegins.clear();
 		iteratorBegins.resize(nw_size, -1);
 	}
 	void clearIterator() {
-		iteratorBegins.clear();
-		iteratorBegins.resize(nw_size, -1);
 		for (int i = 0; i < nw_size; i++) {
 			iteratorBegins[i] = allVertexes[i].first_edge;
 		}
@@ -201,18 +167,11 @@ private:
 
 		MyEdge NewEdge(new_from, new_to, new_capacity);
 		int tmp = allVertexes[new_from].first_edge;
-
-		if (allVertexes[new_from].first_edge == MYNULL) {
-			allVertexes[new_from].last_edge = edges_count;
-		}
-
 		allVertexes[new_from].first_edge = edges_count;
 		NewEdge.next_edge = tmp;
-
 		if (tmp != MYNULL) {
 			allEdges[tmp].previous_edge = edges_count;
 		}
-
 		allEdges.push_back(NewEdge);
 		edges_count++;
 	}
@@ -220,80 +179,83 @@ private:
 	size_t backEdge(size_t number) {
 		if (number % 2 == 0) {
 			return number + 1;
-		} else {
+		}
+		else {
 			return number - 1;
 		}
 	}
 
 };
-
-class BipartiteSubGraphFind {
-	std::vector<int> distance;
-	std::vector<bool> visited;
-	std::vector<int> marks;
+class OptimalFind {
+	std::vector <int> distance;
 	size_t vertex_count;
-	size_t bCount;
-	size_t cGirls;
-	size_t source;
-	size_t target;
-	size_t max_flow;
-	Network net;
-
+	int N;
+	int M;
+	int source = 0;
+	int target = 1;
+	int e_count = 0;
+	int max_flow = 0;
+	Network myNetwork;
+	std::vector< short int> myMap;
+	std::vector <short int> numb;
 public:
-	BipartiteSubGraphFind() {}
-	~BipartiteSubGraphFind() {}
+	OptimalFind() {}
+	~OptimalFind() {}
 
-	void findBipartiteComponent() {
+	void findAnswer() {
 		readNetwork();
-		if ((bCount != 0) && (cGirls != 0)) {
-			max_flow = findMaxFlow();
-			findWays();
-			printResult();
-		} else {
-			if (bCount != 0) {
-				std::cout << bCount << std::endl;
-				std::cout << bCount << " " << 0 << std::endl;
-				for (int i = 0; i < bCount; i++) {
-					std::cout << i + 1 << " ";
+		int a = findMaxFlow();
+		if (source == target) {
+			printf("%i", -1);
+		}
+		else {
+			if (a >= 3000) {
+				printf("%i", -1);
+			}
+			else {
+				if (a > 0) {
+					printAnswer();
 				}
-				std::cout << std::endl;
-			} else {
-				if (cGirls != 0) {
-					std::cout << cGirls << std::endl;
-					std::cout << 0 << " " << cGirls << std::endl;
-					for (int i = 0; i < cGirls; i++) {
-						std::cout << i + 1 << " ";
-					}
-					std::cout << std::endl;
-				} else {
-					std::cout << 0 << std::endl;
-					std::cout << "0 0" << std::endl;
-					std::cout << std::endl;
+				else {
+					printf("%i", 0);
 				}
 
 			}
-
 		}
 	}
 private:
+	int getC(int a, int b) {
+		if ((a == 2) || (b == 2)) {
+			return 1;
+		}
+		else {
+			return 3000;
+		}
+	}
+	int readCoordinate() {
+		int a, b;
+		scanf("%i %i", &a, &b);
+		//std::cin >> a >> b;
+		a--;
+		b--;
+		return a*M + b;
+
+	}
 	bool bfs() {
-		std::queue<int> myQueue;
-		distance.clear();
-		net.clearIterator();
-		distance.resize(vertex_count, INT_MAX);
+		std::queue <int> myQueue;
+		myNetwork.clearIterator();
+		distance.assign(vertex_count, INT_MAX);
 		distance[source] = 0;
 		myQueue.push(source);
 		while (!myQueue.empty()) {
 
 			int u = myQueue.front();
 			myQueue.pop();
-			Network::NetworkEdgesIterator myIt = net.rbegin(u);
+			Network::NetworkEdgesIterator myIt = myNetwork.rbegin(u);
 			while (!myIt.isNull()) {
 				if ((myIt.getResidualCapacity() > 0) && (distance[myIt.getFinish()] == INT_MAX)) {
 					distance[myIt.getFinish()] = distance[u] + 1;
 					myQueue.push(myIt.getFinish());
-				}
-				if (myIt.getResidualCapacity() == 0) {
 				}
 				myIt++;
 			}
@@ -301,14 +263,70 @@ private:
 		return distance[target] != INT_MAX;
 	}
 
+
+	void dop_bfs(int s) {
+		std::queue <int> myQueue;
+		myNetwork.clearIterator();
+		distance.assign(vertex_count, INT_MAX);
+		distance[s] = 0;
+		numb[s] = s;
+		myQueue.push(s);
+		while (!myQueue.empty()) {
+			int p = myQueue.front();
+			myQueue.pop();
+			if ((p - M >= 0) && (myMap[p - M] == 1)) {
+				if (distance[p - M] == INT_MAX) {
+					distance[p - M] = 1;
+					if (myMap[p - M] == 1) {
+						myQueue.push(p - M);
+						numb[p - M] = s;
+					}
+				}
+			}
+			if ((p + M< vertex_count) && (myMap[p + M] == 1)) {
+				if (distance[p + M] == INT_MAX) {
+					distance[p + M] = 1;
+					if (myMap[p + M] == 1) {
+						myQueue.push(p + M);
+						numb[p + M] = s;
+					}
+				}
+			}
+			if ((p + 1 <vertex_count) && (myMap[p + 1] == 1)) {
+				if (distance[p + 1] == INT_MAX) {
+					distance[p + 1] = 1;
+					if (myMap[p + 1] == 1) {
+						myQueue.push(p + 1);
+						numb[p + 1] = s;
+					}
+				}
+			}
+			if ((p - 1 >= 0) && (myMap[p - 1] == 1)) {
+				if (distance[p - 1] == INT_MAX) {
+					distance[p - 1] = 1;
+					if (myMap[p - 1] == 1) {
+						myQueue.push(p - 1);
+						numb[p - 1] = s;
+					}
+				}
+			}
+
+
+		}
+	}
+
+
+
+
 	int dfs(int u, int minC) {
 
 		if ((u == target) || (minC == 0)) {
 			return minC;
 		}
 		int delta;
-		Network::NetworkEdgesIterator myIt = net.rbegin(u);
+		Network::NetworkEdgesIterator myIt = myNetwork.rbegin(u);
 		while (!myIt.isNull()) {
+
 			if (distance[myIt.getFinish()] == distance[u] + 1) {
 				delta = dfs(myIt.getFinish(), std::min(minC, myIt.getResidualCapacity()));
 				if (delta != 0) {
@@ -316,43 +334,68 @@ private:
 					return delta;
 				}
 			}
-			net.throwFirstEdge(myIt.getStart());
+			myNetwork.throwFirstEdge(myIt.getStart());
 			myIt++;
 		}
 		return 0;
 	}
 	void readNetwork() {
-		int a;
-		std::cin >> bCount >> cGirls;
-		vertex_count = bCount + cGirls + 2;
-		net.NetworkResize(vertex_count);
-		source = 0;
-		target = 1;
-
-		for (int i = 0; i < bCount; i++) {
-			std::vector<bool> friends(cGirls, 1);
-			std::cin >> a;
-			while (a != 0) {
-				friends[a - 1] = 0;
-				std::cin >> a;
+		int k, l, a, b;
+		scanf("%i %i", &N, &M);
+		//std::cin >> N >> M;
+		vertex_count = N * M;
+		myNetwork.NetworkResize(N * M);
+		myMap.resize(vertex_count, 1);
+		numb.resize(vertex_count, -1);
+		scanf("%i %i", &k, &l);
+		//std::cin >> k >> l;
+		for (int i = 0; i < k; i++) {
+			myMap[readCoordinate()] = 0;
+		}
+		for (int i = 0; i < l; i++) {
+			myMap[readCoordinate()] = 2;
+		}
+		source = readCoordinate();
+		target = readCoordinate();
+		for (int i = 0; i < vertex_count; i++) {
+			if (myMap[i] == 2) {
+				numb[i] = i;
 			}
-			for (int j = 0; j < cGirls; j++) {
-				if (friends[j]) {
-					net.insertEdge(i + 2, bCount + 2 + j, 1);
+			else {
+				if ((myMap[i] == 1) && (numb[i] == -1))
+					dop_bfs(i);
+			}
+
+		}
+		source = numb[source];
+		target = numb[target];
+		int p = -1;
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				p++;
+				if ((myMap[p] != 0)) {
+					if ((i != 0) && (myMap[p - M] != 0) && (numb[p] != numb[p - M])) {
+						myNetwork.insertEdge(numb[p], numb[p - M], 1);
+					}
+					if ((i != N - 1) && (myMap[p + M] != 0) && (numb[p] != numb[p + M])) {
+						myNetwork.insertEdge(numb[p], numb[p + M], 1);
+					}
+					if ((j != M - 1) && (myMap[p + 1] != 0) && (numb[p] != numb[p + 1])) {
+						myNetwork.insertEdge(numb[p], numb[p + 1], 1);
+					}
+					if ((j != 0) && (myMap[p - 1] != 0) && (numb[p] != numb[p - 1])) {
+						myNetwork.insertEdge(numb[p], numb[p - 1], 1);
+					}
 				}
+
 			}
 		}
-		for (int i = 0; i < bCount; i++) {
-			net.insertEdge(0, i + 2, 1);
-		}
-		for (int i = 0; i < cGirls; i++) {
-			net.insertEdge(bCount + 2 + i, 1, 1);
-		}
-
+		distance.resize(vertex_count, INT_MAX);
 	}
 	int findMaxFlow() {
 		int maxFlow = 0;
 		int flow;
+
 		while (bfs()) {
 			flow = dfs(source, INT_MAX);
 			while (flow != 0) {
@@ -361,125 +404,56 @@ private:
 			}
 		}
 
+
 		return maxFlow;
 	}
 
-	void dfs(int u) {
-		if (visited[u] == 0) {
-			visited[u] = 1;
-			Network::NetworkEdgesIterator myIt = net.begin(u);
+
+	void printAnswer() {
+		std::queue <int> myQueue;
+		std::vector <bool> used(vertex_count, 0);
+		std::vector <bool> ans(vertex_count, 0);
+		myQueue.push(source);
+		while (!myQueue.empty()) {
+			int u = myQueue.front();
+			myQueue.pop();
+			Network::NetworkEdgesIterator myIt = myNetwork.begin(u);
+			used[u] = 1;
 			while (!myIt.isNull()) {
-				if (!myIt.isMarked()) {
-					dfs(myIt.getFinish());
+				if ((distance[myIt.getFinish()] == INT_MAX)) {
+					if (myMap[u] != 1) {
+						ans[u] = 1;
+					}
+					else {
+						ans[myIt.getFinish()] = 1;
+					}
+				}
+				else {
+					if ((distance[myIt.getFinish()] != INT_MAX) && (!used[myIt.getFinish()]))
+						myQueue.push(myIt.getFinish());
 				}
 				myIt++;
 			}
 		}
-	}
 
-	void findWays() {
-		visited.resize(vertex_count, 0);
-		marks.resize(vertex_count, 0);
-		visited[0] = 1;
-		visited[1] = 1;
-
-		for (int i = 2; i < bCount + 2; i++) {
-			auto myIt = net.begin(i);
-			while (myIt != net.end()) {
-				if (myIt.getFlow() == 1) {
-					marks[myIt.getStart()] = 1;
-					myIt.getMark();
-					//myIt.getBackMark();
-				} else {
-					myIt.getBackMark();
-				}
-				myIt++;
-			}
+		int res = 0;
+		for (int i = 0; i < vertex_count; i++) {
+			res += ans[i];
 		}
-		for (int i = 2; i < bCount + 2; i++) {
-			if ((marks[i] == 0) && (visited[i] == 0)) {
-				dfs(i);
-			}
-		}
-	}
-
-	void printResult() {
-		std::vector<int> boys;
-		std::vector<int> girls;
-		for (int i = 2; i < bCount + 2; i++) {
-			if (visited[i]) {
-				boys.push_back(i - 1);
-			}
-		}
-		for (int i = bCount + 2; i < vertex_count; i++) {
-			if (!visited[i]) {
-				girls.push_back(i - bCount - 1);
-			}
-		}
-		if (std::max(bCount, cGirls) <= boys.size() + girls.size()) {
-			std::cout << boys.size() + girls.size() << std::endl;
-			std::cout << boys.size() << " " << girls.size() << std::endl;
-			for (int i = 0; i < boys.size(); i++) {
-				std::cout << boys[i] << " ";
-			}
-			if (boys.size() != 0)std::cout << std::endl;
-			for (int i = 0; i < girls.size(); i++) {
-				std::cout << girls[i] << " ";
-			}
-			if (girls.size() != 0) std::cout << std::endl;
-			std::cout << std::endl;
-		} else {
-			if (bCount > cGirls) {
-				std::cout << bCount << std::endl;
-				std::cout << bCount << " " << 0 << std::endl;
-				for (int i = 0; i < bCount; i++) {
-					std::cout << i + 1 << " ";
-				}
-				std::cout << std::endl;
-			} else {
-
-				std::cout << cGirls << std::endl;
-				std::cout << 0 << " " << cGirls << std::endl;
-				for (int i = 0; i < cGirls; i++) {
-					std::cout << i + 1 << " ";
-				}
-				std::cout << std::endl;
+		printf("%i\n", res);
+		for (int i = 0; i < vertex_count; i++) {
+			if (ans[i]) {
+				int a = i / M + 1;
+				int b = i % M + 1;
+				printf("%i %i\n", a, b);
 			}
 		}
 	}
 };
 
 int main() {
-
-	int n;
-	std::cin >> n;
-
-	for (int i = 0; i < n; i++) {
-		BipartiteSubGraphFind myAl;
-		myAl.findBipartiteComponent();
-	}
+	OptimalFind myAl;
+	myAl.findAnswer();
 
 	return 0;
 }
-
-
-/*int main()
-{
-	srand( static_cast<unsigned int>(time( 0 )));
-#ifdef MY_CIN_REDIR
-	std::ifstream ifs( "in.txt", std::ios_base::in );
-	std::streambuf* cinbuf = std::cin.rdbuf();
-	std::cin.rdbuf( ifs.rdbuf() );
-#endif
-
-	MutexTreeTester tester;
-	for(int i = 0; i<4; ++i)
-		tester.test(36, 10000);
-
-#ifdef MY_CIN_REDIR
-	std::cin.rdbuf( cinbuf );
-#endif
-	std::cin.get();
-	return 0;
-}
-*/
