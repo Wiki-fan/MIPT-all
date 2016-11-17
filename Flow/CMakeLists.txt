@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.3)
 
 set(ALGO
-		dinic.h
-		network.h
+		Dinic.h
+		Network.h
 		edmonds_karp.h)
 set(MAXIMAL_FLOW
 		maximal_flow.cpp
@@ -41,8 +41,8 @@ set(ALLFLOWS
 		very_changing_flow.h
 		hamming.cpp
 		hamming.h
-		dinic.h
-		network.h hamming_test.cpp
+		Dinic.h
+		Network.h hamming_test.cpp
 		IGraph.h
 		Graph.h NewNetwork.h)
 

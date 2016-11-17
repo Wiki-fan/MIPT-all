@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-#include "network.h"
-#include "dinic.h"
+#include "Network.h"
+#include "Dinic.h"
 
 template<typename vtype, typename etype, typename FlowType>
 class ChangingFlow : public Dinic<vtype, etype, FlowType> {
@@ -18,7 +18,7 @@ private:
     using Dinic<vtype, etype, FlowType>::bfs;
     using Dinic<vtype, etype, FlowType>::performFind;
     using Dinic<vtype, etype, FlowType>::findMaxFlow;
-    using Dinic<vtype, etype, FlowType>::Infinity;
+    using Dinic<vtype, etype, FlowType>::INF;
 
     int dfsModify(int v, int flow) {
 
@@ -57,7 +57,7 @@ private:
         for (it = net.begin(u); it != net.end() && it.getFinish() != v; ++it)
             it.markAsDeleted();
         if (bfs()) {
-            int flow = dfsModify(net.getSource(), Infinity);
+            int flow = dfsModify(net.getSource(), INF);
             if (flow == 0) {
                 it.pushCapacity(-1);
                 it.pushFlow(-1);

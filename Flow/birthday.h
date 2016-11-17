@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-#include "network.h"
-#include "dinic.h"
+#include "Network.h"
+#include "Dinic.h"
 
 template<typename vtype, typename etype>
 class Birthday {
@@ -33,7 +33,6 @@ private:
             }
         }
     }
-
 
     void read() {
         std::cin >> bCount >> gCount;

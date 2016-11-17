@@ -2,11 +2,9 @@
 #include "Network.h"
 #include <climits>
 #include <queue>
-#include <memory>
 #include <algorithm>
-#include <iostream>
 
-template<typename vtype, typename etype, typename FlowType>
+template<typename vtype = int, typename etype = int, typename FlowType = int>
 class EdmondsKarp {
 public:
     size_t findMaxFlow(Network<vtype, etype, FlowType>* net_) {
@@ -14,7 +12,7 @@ public:
         net = net_;
         pred.resize(net->getVertexCount());
         while (bfs()) {
-            FlowType df = std::numeric_limits<FlowType>::max();
+            FlowType df = INF;
             for (auto it = net->getEdgeByNum(pred[net->getTarget()]);
                  it != net->end(); it = net->getEdgeByNum(pred[it.getStart()])) {
                 df = std::min(df, it.getResidualCapacity());
@@ -32,6 +30,7 @@ public:
 private:
     std::vector<etype> pred;
     Network<vtype, etype, FlowType>* net;
+    const FlowType INF = std::numeric_limits<FlowType>::max();
 
     bool bfs() {
         std::queue<vtype> q;

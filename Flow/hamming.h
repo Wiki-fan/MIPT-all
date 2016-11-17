@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <iostream>
-#include "network.h"
-#include "dinic.h"
+#include "Network.h"
+#include "Dinic.h"
 
 template<typename vtype, typename etype, typename FlowType>
 class HammingOptimizer {

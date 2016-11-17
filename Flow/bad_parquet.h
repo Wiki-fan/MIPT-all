@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "network.h"
-#include "dinic.h"
+#include "Network.h"
+#include "Dinic.h"
 
 class BadParquet {
 public:

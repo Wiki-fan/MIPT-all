@@ -1,6 +1,6 @@
 #pragma once
-#include "dinic.h"
-#include "network.h"
+#include "Dinic.h"
+#include "Network.h"
 #include <iostream>
 
 template<typename vtype, typename etype>

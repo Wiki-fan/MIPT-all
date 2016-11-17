@@ -26,7 +26,7 @@ public:
         using GraphEdgeIterator::operator==;
         using GraphEdgeIterator::operator!=;
 
-        // Set start pointer to the next edge or to NullEdge if no other left.
+        // Set start pointer to the next Edge or to NullEdge if no other left.
         inline void shiftBeginToNext() {
             graph->vertices[v].first = edge->next;
         }
@@ -62,7 +62,7 @@ public:
             return edgeNum ^ 1;
         }
 
-        bool isBackward(etype edge) { return (edge & 1) == 1; }
+        bool checkBackward(etype edge) { return (edge & 1) == 1; }
 
         friend class Network;
     };
