@@ -18,7 +18,7 @@ def work(main_file_name, outf):
         if s.startswith("#pragma once"):
             continue
         elif s.startswith('#include "') or s.startswith('#include"'):
-            name = s.split('"')[1].split('.')[0]
+            name = '.'.join(s.split('"')[1].split('.')[:-1])
             print (name)
             if not (name+'.h' in included):
                 included.add(name+'.h')
