@@ -4,21 +4,19 @@
 #include <iostream>
 #include <limits>
 #include "Hungary.h"
+#include "BaseTask.h"
 
-class H {
+class H : public BaseTask {
 public:
-    void solve() {
+    void solve() override {
         read();
-        Hungary h;
-        h.find(&a);
         printAnswer();
     }
 private:
     int n, m;
     std::vector<std::vector<int>> a;
-    std::vector<int> rawP, colP, pairs, way;
-    const static int INF;
-    void read() {
+    //std::vector<int> columnPotential, pairs;
+    void read() override {
         std::cin >> n;
         m = n;
         a.resize(n + 1);
@@ -30,18 +28,17 @@ private:
         }
     }
 
-    void printAnswer() {
+    void printAnswer() override {
         // вывод стоимости
-        int cost = -colP[0];
-        std::cout << cost << std::endl;
         // восстановление ответа
+        Hungary h;
+        std::cout << h.find(&a);
+        for (int i = 1; i <= m; ++i) {
+            std::cout << h.getPairs()[i] << ' '  << i << std::endl;
+        }
         /*std::vector<int> ans(n + 1);*/
         /*for (int i = 1; i <= m; ++i)
             ans[pairs[i]] = i;*/
-        for (int i = 1; i <= m; ++i) {
-            std::cout << pairs[i] << ' '  << i << std::endl;
-        }
+
     }
 };
-
-const int H::INF{std::numeric_limits<int>::max()};

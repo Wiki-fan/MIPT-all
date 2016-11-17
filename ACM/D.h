@@ -1,24 +1,24 @@
 #pragma once
 #include <cmath>
 #include <iostream>
-#include "dinic.h"
-#include "network.h"
+#include "../Flow/Dinic.h"
+#include "../Flow/Network.h"
+#include "BaseTask.h"
 
-class D {
+class D : public BaseTask {
 public:
-    void solve() {
+    void solve() override {
         read();
-        Dinic<uint, int, int> dinic;
-        std::cout << (net.getVertexCount() - 2)/2 - dinic.findMaxFlow(&net);
+        printAnswer();
     }
 private:
-    Network<uint, int, int> net;
+    Network<> net;
 
     int distance(int x1, int y1, int x2, int y2) {
         return (std::abs(x1 - x2) + std::abs(y1 - y2));
     }
 
-    void read() {
+    void read() override {
         int n;
         std::cin >> n;
         net.init(2 * n + 2, 0, 1);
@@ -51,5 +51,11 @@ private:
         for (int i = 0; i < n; i++) {
             net.insertDirectedEdge(n + i + 2, net.getTarget(), 1);
         }
+    }
+
+    void printAnswer()
+    {
+        Dinic<> dinic;
+        std::cout << (net.getVertexCount() - 2)/2 - dinic.findMaxFlow(&net);
     }
 };

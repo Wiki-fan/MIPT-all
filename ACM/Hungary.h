@@ -7,8 +7,10 @@ class Hungary {
 public:
     std::vector<std::vector<int>>* a;
 
-    void find(std::vector<std::vector<int>>* g) {
+    int find(std::vector<std::vector<int>>* g) {
         a = g;
+        n = a->size();
+        m = a[0].size();
         // Raw and column potenital.
         rawP.resize(n + 1);
         colP.resize(m + 1);
@@ -35,9 +37,10 @@ public:
                         }
                     }
                 for (int j = 0; j <= m; ++j)
-                    if (used[j])
-                        rawP[pairs[j]] += delta, colP[j] -= delta;
-                    else
+                    if (used[j]) {
+                        rawP[pairs[j]] += delta;
+                        colP[j] -= delta;
+                    } else
                         minv[j] -= delta;
                 freeCol = colWithMin;
             } while (pairs[freeCol] != 0);
@@ -48,17 +51,24 @@ public:
                 freeCol = colWithMin;
             } while (freeCol != 0);
         }
+
+        return -colP[0];
     }
 
+    const std::vector<int>& getPairs() { return pairs; }
+    std::vector<int> rawP, colP, pairs, way;
+
+    std::vector<int>& getPotential() { return colP; }
 private:
     int n, m;
 
-    std::vector<int> rawP, colP, pairs, way;
+
     const static int INF;
 
-    void recoverAnswer() {
+    int recoverAnswer() {
         // вывод стоимости
         int cost = -colP[0];
+        return cost;
         // восстановление ответа
         /*std::vector<int> ans(n + 1);*/
         /*for (int i = 1; i <= m; ++i)
