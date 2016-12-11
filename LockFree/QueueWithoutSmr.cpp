@@ -1,10 +1,5 @@
+#define QueueWithoutSmr lock_free_queue
+
 #include "QueueWithoutSmr.h"
 
-int main() {
-    QueueWithoutSmr<int> lfq;
-    lfq.enqueue(1);
-    int t;
-    lfq.dequeue(t);
-
-    return 0;
-}
+#include "queue_test.cpp"

@@ -4,7 +4,7 @@
 #include <memory>
 #include <iostream>
 
-#define CONTEST
+//#define CONTEST
 
 template<typename T>
 class QueueWithIdleDelete {
@@ -20,7 +20,6 @@ private:
     std::atomic<Node*> tail;
     std::atomic<unsigned> threadsInPop;
     std::atomic<Node*> toBeDeleted;
-    int deleted = 0;
 
 public:
     QueueWithIdleDelete() :
@@ -31,7 +30,6 @@ public:
     ~QueueWithIdleDelete() {
         deleteNodes(toBeDeleted.load());
         delete head.load();
-        //std::cout << deleted <<std::endl;
     }
 
 #ifdef CONTEST
@@ -111,12 +109,10 @@ public:
         }
     }
 
-    /*static */void deleteNodes(Node* nodes) {
+    static void deleteNodes(Node* nodes) {
         while (nodes) {
             Node* next = nodes->next;
-            //std::cout <<"deleted";
             delete nodes;
-            ++deleted;
             nodes = next;
         }
     }
@@ -130,7 +126,7 @@ public:
                 deleteNodes(nodesToDelete);
             } else if (nodesToDelete) {
                 // Другие потоки успели влезть в pop
-                // Если захапали ненулевой указатель, то проматываемся до конца
+                // Если захапали ненулевой указатель, то проматываемся до конца и подцепляем
                 chainPendingNodes(nodesToDelete);
             }
             // Эту вершину всегда можем удалить, если единственные в pop(), даже если другие не можем.
@@ -152,19 +148,16 @@ public:
         chainPendingNodes(nodes, last);
     }
 
-    // подцепить к списку
+    // Подцепить к списку
     void chainPendingNodes(Node* first, Node* last) {
-        /*// Меяем код из мануала!!!
-        last->next.store(toBeDeleted);
-        Node* newLastNext = last->next.load();
+        Node* newLastNext;
         // Подцепляем toBeDeleted к концу имеющегося вписка.
         // Долбимся CAS, пока не разместим начало нового списка в toBeDeleted.
-        // Мы считаем, что в last->next хранится toBeDeleted - мы так и записывали - но другие потоки могли поменять это.
-        while (!toBeDeleted.compare_exchange_weak(newLastNext, first)) {
-            last->next.store(newLastNext);
-        }*/
-        last->next = toBeDeleted;
-        while (!toBeDeleted.compare_exchange_weak(std::ref(last->next), first)) {}
+        // Мы считаем, что в newLastNext хранится toBeDeleted - мы так и записывали - но другие потоки могли поменять это.
+        do {
+            newLastNext = toBeDeleted.load();
+        } while (!toBeDeleted.compare_exchange_strong(newLastNext, first));
+        last->next.store(newLastNext);
 
     }
 

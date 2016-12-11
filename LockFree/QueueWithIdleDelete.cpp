@@ -1,7 +1,5 @@
+#define QueueWithIdleDelete lock_free_queue
+
 #include "QueueWithIdleDelete.h"
 
-int main() {
-    QueueWithIdleDelete<int> lq;
-
-    return 0;
-}
+#include "queue_test.cpp"
