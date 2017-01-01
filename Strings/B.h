@@ -1,33 +1,35 @@
 #pragma once
 
-#include <iostream>
+#include <cstdio>
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cstring>
 
 class B {
 public:
     void solve() {
         std::string s;
-        std::cin >> s;
-        int n = s.length();
-        std::reverse(s.begin(), s.end());
-        // inline
+        s.resize(1000001);
+        scanf("%s", &s[0]);
+        int n = std::strlen(&s[0]);
+        std::reverse(s.begin(), s.begin() + n);
         std::vector<int> zf(n);
         int left = 0, right = 0;
-        for (int i = 0; i < n; ++i) {
-            zf[i] = std::max(0, std::min(right - i, zf[i - left]));
-            while (i + zf[i] < n && s[zf[i]] == s[i + zf[i]]) {
-                ++zf[i];
+        for (int i = 1; i < n; ++i) {
+            if (i <= right) {
+                zf[i] = std::min(right - i + 1, zf[i - left]);
             }
-            if (i + zf[i] >= right) {
-                left = i;
-                right = i + zf[i];
+            while (i + zf[i] < n && s[zf[i]] == s[i + zf[i]])
+                ++zf[i];
+            if (i + zf[i] - 1 > right) {
+                left = i, right = i + zf[i] - 1;
             }
         }
+        std::reverse(s.begin(), s.begin() + n);
 
         /*for (int i = 0; i < n; ++i) {
-            std::cout << zf[i] <<'\n';
+            std::cout << zf[i] << ' ' << pf[i] << '\n';
         }*/
 
         int pos = 1;
@@ -43,19 +45,29 @@ public:
                 int curLen = n - zf[pos];
                 if (ansLen > curLen) {
                     ansLen = curLen;
-                    start = zf[pos] + pos;
+                    start = n - zf[pos] - pos;
                 }
                 ++pos;
             }
         }
 
-        for (int i = n - 1; i >= start; --i) {
-            std::cout << s[i];
+        char buffer[1000001];
+        char* it = buffer;
+        for (int i = 0; i < start; ++i) {
+            *it = s[i];
+            ++it;
         }
-        std::cout << '(';
-        for (int i = start - 1; i >= n - ansLen; --i) {
-            std::cout << s[i];
+        *it = '(';
+        ++it;
+        for (int i = start; i < ansLen; ++i) {
+            *it = s[i];
+            ++it;
         }
-        std::cout << ")\n";
+        *it = ')';
+        ++it;
+        *it = '\n';
+        ++it;
+        *it = '\0';
+        puts(buffer);
     }
 };
