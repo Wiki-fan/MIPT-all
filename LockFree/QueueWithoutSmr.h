@@ -22,8 +22,11 @@ public:
     QueueWithoutSmr(const QueueWithoutSmr& other) = delete;
     QueueWithoutSmr& operator=(const QueueWithoutSmr& other)= delete;
 
-    //void push(T new_value) {
+#ifdef CONTEST
     void enqueue(T new_value) {
+#else
+    void push(T new_value) {
+#endif
         //  Заводим новую вершину с данными.
         std::shared_ptr<T> newData(std::make_shared<T>(new_value));
         Node* newNode = new Node(newData);
@@ -52,8 +55,11 @@ public:
         tail.compare_exchange_strong(currTail, newNode); // 2
     }
 
-    //std::shared_ptr<T> pop() {
+#ifdef CONTEST
     bool dequeue(T& newValue) {
+#else
+    std::shared_ptr<T> pop() {
+#endif
         while (true) {
             // Подгружаем голову и хвост.
             Node* currHead = head.load();
@@ -62,8 +68,11 @@ public:
             if (currHead == currTail) {
                 if (!currHeadNext) {
                     // Это происходит, если в очереди лишь фиктивная вершина. Просто возвращаем 0.
-                    //return nullptr;
+#ifdef CONTEST
                     return false;
+#else
+                    return nullptr;
+#endif
                 } else {
                     // Какой-то поток ещё не успел переставить в процессе pop() голову на новую.
                     // Помогаем ему.
@@ -75,9 +84,12 @@ public:
                     std::shared_ptr<T> item = currHeadNext->data;
                     // Можем вернуть.
                     // Сюда надо впихнуть SMR
-                    //return item;
+#ifdef CONTEST
                     newValue = *item;
                     return true;
+#else
+                    return item;
+#endif
                 }
             }
         }
