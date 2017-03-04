@@ -38,14 +38,18 @@ for line in lines:
     if line == '' or line == '\n':
         continue
     res_dict = parse_line(line)
-    print(res_dict)
+    # print(res_dict)
+    fl = False
     if "Windows" in res_dict["user_agent"]:
         os_count["Windows"] += 1
-    elif "Ubuntu" in res_dict["user_agent"]:
+        fl = True
+    if "Ubuntu" in res_dict["user_agent"]:
         os_count["Ubuntu"] += 1
-    elif "Macintosh" in res_dict["user_agent"]:
+        fl = True
+    if "Macintosh" in res_dict["user_agent"]:
         os_count["OS X"] += 1
-    else:
+        fl = True
+    if not fl:
         os_count["Unknown"] += 1
 
 sorted_os_count = sorted(os_count.items(), key=lambda x: x[1])
