@@ -76,6 +76,9 @@ def main():
 
     args = parser.parse_args()
 
+    if args.paragraph_spaces > args.line_length:
+        raise Exception("Paragraph spaces greater than line length")
+
     inp = sys.stdin if args.input is None else open(args.input, 'r')
     out = sys.stdout if args.output is None else open(args.output, 'w')
     paragraphs = get_paragraphs(inp)
