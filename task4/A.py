@@ -30,21 +30,15 @@ def get_paragraphs(inp):
 
 
 def process_paragraph(line, paragraph_spaces, line_length):
-    # arr = list(filter(lambda x: x != '', line.split(' ')))
     arr = re.findall(r'[A-Za-z0-9]+|[,.?!\-:\']', line)
-    # print (arr)
 
-    i = 0
     new_arr = ['']
-    while i < len(arr):
-        if is_punctuation_marks(arr[i]):
-            new_arr[-1] += arr[i]
-            i += 1
+    for word in arr:
+        if is_punctuation_marks(word):
+            new_arr[-1] += word
         else:
-            new_arr.append(arr[i])
-            i += 1
+            new_arr.append(word)
     arr = new_arr
-    # print(arr)
 
     out = ''
     out_line = ' ' * paragraph_spaces
@@ -86,7 +80,9 @@ def main():
     out = sys.stdout if args.output is None else open(args.output, 'w')
     paragraphs = get_paragraphs(inp)
     for par in paragraphs:
-        to_append = process_paragraph(par, args.paragraph_spaces, args.line_length)
+        to_append = process_paragraph(par,
+                                      args.paragraph_spaces,
+                                      args.line_length)
         out.write(to_append)
 
     inp.close()
