@@ -21,7 +21,7 @@ extern char buffer2[SERVER_BUF_SIZE];
 
 char* skip_to_ws(char* buf) {
     char* actual_data = buf;
-    while (*actual_data != ' ' && *actual_data != '\0' && *actual_data != '\n') {
+    while (*actual_data != ' ' && *actual_data != '\0' && *actual_data != '\n' && *actual_data != '\r') {
         ++actual_data;
     }
     *actual_data = '\0';

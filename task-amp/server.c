@@ -11,7 +11,7 @@ extern timer_t timerid;
 int port;
 int main()
 {
-    port = 1254;
+    port = 1255;
 
     LOG(( "Starting server" ));
 

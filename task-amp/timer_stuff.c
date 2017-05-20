@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200901L
 #include <stdio.h>
 #include <err.h>
 #include <time.h>
