@@ -7,7 +7,7 @@
 #include <sys/msg.h>
 #include <unistd.h>
 #include <err.h>
-#include "common_types.h"
+#include "../common/common_types.h"
 
 key_t key;
 int msgid;

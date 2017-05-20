@@ -5,7 +5,7 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/msg.h>
-#include "common_types.h"
+#include "../common/common_types.h"
 
 key_t key;
 int msgid;
