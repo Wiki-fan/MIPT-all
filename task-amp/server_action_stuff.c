@@ -9,7 +9,6 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include "net_stuff.h"
-#include "common_types.h"
 
 extern fd_set master;
 extern fd_set read_fds;
@@ -114,8 +113,8 @@ void respond_wall(int shouter, char* buf) {
 void respond_say(int i, char* buf) {
     int j;
     char* str = skip_to_ws(buf);
-    skip_to_ws(str);
     Player* sayer = &players.arr[sock_info.arr[i].player_id];
+    skip_to_ws(str);
 
     if (!check_if_player_exists(i, buf)) {
         return;

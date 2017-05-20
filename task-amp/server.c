@@ -1,15 +1,7 @@
-#define _POSIX_C_SOURCE 199309L
 #include <signal.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <err.h>
 #include <sys/socket.h>
-#include <getopt.h>
-#include <time.h>
-#include "../common/utils.h"
 #include "net_stuff.h"
-#include "common_types.h"
 #include "server_stuff.h"
 #include "timer_stuff.h"
 

@@ -1,5 +1,4 @@
 #include "net_stuff.h"
-#include "common_types.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,9 +14,10 @@ extern Vector_Player players;
 {\
 	int ret;\
 	while ( (ret = VAL) == -1) {\
-        if (errno == EAGAIN)\
+        int error = errno;\
+        if (error == EAGAIN)\
             continue;\
-        if (errno == ENOTCONN ) {\
+        if (error == ENOTCONN ) {\
             return -1;\
         } else {\
             perror("net failed");\
@@ -47,9 +47,12 @@ int blocking_read_buf( int sock_id, char* buf )
 {
     int count=SERVER_BUF_SIZE, recv = 0;
 
-    recv = read( sock_id, buf, count);
+    CNET( recv = read( sock_id, buf, count), E_READ );
     if (recv == -1 || recv == 0) {
         return -1;
+    }
+    if (recv > SERVER_BUF_SIZE-1) {
+        err(E_BIGDATA, "Too big to fit in buffer");
     }
 
     return 1;

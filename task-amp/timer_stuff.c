@@ -1,15 +1,8 @@
-#define _POSIX_C_SOURCE 200901L
-#include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <err.h>
-#include <termios.h>
-#include <string.h>
 #include <time.h>
 #include <signal.h>
 #include "timer_stuff.h"
-#include "common_types.h"
-#include "../common/utils.h"
 
 /** Creates timer. Bind handler to SIGALRM on your own. */
 timer_t create_timer()

@@ -14,7 +14,6 @@
 #include "timer_stuff.h"
 #include "net_stuff.h"
 #include "server_action_stuff.h"
-#include "common_types.h"
 
 /* master file descriptor list*/
 fd_set master;
@@ -219,7 +218,7 @@ int server_start() {
     block_timer_signal();
 
     /* Init timer parameters */
-    its.it_interval.tv_sec = 10;
+    its.it_interval.tv_sec = SECONDS_IN_ROUND;
     its.it_interval.tv_nsec = 0;
     its.it_value = its.it_interval;
 

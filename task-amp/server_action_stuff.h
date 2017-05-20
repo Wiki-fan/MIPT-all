@@ -1,5 +1,5 @@
-#ifndef TASK_L3__SERVER_ACTION_STUFF
-#define TASK_L3__SERVER_ACTION_STUFF
+#ifndef TASK_SERVER_ACTION_STUFF
+#define TASK_SERVER_ACTION_STUFF
 #include "common_types.h"
 
 char* skip_to_ws(char* buf);
@@ -13,4 +13,4 @@ void close_connection(int i);
 void accept_connection();
 
 
-#endif /* L3__SERVER_ACTION_STUFF */
+#endif /* TASK_SERVER_ACTION_STUFF */
