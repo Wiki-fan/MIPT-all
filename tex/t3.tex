@@ -1,0 +1,127 @@
+\input{boilerplate.tex}
+
+\input{header.tex}
+\begin{document}
+
+\b{thm}
+Класс автоматных языков замкнут относительно:
+\e{thm}
+
+\b{ol}
+\i Конкатенации: $L_1 \cdot L_2$ --- автомат. $L_1 = L(M_1), L_2 = L(M_2)$
+\b{proof}
+\e{proof}
+\i Объединения:
+\b{proof}
+\e{proof}
+\i Пересечения:
+\b{proof}
+$L_1 = L(M_1), M_1 = \<Q_1, \Sigma, \Delta, q_{01}, F_1 \>$
+$L_1 = L(M_1), M_1 = \<Q_1, \Sigma, \Delta, q_{01}, F_1 \>$ --- НКА с однобуквенными переходами
+
+$M=\<Q_1\times Q_2, \Sigma, \Delta, (q_{01}, q_{02}), F_1 \times F_2 \>$
+
+$\Delta = \{ ((q_1, q_2), a) \to_M (a_1', q_2') \mid \b{cases} (q_1, a) \to q_1' \in \Delta_1 \\ (q_2, a) \to q_2' \in \Delta_2 \e{cases} \}$
+
+\b{stmt}
+$((q_1, q_2), w) \vdash_M ((q_1', q_2'), \eps) \Iff \begin{cases} (q_1, w) \vdash_{M_1} (q_1', \eps) \e{cases}$
+\e{stmt}
+\b{proof}
+Индукция по $\abs{w}$.
+
+База: $\abs{w} = 0 \Then w = \eps \Then ((q_{01}, q_{02}), \eps) \vdash ((q_1, q_2), \eps) \Iff (q_{01}, q_{02}) = (q_1, q_2) \Iff \b{cases} (q_{01}, \eps) \vdash_{M_1} (q_1, \eps) \\ (q_{02}, \eps) \vdash_{M_2} (q_2, \eps) \e{cases}$
+
+Переход: $w=ua \Then ((q_1, q_2), w) \vdash ((q_1', q_2'), \eps) \Iff \exists q_1'' \in Q_1, q_2'' \in Q_2: ((q_1, q_2), w) \vdash ((q_1'', q_2''), a) \vdash_1 ((q_1', q_2'), \eps) \expl{\Iff}{\text{IH}} (a_i, w) \vdash (a_i'', a) \vdash_1 (a_i', \eps) \Iff (a_i, w) \vdash (a_i, \eps) \forall i \in \{1, 2\}$
+
+$w \in L(M) \Iff \exists q = (q_1, q_2) \in F_1 \times F_2 \Have ((q_{01}, q_{02}), w) \vdash_M (q,\eps) \Iff \exists q_1, q_2: \b{cases} (q_{01}, w) \vdash_{M_1} (q_1, \eps) \\ (q_{02}, w) \vdash_{M_2} (q_2, \eps) \e{cases} \Iff w \in L_1 \vee w \in L_2$
+\e{proof}
+
+
+\e{proof}
+\i Итерации Клини:
+\b{proof}
+TODO
+\e{proof}
+
+\i Дополнения:
+\b{proof}
+\b{stmt}
+$\forall$ автоматного языка $\exists$ полный ДКА.
+\e{stmt}
+\b{proof}
+$L=L(M), M=\<Q, \Sigma, \Delta, q_0, F \>$ --- ДКА.
+
+$M' = \<Q\cup \{q'\}, \Sigma, \Delta', q_0, F \>, \Delta' = \Delta \cup \{(q, a) \to q' \mid \text{в $M$ из $q$ не было перехода по $a$}\} \cup \{(q', a) \to q' \mid a \in \Sigma \}$
+\e{proof}
+\b{stmt}
+Если $M$ --- ПДКА, то $\forall q \forall w \abs{\Delta_M(q, w)} = 1$ 
+\e{stmt}
+\b{proof}
+Очевидно.
+\e{proof}
+$L = L(M), M=\<Q, \Sigma, \Delta, q_0, F \>$
+
+$\bar{L} = L(M'), M'=\<Q, \Sigma, \Delta, q_0, Q \setminus F \>$
+\e{proof}
+
+\i Прямых гомоморфизмов.
+\b{defn}
+$\phi$ --- гомоморфизм, $\phi:\Sigma^* \to \Gamma^*$, если $\forall u \forall v \phi(uv) = \phi(u) \phi(v)$.
+\e{defn}
+
+$L=L(M), M = \<Q, \Sigma, \Delta, q_0, F \>$ -- НКА с однобуквенными переходами.
+
+$\phi(L) = \phi(M'), M'=\<Q, \Sigma, \Delta', q_0, F \>, \Delta' = \{(q_1, \phi(a)) \to q_2 \mid ((q_1, a) \to q_2 \in \Delta \}$
+
+\b{stmt} 
+$w \in L(M) \Iff \phi(w) \in L(M')$ 
+\e{stmt}
+\b{proof}
+Индукция по $\abs{w}$.
+
+База: $\abs{w} = 0$ --- очевидно ( 
+$\eps \in L(M) 
+\Iff \exists q \in F: (q_0, \eps) \vdash_M (q, \eps) 
+\Iff (q_0, \eps) \vdash_M (q_0, \eps) 
+\Iff (q_0, \eps) \vdash_{M'} (q_0, \eps) 
+\Iff \eps \in L(M')$
+
+Переход: Пусть $w=ua, a \in \Sigma$. Тогда 
+$ua \in L(M) 
+\Iff \exists q \in F: (q_0, ua) \vdash_M (q, \eps) 
+\Iff \exists q \in F, q' \in Q: (q_0, ua) \vdash_M (q', a) \to (q, \eps) 
+\expl{\Iff}{\text{IH}} \exists q \in F, q' \in Q: 
+	\b{cases} (q_0, \phi(u)) \vdash_{M'} (q', \exp) \\ (q, \phi(a)) \to q \in \Delta' \e{cases}
+\Iff \exists q \in F: (q_0, \phi(w)) \vdash_{M'} (q, \eps) 
+\Iff \phi(w) \in L(M')$
+\e{proof}
+
+\i Обратных гомоморфизмов.
+\b{proof}
+$L=L(M), M=\<Q, \Sigma, \Delta, q_0, F \>$ --- НКА с однобуквенными переходами.
+$\phi^{-1}(L) = L(M'), M'=\<Q, \Sigma, \Delta, q_0, F \>, \Delta' = \{ (q_1, a) \to q_2 \mid (q_1, \phi(a)) \vdash_M (q_2, \eps) \}$ (т. е. вместо $\phi(a)$ пишем $a$).
+\b{stmt}
+$(q_1, w) \to_{M'} q_2 \Iff (q_1, \phi(w)) \vdash_M (q_2, \eps)$
+\e{stmt}
+\b{proof}
+Индукция по $\abs{w}$. $w = \eps \Iff q_1 = q_2 \Iff (q_1, \eps) \vdash (q_2, \eps)$
+$w = a \in \Sigma --- по построению (q_1, a) \to_{M'} q_2 \Iff (q_1, \phi(a)) \vdash_M (q_2, \eps)$
+
+Переход:
+$w = ua$, для $u$ уже доказано.
+
+$(q_1, ua) \vdash_{M'} (q_2, \eps) \Iff \exists q_3: 
+	\b{cases} (q_1, u) \vdash_{M'} (q_3, \eps) \\ (q_3, a) \to q_2 \in \Delta \e{cases} 
+\Iff \exists q_3: 
+	\b{cases} \expl{(q_1, \phi(u)) \vdash_M (q_3, \eps)}{\text{IH}} \\ \expl{(q_3, \phi(a)) \vdash_M (q_2, \eps)}{\text{построение}} \e{cases} 
+\Iff (q_1, \expl{\phi(u)\phi(a)}{=\phi(ua)=\phi(w)}) \vdash_M (q_2, \eps)$
+\e{proof}
+$w \in L(M') \Iff (q_0, w) \vdash_{M'} (q, \eps) \Iff (q_0, \phi(w)) \vdash_M (q, \eps) \Iff \phi(w) \in L(M)$
+
+\e{proof}
+
+
+\e{ol}
+
+\end{document}
+ 
