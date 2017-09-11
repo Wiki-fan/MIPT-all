@@ -1,0 +1,7 @@
+.idea
+.ipynb_checkpoints
+CMakeFiles
+CMakeCache.txt
+cmake-build-debug
+cmake_install.cmake
+vgcore.*
