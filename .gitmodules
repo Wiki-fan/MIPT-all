@@ -1,0 +1,3 @@
+[submodule "examples/openmp_dot_product"]
+	path = examples/openmp_dot_product
+	url = https://gitlab.com/n-canter/openmp_dot_product.git
