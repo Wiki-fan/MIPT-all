@@ -3,7 +3,7 @@
 #include <omp.h>
 #include <time.h>
 
-#include "examples/openmp_dot_product/runner.h"
+#include "../examples/openmp_dot_product/runner.h"
 
 int getMove(double p, unsigned int* seed) {
     return (rand_r(seed) / (double) RAND_MAX) < p ? -1 : 1;
@@ -44,7 +44,7 @@ void not_parallel_walk(void* ctx_void) {
     ctx->lifetime = lifetime;
 }
 
-void parallel_walk(void* ctx_void) {
+void parallel_merge_sort_run(void* ctx_void) {
     struct context* ctx = (struct context*) ctx_void;
 
     int result = 0;
@@ -88,7 +88,7 @@ int main(int args, char* argv[]) {
 
     double time;
     if (ctx.P != 0) {
-        time = runner_run(parallel_walk, &ctx, "parallel walk");
+        time = runner_run(parallel_merge_sort_run, &ctx, "parallel walk");
     } else {
         time = runner_run(not_parallel_walk, &ctx, "not parallel walk");
     }
