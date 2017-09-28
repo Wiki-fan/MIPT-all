@@ -9,3 +9,9 @@
     } while(0)
 
 #define MAX(A, B) ((A)>(B)? (A):(B))
+
+#ifdef DEBUG
+#define IF_DBG(A) A
+#else
+#define IF_DBG(A) do {} while(0)
+#endif

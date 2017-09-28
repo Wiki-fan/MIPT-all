@@ -56,7 +56,6 @@ void merge(int* a_start, int* a_end, int* b_start, int* b_end, int* dst) {
 
 }
 
-//merge_parallel_L5
 // Сливает фрагменты массива t [l1;r1] и [l2;r2], складывая результат в a[l;...]
 void parmerge(int* src, int l1, int r1, int l2, int r2, int* dst, int l, int chunk_size) {
     int len1 = r1 - l1 + 1;
@@ -89,7 +88,6 @@ void parmerge(int* src, int l1, int r1, int l2, int r2, int* dst, int l, int chu
     }
 }
 
-// parallel_merge_sort_hybrid_rh_1
 void parmergesort(int* src, int l, int r, int* dst, int src_to_dst, int chunk_size) {
     if (r == l) {
         if (src_to_dst) {
@@ -103,7 +101,6 @@ void parmergesort(int* src, int l, int r, int* dst, int src_to_dst, int chunk_si
     }
 
     int m = (r + l) / 2;
-    //#pragma omp parallel
     //#pragma omp single
     {
         #pragma omp task
@@ -150,10 +147,14 @@ int main(int args, char* argv[]) {
     int* a_copy = malloc(ctx.n * sizeof(int));
     memcpy(a_copy, a, ctx.n * sizeof(int));
 
-    /*for (int i = 0; i < ctx.n; ++i) {
-        printf("%d %d; ", a[i], a_copy[i]);
-    }
-    printf("\n");*/
+
+    IF_DBG(
+        {
+        for (int i = 0; i < ctx.n; ++i) {
+            printf("%d %d; ", a[i], a_copy[i]);
+        }
+        printf("\n");
+        });
 
     double time_parallel, time_unparallel;
 
@@ -161,17 +162,23 @@ int main(int args, char* argv[]) {
     if (ctx.P != 0) {
         time_parallel = runner_run(parallel_merge_sort_run, &ctx, "parallel sort");
     }
-    /*for (int i = 0; i < ctx.n; ++i) {
-        printf("%d ", ctx.a[i]);
-    }
-    printf("\n");*/
+    IF_DBG(
+        {
+            for (int i = 0; i < ctx.n; ++i) {
+                printf("%d %d; ", a[i], a_copy[i]);
+            }
+            printf("\n");
+        });
 
     ctx.a = a_copy;
     time_unparallel = runner_run(std_sort_run, &ctx, "not parallel sort");
-    /*for (int i = 0; i < ctx.n; ++i) {
-        printf("%d ", ctx.a[i]);
-    }
-    printf("\n");*/
+    IF_DBG(
+        {
+            for (int i = 0; i < ctx.n; ++i) {
+                printf("%d %d; ", a[i], a_copy[i]);
+            }
+            printf("\n");
+        });
 
     if (memcmp(a, a_copy, ctx.n * sizeof(int))) {
         printf("Incorrect sorting\n");
