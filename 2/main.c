@@ -144,6 +144,12 @@ int main(int args, char* argv[]) {
     ctx.P = atoi(argv[3]);
     int* a = gen_rand_ints(ctx.n);
 
+    FILE* outf_data = fopen("data.txt", "w");
+    for (int i = 0; i < ctx.n; ++i) {
+        fprintf(outf_data, "%d ", a[i]);
+    }
+    fprintf(outf_data, "\n");
+
     int* a_copy = malloc(ctx.n * sizeof(int));
     memcpy(a_copy, a, ctx.n * sizeof(int));
 
@@ -170,6 +176,12 @@ int main(int args, char* argv[]) {
             printf("\n");
         });
 
+    for (int i = 0; i < ctx.n; ++i) {
+        fprintf(outf_data, "%d ", a[i]);
+    }
+    fprintf(outf_data, "\n");
+    fclose(outf_data);
+
     ctx.a = a_copy;
     time_unparallel = runner_run(std_sort_run, &ctx, "not parallel sort");
     IF_DBG(
@@ -186,14 +198,14 @@ int main(int args, char* argv[]) {
 
     double time = ctx.P != 0 ? time_parallel : time_unparallel;
 
-    FILE* out = fopen("stats.txt", "a+");
-    fprintf(out,
+    FILE* outf_stats = fopen("stats.txt", "a+");
+    fprintf(outf_stats,
             "%fs %d %d %d\n",
             time,
             ctx.n,
             ctx.m,
             ctx.P);
-    fclose(out);
+    fclose(outf_stats);
 
     free(a);
     free(a_copy);
