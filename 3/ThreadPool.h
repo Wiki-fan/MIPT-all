@@ -6,9 +6,9 @@
 
 struct thread_pool {
     size_t num_workers; //atomic
-    struct blocking_queue queue;
+    blocking_queue queue;
     pthread_t* workers; // std::vector <std::thread>
-    pthread_mutex_t mutex;
+    pthread_mutex_t mutex, mutex_side_task;
 };
 
 void* RunWorker(void* arg) {
@@ -18,6 +18,8 @@ void* RunWorker(void* arg) {
 
         if (blocking_queue_get(&this_pool->queue, &task)) {
             task->func_ptr(task->args);
+            task->is_ready = 1; // TODO: ATOMIC!
+            pthread_cond_broadcast(&task->cv);
         } else {
             break;
         }
@@ -32,10 +34,13 @@ void ThreadPool_init(struct thread_pool* pool, size_t num_workers) {
     for (size_t i = 0; i < num_workers; ++i) {
         pthread_create(&pool->workers[i], NULL, RunWorker, &pool);
     }
+
+    pthread_mutex_init(&pool->mutex, NULL);
+    pthread_mutex_init(&pool->mutex_side_task, NULL);
 }
 
 void ThreadPool_Submit(struct thread_pool* pool, packaged_task* task) {
-    blocking_queue_put(&pool->queue, &task);
+    blocking_queue_put(&pool->queue, task);
 }
 
 void Thread_Pool_Shutdown(struct thread_pool* pool) {
@@ -45,27 +50,32 @@ void Thread_Pool_Shutdown(struct thread_pool* pool) {
         void* retval;
         pthread_join(pool->workers[i], &retval);
     }
+    free(pool->workers);
     pthread_mutex_unlock(&pool->mutex);
+    pthread_mutex_destroy(&pool->mutex);
+    pthread_mutex_destroy(&pool->mutex_side_task);
 }
 
 void ThreadPool_Wait(struct thread_pool* pool, packaged_task* task) {
     // Если очередь не пуста, делаем новые задания. Выходим, если было сделано то, которое мы ждём.
     // Если в очереди не осталось заданий, значит, нужное уже выполняется и скоро будет сделано.
     // Можем выйти из цикла и встать на Wait'е.
-    pthread_mutex_lock(&pool->mutex);
+    //pthread_mutex_lock(&pool->mutex_side_task);
     packaged_task* side_task;
 
     while(!task->is_ready) {
-        // Если заснём тут, плохо
-        while (pthread_cond_wait(&task->cv, &pool->mutex)) {
+        // TODO: Если заснём тут, плохо
+        //while (pthread_cond_wait(&task->cv, &pool->mutex_side_task)) {
             if (!blocking_queue_try_get(&pool->queue, &side_task)) {
                 break;
             } else {
                 side_task->func_ptr(side_task->args);
+                side_task->is_ready = 1;
+                pthread_cond_broadcast(&side_task->cv);
             }
-        }
+        //}
     }
     //async_result.wait();
-    pthread_mutex_unlock(&pool->mutex);
+    //pthread_mutex_unlock(&pool->mutex_side_task);
 }
 

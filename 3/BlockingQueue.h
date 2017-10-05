@@ -6,21 +6,24 @@
 
 #define Value packaged_task
 
-struct blocking_queue {
+typedef struct {
     int capacity;
     int is_open;
     pthread_mutex_t mutex;
     pthread_cond_t cv_put, cv_get;
     Queue_packaged_task queue;
-};
+} blocking_queue;
 
-void blocking_queue_init(struct blocking_queue* queue, int capacity) {
+void blocking_queue_init(blocking_queue* queue, int capacity) {
     queue->is_open = 1;
     queue->capacity = capacity;
     Queue_packaged_task_init(&queue->queue);
+    pthread_mutex_init(&queue->mutex, NULL);
+    pthread_cond_init(&queue->cv_get, NULL);
+    pthread_cond_init(&queue->cv_put, NULL);
 }
 
-int blocking_queue_put(struct blocking_queue* queue, Value* item) {
+int blocking_queue_put(blocking_queue* queue, Value* item) {
     pthread_mutex_lock(&queue->mutex);
 
     while (queue->queue.size == queue->capacity && queue->is_open) {
@@ -37,7 +40,7 @@ int blocking_queue_put(struct blocking_queue* queue, Value* item) {
     return 1;
 }
 
-int blocking_queue_get(struct blocking_queue* queue, Value** item) {
+int blocking_queue_get(blocking_queue* queue, Value** item) {
     pthread_mutex_lock(&queue->mutex);
 
     while (queue->queue.size == 0 && queue->is_open) {
@@ -50,7 +53,7 @@ int blocking_queue_get(struct blocking_queue* queue, Value** item) {
         }
     }
 
-    item = Queue_packaged_task_pop(&queue->queue);
+    *item = Queue_packaged_task_pop(&queue->queue);
 
     pthread_cond_signal(&queue->cv_put);
 
@@ -59,14 +62,14 @@ int blocking_queue_get(struct blocking_queue* queue, Value** item) {
 }
 
 // Как TryPop
-int blocking_queue_try_get(struct blocking_queue* queue, Value** v) {
+int blocking_queue_try_get(blocking_queue* queue, Value** v) {
     pthread_mutex_lock(&queue->mutex);
 
     if (queue->queue.size == 0) {
         return 0;
     }
 
-    v = Queue_packaged_task_pop(&queue->queue);
+    *v = Queue_packaged_task_pop(&queue->queue);
 
     pthread_cond_signal(&queue->cv_put);
 
@@ -74,7 +77,7 @@ int blocking_queue_try_get(struct blocking_queue* queue, Value** v) {
     return 1;
 }
 
-void blocking_queue_shutdown(struct blocking_queue* queue) {
+void blocking_queue_shutdown(blocking_queue* queue) {
     pthread_mutex_lock(&queue->mutex);
 
     // Чтобы не вызывать лишний раз broadcast, проверяем, не была ли очередь уже закрыта.
@@ -84,6 +87,9 @@ void blocking_queue_shutdown(struct blocking_queue* queue) {
         pthread_cond_broadcast(&queue->cv_get);
 
         Queue_packaged_task_destroy(&queue->queue);
+        pthread_mutex_destroy(&queue->mutex);
+        pthread_cond_destroy(&queue->cv_get);
+        pthread_cond_destroy(&queue->cv_put);
     }
     pthread_mutex_unlock(&queue->mutex);
 }
