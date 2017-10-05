@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../examples/openmp_dot_product/runner.h"
+#include "../examples/openmp_dot_product/scalar/runner.h"
 #include "utils.h"
 
 struct context {

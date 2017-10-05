@@ -3,8 +3,10 @@
 #include <time.h>
 #include <pthread.h>
 
-#include "../examples/openmp_dot_product/runner.h"
+#include "../examples/openmp_dot_product/scalar/runner.h"
 #include "utils.h"
+#include "ThreadPool.h"
+#include "packaged_task.h"
 
 struct context {
     int m, n, P;
@@ -16,9 +18,9 @@ typedef struct {
     int l;
     int r;
     int* dst;
-    int tid;
     int src_to_dst;
     int chunk_size;
+    struct thread_pool* tp;
 } thread_data_t;
 
 typedef struct {
@@ -109,17 +111,19 @@ void* parmerge(void* arg) {//int* src, int l1, int r1, int l2, int r2, int* dst,
         int target_median = binsearch(src[median], src, l2, r2);
         int size_of_first_half = l + (median - l1) + (target_median - l2);
         dst[size_of_first_half] = src[median];
-        pthread_t t1;
         thread_merge_data_t data1 = {src, l1, median - 1, l2, target_median - 1, dst, l, chunk_size};
-        pthread_create(&t1, NULL, &parmerge, &data1);
-        pthread_t t2;
+        //packaged_task package = {parmerge, (void*)(&data1), .is_ready=0};
+        //pthread_cond_init(&package.cv, NULL);
+        //pthread_create(&t1, NULL, &parmerge, &data1);
+        parmerge(&data1);
         thread_merge_data_t data2 = {src, median + 1, r1, target_median, r2, dst, size_of_first_half + 1, chunk_size};
-        pthread_create(&t2, NULL, &parmerge, &data2);
+        //pthread_create(&t2, NULL, &parmerge, &data2);
+        parmerge(&data2);
 
     }
 }
 
-void parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_dst, int chunk_size) {
+void* parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_dst, int chunk_size) {
     thread_data_t* data = (thread_data_t*) arg;
     int* src = data->array;
     int l = data->l;
@@ -132,20 +136,27 @@ void parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_dst
         if (src_to_dst) {
             dst[l] = src[l];
         }
-        return;
+        return NULL;
     }
     if (r - l <= chunk_size && !src_to_dst) {
         qsort(src + l, r - l + 1, sizeof(int), cmp_int);
-        return;
+        return NULL;
     }
 
     int m = (r + l) / 2;
 
+    // parallel
     thread_data_t data1 = {src, l, m, dst, !src_to_dst, chunk_size};
-    parmergesort(&data1);
+    packaged_task package1 = {parmergesort, (void*)(&data1), .is_ready=0};
+    pthread_cond_init(&package1.cv, NULL);
+    ThreadPool_Submit(data->tp, &package1);
+    //parmergesort(&data1);
 
+    // parallel
     thread_data_t data2 = {src, m + 1, r, dst, !src_to_dst, chunk_size};
     parmergesort(&data2);
+
+    ThreadPool_Wait(data->tp, &package1);
 
     if (src_to_dst) {
         thread_merge_data_t data_merge = {src, l, m, m + 1, r, dst, l, chunk_size};
@@ -158,7 +169,9 @@ void parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_dst
 
 int* parallel_merge_sort(int* a, int n, int m, int P) {
     int* res = malloc(n * sizeof(int));
-    thread_data_t data = {a, 0, n - 1, res, 0, m};
+    struct thread_pool tp;
+    ThreadPool_init(&tp, P);
+    thread_data_t data = {a, 0, n - 1, res, 0, m, &tp};
     parmergesort(&data);
     free(res);
 }

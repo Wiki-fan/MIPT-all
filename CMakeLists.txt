@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(../parallel)
+project(raspreds)
 
 set(CMAKE_C_STANDARD 11)
 find_package(OpenMP REQUIRED)
