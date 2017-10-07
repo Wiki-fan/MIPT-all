@@ -6,7 +6,7 @@
 #define TRUE  1
 #define FALSE	0
 
-/* a link in the queue, holds the info and point to the next Node*/
+/* a link in the q, holds the info and point to the next Node*/
 typedef struct {
     int info;
 } DATA;
@@ -16,7 +16,7 @@ typedef struct Node_t {
     struct Node_t *prev;
 } NODE;
 
-/* the HEAD of the Queue, hold the amount of node's that are in the queue*/
+/* the HEAD of the Queue, hold the amount of node's that are in the q*/
 typedef struct Queue {
     NODE *head;
     NODE *tail;
@@ -62,14 +62,14 @@ int Enqueue(Queue *pQueue, NODE *item) {
     if (pQueue->size >= pQueue->limit) {
         return FALSE;
     }
-    /*the queue is empty*/
+    /*the q is empty*/
     item->prev = NULL;
     if (pQueue->size == 0) {
         pQueue->head = item;
         pQueue->tail = item;
 
     } else {
-        /*adding item to the end of the queue*/
+        /*adding item to the end of the q*/
         pQueue->tail->prev = item;
         pQueue->tail = item;
     }
@@ -78,7 +78,7 @@ int Enqueue(Queue *pQueue, NODE *item) {
 }
 
 NODE * Dequeue(Queue *pQueue) {
-    /*the queue is empty or bad param*/
+    /*the q is empty or bad param*/
     NODE *item;
     if (isEmpty(pQueue))
         return NULL;

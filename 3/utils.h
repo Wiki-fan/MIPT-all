@@ -15,3 +15,5 @@
 #else
 #define IF_DBG(A) do {} while(0)
 #endif
+
+#define PRERR(VAL) do { int err; if ((err = (VAL))) { printf("%s", strerror(err)); assert(0);} } while(0)

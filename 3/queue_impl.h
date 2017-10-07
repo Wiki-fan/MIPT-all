@@ -39,14 +39,16 @@ void Queue_##TYPE##_push( Queue_##TYPE* q, TYPE* val)\
 \
 TYPE* Queue_##TYPE##_pop( Queue_##TYPE* q )\
 {\
+	assert(q->size != 0);\
 	Node_##TYPE* temp = q->head;\
-    assert(q->size != 0);\
 	q->head = q->head->next;\
 	if( q->head == NULL) {\
 		q->tail = NULL;\
 	}\
     --q->size;\
-	return temp->val;\
+	TYPE* ret = temp->val;\
+	free(temp);\
+	return ret;\
 }\
 \
 void Queue_##TYPE##_destroy( Queue_##TYPE* q )\

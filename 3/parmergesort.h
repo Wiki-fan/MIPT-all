@@ -142,7 +142,7 @@ void* parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_ds
     // parallel
     thread_data_t data1 = {src, l, m, dst, !src_to_dst, chunk_size, data->tp};
     packaged_task package1 = {parmergesort, (void*)(&data1), .is_ready=0};
-    pthread_cond_init(&package1.cv, NULL); // TODO: Где удалить?!
+    //pthread_cond_init(&package1.cv, NULL); // TODO: Где удалить?!
     ThreadPool_Submit(data->tp, &package1);
     //parmergesort(&data1);
 

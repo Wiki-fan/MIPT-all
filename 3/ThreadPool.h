@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limits.h>
+#include <stdatomic.h>
 #include "BlockingQueue.h"
 #include "packaged_task.h"
 
@@ -18,8 +19,8 @@ void* RunWorker(void* arg) {
 
         if (blocking_queue_get(&this_pool->queue, &task)) {
             task->func_ptr(task->args);
-            task->is_ready = 1; // TODO: ATOMIC!
-            pthread_cond_broadcast(&task->cv);
+            atomic_store(&task->is_ready, 1); // TODO: ATOMIC!
+            //pthread_cond_broadcast(&task->cv);
         } else {
             break;
         }
@@ -28,15 +29,16 @@ void* RunWorker(void* arg) {
 
 void ThreadPool_init(struct thread_pool* pool, size_t num_workers) {
     pool->num_workers = num_workers;
-    blocking_queue_init(&pool->queue, INT_MAX);
-    pool->workers = malloc(num_workers * sizeof(pthread_t));
+    blocking_queue_init(&pool->queue, 100000);
 
+    assert(!pthread_mutex_init(&pool->mutex, NULL));
+    assert(!pthread_mutex_init(&pool->mutex_side_task, NULL));
+
+    pool->workers = malloc(num_workers * sizeof(pthread_t));
     for (size_t i = 0; i < num_workers; ++i) {
-        pthread_create(&pool->workers[i], NULL, RunWorker, &pool);
+        assert(!pthread_create(&pool->workers[i], NULL, RunWorker, &pool));
     }
 
-    pthread_mutex_init(&pool->mutex, NULL);
-    pthread_mutex_init(&pool->mutex_side_task, NULL);
 }
 
 void ThreadPool_Submit(struct thread_pool* pool, packaged_task* task) {
@@ -44,16 +46,17 @@ void ThreadPool_Submit(struct thread_pool* pool, packaged_task* task) {
 }
 
 void Thread_Pool_Shutdown(struct thread_pool* pool) {
-    pthread_mutex_lock(&pool->mutex);
+    assert(!pthread_mutex_lock(&pool->mutex));
     blocking_queue_shutdown(&pool->queue);
     for (size_t i = 0; i < pool->num_workers; ++i) {
         void* retval;
-        pthread_join(pool->workers[i], &retval);
+        assert(!pthread_join(pool->workers[i], &retval));
     }
+    blocking_queue_destroy(&pool->queue);
     free(pool->workers);
-    pthread_mutex_unlock(&pool->mutex);
-    pthread_mutex_destroy(&pool->mutex);
-    pthread_mutex_destroy(&pool->mutex_side_task);
+    assert(!pthread_mutex_unlock(&pool->mutex));
+    assert(!pthread_mutex_destroy(&pool->mutex));
+    assert(!pthread_mutex_destroy(&pool->mutex_side_task));
 }
 
 void ThreadPool_Wait(struct thread_pool* pool, packaged_task* task) {
@@ -63,16 +66,16 @@ void ThreadPool_Wait(struct thread_pool* pool, packaged_task* task) {
     //pthread_mutex_lock(&pool->mutex_side_task);
     packaged_task* side_task;
 
-    while(!task->is_ready) {
+    while (!atomic_load(&task->is_ready)) {
         // TODO: Если заснём тут, плохо
         //while (pthread_cond_wait(&task->cv, &pool->mutex_side_task)) {
-            if (!blocking_queue_try_get(&pool->queue, &side_task)) {
-                break;
-            } else {
-                side_task->func_ptr(side_task->args);
-                side_task->is_ready = 1;
-                pthread_cond_broadcast(&side_task->cv);
-            }
+        if (!blocking_queue_try_get(&pool->queue, &side_task)) {
+            break;
+        } else {
+            side_task->func_ptr(side_task->args);
+            atomic_store(&side_task->is_ready, 1);
+            //pthread_cond_broadcast(&side_task->cv);
+        }
         //}
     }
     //async_result.wait();
