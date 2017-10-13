@@ -1,4 +1,6 @@
 #include "utils.h"
+#include "ThreadPool.h"
+#include "packaged_task.h"
 
 struct context {
     int m, n, P;
@@ -11,9 +13,8 @@ typedef struct {
     int r;
     int* dst;
     int src_to_dst;
-    int chunk_size;\
-    pthread_mutex_t* mutex;
-    int* free_threads;
+    int chunk_size;
+    struct thread_pool* tp;
 } thread_data_t;
 
 typedef struct {
@@ -105,8 +106,12 @@ void* parmerge(void* arg) {//int* src, int l1, int r1, int l2, int r2, int* dst,
         int size_of_first_half = l + (median - l1) + (target_median - l2);
         dst[size_of_first_half] = src[median];
         thread_merge_data_t data1 = {src, l1, median - 1, l2, target_median - 1, dst, l, chunk_size};
+        //packaged_task package = {parmerge, (void*)(&data1), .is_ready=0};
+        //pthread_cond_init(&package.cv, NULL);
+        //pthread_create(&t1, NULL, &parmerge, &data1);
         parmerge(&data1);
         thread_merge_data_t data2 = {src, median + 1, r1, target_median, r2, dst, size_of_first_half + 1, chunk_size};
+        //pthread_create(&t2, NULL, &parmerge, &data2);
         parmerge(&data2);
 
     }
@@ -135,44 +140,17 @@ void* parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_ds
     int m = (r + l) / 2;
 
     // parallel
-    thread_data_t data1 = {src, l, m, dst, !src_to_dst, chunk_size, data->mutex, data->free_threads};
-    pthread_t t1;
-    int t1_in_new_thread = 0;
-    pthread_mutex_lock(data->mutex);
-    if (*data->free_threads > 0) {
-        --(*data->free_threads);
-        pthread_create(&t1, NULL, &parmergesort, &data1);
-        t1_in_new_thread = 1;
-    }
-    pthread_mutex_unlock(data->mutex);
-    if (!t1_in_new_thread) {
-        parmergesort(&data1);
-    }
+    thread_data_t data1 = {src, l, m, dst, !src_to_dst, chunk_size, data->tp};
+    packaged_task package1 = {parmergesort, (void*)(&data1), .is_ready=0};
+    //pthread_cond_init(&package1.cv, NULL); // TODO: Где удалить?!
+    ThreadPool_Submit(data->tp, &package1);
+    //parmergesort(&data1);
 
     // parallel
-    thread_data_t data2 = {src, m + 1, r, dst, !src_to_dst, chunk_size, data->mutex, data->free_threads};
-    pthread_t t2;
-    int t2_in_new_thread = 0;
-    pthread_mutex_lock(data->mutex);
-    if (*data->free_threads > 0) {
-        --(*data->free_threads);
-        pthread_create(&t2, NULL, &parmergesort, &data2);
-        t2_in_new_thread = 1;
-    }
-    pthread_mutex_unlock(data->mutex);
-    if (!t2_in_new_thread) {
-        parmergesort(&data2);
-    }
+    thread_data_t data2 = {src, m + 1, r, dst, !src_to_dst, chunk_size, data->tp};
+    parmergesort(&data2);
 
-    if (t1_in_new_thread) {
-        void* ret;
-        pthread_join(t1, &ret);
-    }
-    if (t2_in_new_thread) {
-        void* ret;
-        pthread_join(t2, &ret);
-    }
-
+    ThreadPool_Wait(data->tp, &package1);
 
     if (src_to_dst) {
         thread_merge_data_t data_merge = {src, l, m, m + 1, r, dst, l, chunk_size};
@@ -185,11 +163,10 @@ void* parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_ds
 
 int* parallel_merge_sort(int* a, int n, int m, int P) {
     int* res = malloc(n * sizeof(int));
-    pthread_mutex_t mutex;
-    pthread_mutex_init(&mutex, NULL);
-    int free_threads = P;
-    thread_data_t data = {a, 0, n - 1, res, 0, m, &mutex, &free_threads};
+    struct thread_pool tp;
+    ThreadPool_init(&tp, P);
+    thread_data_t data = {a, 0, n - 1, res, 0, m, &tp};
     parmergesort(&data);
-    pthread_mutex_destroy(&mutex);
+    Thread_Pool_Shutdown(&tp);
     free(res);
 }
