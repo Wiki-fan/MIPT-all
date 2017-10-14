@@ -24,7 +24,7 @@ void test_queue() {
 }
 
 void test_blocking_queue() {
-    blocking_queue q;
+    blocking_queue_packaged_task q;
     blocking_queue_init(&q, 5);
     pthread_cond_t c;
     packaged_task t = {NULL, NULL, .is_ready=13};

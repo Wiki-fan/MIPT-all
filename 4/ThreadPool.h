@@ -2,12 +2,12 @@
 
 #include <limits.h>
 #include <stdatomic.h>
-#include "BlockingQueue.h"
 #include "packaged_task.h"
+#include "BlockingQueue.h"
 
 struct thread_pool {
     size_t num_workers; //atomic
-    blocking_queue queue;
+    blocking_queue_packaged_task queue;
     pthread_t* workers; // std::vector <std::thread>
     pthread_mutex_t mutex, mutex_side_task;
 };

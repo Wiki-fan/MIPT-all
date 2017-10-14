@@ -1,3 +1,7 @@
+#pragma once
+
+#include <stddef.h>
+
 #define define_queue(TYPE)\
 typedef struct Node_##TYPE##_t {\
 struct Node_##TYPE##_t* next;\
@@ -25,43 +29,60 @@ void Queue_##TYPE##_init( Queue_##TYPE* q)\
 \
 void Queue_##TYPE##_push( Queue_##TYPE* q, TYPE* val)\
 {\
-	Node_##TYPE* temp = malloc( sizeof( Node_##TYPE ));\
+    Node_##TYPE* temp = malloc( sizeof( Node_##TYPE ));\
     temp->val = val;\
     temp->next = NULL;\
-	if(q->size == 0) {\
-		q->head = q->tail = temp;\
-	} else {\
-		q->tail->next = temp;\
+    if(q->size == 0) {\
+        q->head = q->tail = temp;\
+    } else {\
+        q->tail->next = temp;\
         q->tail = temp;\
-	}\
+    }\
     ++q->size;\
 }\
 \
 TYPE* Queue_##TYPE##_pop( Queue_##TYPE* q )\
 {\
-	assert(q->size != 0);\
-	Node_##TYPE* temp = q->head;\
-	q->head = q->head->next;\
-	if( q->head == NULL) {\
-		q->tail = NULL;\
-	}\
+    assert(q->size != 0);\
+    Node_##TYPE* temp = q->head;\
+    q->head = q->head->next;\
+    if( q->head == NULL) {\
+        q->tail = NULL;\
+    }\
     --q->size;\
-	TYPE* ret = temp->val;\
-	free(temp);\
-	return ret;\
+    TYPE* ret = temp->val;\
+    free(temp);\
+    return ret;\
 }\
 \
 void Queue_##TYPE##_destroy( Queue_##TYPE* q )\
 {\
-	Node_##TYPE* temp;\
-	while( q->head != NULL) {\
-		temp = q->head;\
-		q->head = q->head->next;\
-		free( temp );\
-	}\
+    Node_##TYPE* temp;\
+    while( q->head != NULL) {\
+        temp = q->head;\
+        q->head = q->head->next;\
+        free( temp );\
+    }\
 }\
 \
 int Queue_##TYPE##_empty( Queue_##TYPE* q )\
 {\
-	return ( q->size == 0);\
+    return ( q->size == 0);\
 }
+
+typedef struct Node_t {
+    struct Node_t* next;
+    void* val;
+}Node;
+
+typedef struct {
+    Node* head;
+    Node* tail;
+    size_t size;
+} Queue;
+
+void Queue_init(Queue* q);
+void Queue_push(Queue* q, void* val);
+void* Queue_pop(Queue* q);
+int Queue_empty(Queue* q);
+void Queue_destroy(Queue* q);

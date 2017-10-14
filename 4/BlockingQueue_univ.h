@@ -4,25 +4,26 @@
 #include <string.h>
 #include "packaged_task.h"
 #include "utils.h"
+#include "queue_impl.h"
 
 typedef struct {
     int capacity;
     int is_open;
     pthread_mutex_t mutex;
     pthread_cond_t cv_put, cv_get;
-    Queue_packaged_task q;
-} blocking_queue_packaged_task;
+    Queue q;
+} blocking_queue;
 
-void blocking_queue_init(blocking_queue_packaged_task* queue, int capacity) {
+void blocking_queue_init(blocking_queue* queue, int capacity) {
     queue->is_open = 1;
     queue->capacity = capacity;
-    Queue_packaged_task_init(&queue->q);
+    Queue_init(&queue->q);
     PRERR(pthread_mutex_init(&queue->mutex, NULL));
     PRERR(pthread_cond_init(&queue->cv_get, NULL));
     PRERR(pthread_cond_init(&queue->cv_put, NULL));
 }
 
-int blocking_queue_put(blocking_queue_packaged_task* queue, packaged_task* item) {
+int blocking_queue_put(blocking_queue* queue, void* item) {
     PRERR(pthread_mutex_lock(&queue->mutex));
 
     while (queue->q.size == queue->capacity && queue->is_open) {
@@ -33,14 +34,14 @@ int blocking_queue_put(blocking_queue_packaged_task* queue, packaged_task* item)
         return 0;
     }
 
-    Queue_packaged_task_push(&queue->q, item);
+    Queue_push(&queue->q, item);
     PRERR(pthread_cond_signal(&queue->cv_get));
 
     PRERR(pthread_mutex_unlock(&queue->mutex));
     return 1;
 }
 
-int blocking_queue_get(blocking_queue_packaged_task* queue, packaged_task** item) {
+int blocking_queue_get(blocking_queue* queue, void** item) {
 
     PRERR(pthread_mutex_lock(&queue->mutex));
 
@@ -55,7 +56,7 @@ int blocking_queue_get(blocking_queue_packaged_task* queue, packaged_task** item
         }
     }
 
-    *item = Queue_packaged_task_pop(&queue->q);
+    *item = Queue_pop(&queue->q);
 
     PRERR(pthread_cond_signal(&queue->cv_put));
 
@@ -64,7 +65,7 @@ int blocking_queue_get(blocking_queue_packaged_task* queue, packaged_task** item
 }
 
 // Как TryPop
-/*int blocking_queue_try_get(blocking_queue_packaged_task* queue, packaged_task** v) {
+/*int blocking_queue_try_get(blocking_queue* queue, Value** v) {
     pthread_mutex_lock(&queue->mutex);
 
     if (queue->q.size == 0) {
@@ -80,7 +81,7 @@ int blocking_queue_get(blocking_queue_packaged_task* queue, packaged_task** item
     return 1;
 }*/
 
-void blocking_queue_shutdown(blocking_queue_packaged_task* queue) {
+void blocking_queue_shutdown(blocking_queue* queue) {
     PRERR(pthread_mutex_lock(&queue->mutex));
 
     queue->is_open = 0;
@@ -92,8 +93,8 @@ void blocking_queue_shutdown(blocking_queue_packaged_task* queue) {
     PRERR(pthread_cond_broadcast(&queue->cv_get));
 }
 
-void blocking_queue_destroy(blocking_queue_packaged_task* queue) {
-    Queue_packaged_task_destroy(&queue->q);
+void blocking_queue_destroy(blocking_queue* queue) {
+    Queue_destroy(&queue->q);
     PRERR(pthread_mutex_destroy(&queue->mutex));
     PRERR(pthread_cond_destroy(&queue->cv_get));
     PRERR(pthread_cond_destroy(&queue->cv_put));
