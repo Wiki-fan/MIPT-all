@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+#include <stdio.h>
 
 #define swap(x,y) do \
    { unsigned char swap_temp[sizeof(x) == sizeof(y) ? (signed)sizeof(x) : -1]; \

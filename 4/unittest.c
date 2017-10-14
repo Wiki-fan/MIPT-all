@@ -39,20 +39,22 @@ pthread_mutex_t mutex;
 int a = 0;
 
 void* do_deeds(void* arg) {
-    /*pthread_mutex_lock(&mutex);
-    ++a;
-    pthread_mutex_unlock(&mutex);*/
-    printf("lol ");
+    for (int i = 0; i<1000; ++i) {
+        pthread_mutex_lock(&mutex);
+        ++a;
+        pthread_mutex_unlock(&mutex);
+    }
 }
 
 void test_thread_pool() {
-    pthread_mutex_init(&mutex, NULL);
     struct thread_pool tp;
-    ThreadPool_init(&tp, 1);
+    ThreadPool_init(&tp, 4);
     packaged_task task = {do_deeds, NULL};
-    ThreadPool_Submit(&tp, &task);
+    for (int i = 0; i<10; ++i) {
+        ThreadPool_Submit(&tp, &task);
+    }
     Thread_Pool_Shutdown(&tp);
-    pthread_mutex_destroy(&mutex);
+    printf("%d", a);
 }
 
 int main() {

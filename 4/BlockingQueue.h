@@ -43,7 +43,6 @@ int blocking_queue_put(blocking_queue* queue, Value* item) {
     return 1;
 }
 
-
 int blocking_queue_get(blocking_queue* queue, Value** item) {
 
     PRERR(pthread_mutex_lock(&queue->mutex));
@@ -52,7 +51,7 @@ int blocking_queue_get(blocking_queue* queue, Value** item) {
         PRERR(pthread_cond_wait(&queue->cv_get, &queue->mutex));
     }
 
-    if (queue->is_open) {
+    if (!queue->is_open) {
         if (queue->q.size == 0) {
             PRERR(pthread_mutex_unlock(&queue->mutex));
             return 0;
@@ -68,7 +67,7 @@ int blocking_queue_get(blocking_queue* queue, Value** item) {
 }
 
 // Как TryPop
-int blocking_queue_try_get(blocking_queue* queue, Value** v) {
+/*int blocking_queue_try_get(blocking_queue* queue, Value** v) {
     pthread_mutex_lock(&queue->mutex);
 
     if (queue->q.size == 0) {
@@ -82,18 +81,20 @@ int blocking_queue_try_get(blocking_queue* queue, Value** v) {
 
     PRERR(pthread_mutex_unlock(&queue->mutex));
     return 1;
-}
+}*/
 
 void blocking_queue_shutdown(blocking_queue* queue) {
     PRERR(pthread_mutex_lock(&queue->mutex));
 
     // Чтобы не вызывать лишний раз broadcast, проверяем, не была ли очередь уже закрыта.
-    if (queue->is_open) {
-        queue->is_open = 0;
-        PRERR(pthread_cond_broadcast(&queue->cv_put));
-        PRERR(pthread_cond_broadcast(&queue->cv_get));
-    }
+
+    queue->is_open = 0;
+    PRERR(pthread_cond_broadcast(&queue->cv_put));
+    PRERR(pthread_cond_broadcast(&queue->cv_get));
+
     PRERR(pthread_mutex_unlock(&queue->mutex));
+    PRERR(pthread_cond_broadcast(&queue->cv_put));
+    PRERR(pthread_cond_broadcast(&queue->cv_get));
 }
 
 void blocking_queue_destroy(blocking_queue* queue) {
