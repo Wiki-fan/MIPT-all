@@ -1,3 +1,4 @@
+#include <stdatomic.h>
 #include "utils.h"
 
 struct context {
@@ -11,9 +12,9 @@ typedef struct {
     int r;
     int* dst;
     int src_to_dst;
-    int chunk_size;\
-    pthread_mutex_t* mutex;
+    int chunk_size;
     int* free_threads;
+    int have_free_threads;
 } thread_data_t;
 
 typedef struct {
@@ -83,33 +84,11 @@ void* parmerge(void* arg) {//int* src, int l1, int r1, int l2, int r2, int* dst,
     int r2 = data->r2;
     int* dst = data->dst;
     int l = data->l;
-    int chunk_size = data->chunk_size;
 
     int len1 = r1 - l1 + 1;
     int len2 = r2 - l2 + 1;
 
-    if (len1 < len2) {
-        swap(l1, l2);
-        swap(r1, r2);
-        swap(len1, len2);
-    }
-    if (len1 == 0) {
-        return NULL;
-    }
-
-    if (len1 + len2 <= chunk_size) {
-        merge(&src[l1], &src[l1 + len1], &src[l2], &src[l2 + len2], &dst[l]);
-    } else {
-        int median = (l1 + r1) / 2;
-        int target_median = binsearch(src[median], src, l2, r2);
-        int size_of_first_half = l + (median - l1) + (target_median - l2);
-        dst[size_of_first_half] = src[median];
-        thread_merge_data_t data1 = {src, l1, median - 1, l2, target_median - 1, dst, l, chunk_size};
-        parmerge(&data1);
-        thread_merge_data_t data2 = {src, median + 1, r1, target_median, r2, dst, size_of_first_half + 1, chunk_size};
-        parmerge(&data2);
-
-    }
+    merge(&src[l1], &src[l1 + len1], &src[l2], &src[l2 + len2], &dst[l]);
 }
 
 void* parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_dst, int chunk_size) {
@@ -135,31 +114,33 @@ void* parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_ds
     int m = (r + l) / 2;
 
     // parallel
-    thread_data_t data1 = {src, l, m, dst, !src_to_dst, chunk_size, data->mutex, data->free_threads};
+    thread_data_t data1 = {src, l, m, dst, !src_to_dst, chunk_size, data->free_threads};
     pthread_t t1;
     int t1_in_new_thread = 0;
-    pthread_mutex_lock(data->mutex);
-    if (*data->free_threads > 0) {
-        --(*data->free_threads);
-        pthread_create(&t1, NULL, &parmergesort, &data1);
-        t1_in_new_thread = 1;
+    if (data->have_free_threads) {
+        int old_free_threads = atomic_fetch_sub(data->free_threads, 1);
+        if (old_free_threads > 0) {
+            data1.have_free_threads = old_free_threads-1 <= 0 ? 0 : 1;
+            pthread_create(&t1, NULL, &parmergesort, &data1);
+            t1_in_new_thread = 1;
+        }
     }
-    pthread_mutex_unlock(data->mutex);
     if (!t1_in_new_thread) {
         parmergesort(&data1);
     }
 
     // parallel
-    thread_data_t data2 = {src, m + 1, r, dst, !src_to_dst, chunk_size, data->mutex, data->free_threads};
+    thread_data_t data2 = {src, m + 1, r, dst, !src_to_dst, chunk_size, data->free_threads};
     pthread_t t2;
     int t2_in_new_thread = 0;
-    pthread_mutex_lock(data->mutex);
-    if (*data->free_threads > 0) {
-        --(*data->free_threads);
-        pthread_create(&t2, NULL, &parmergesort, &data2);
-        t2_in_new_thread = 1;
+    if (data->have_free_threads) {
+        int old_free_threads = atomic_fetch_sub(data->free_threads, 1);
+        if (old_free_threads > 0) {
+            data1.have_free_threads = old_free_threads-1 <= 0 ? 0 : 1;
+            pthread_create(&t2, NULL, &parmergesort, &data2);
+            t2_in_new_thread = 1;
+        }
     }
-    pthread_mutex_unlock(data->mutex);
     if (!t2_in_new_thread) {
         parmergesort(&data2);
     }
@@ -185,11 +166,8 @@ void* parmergesort(void* arg) {//int* src, int l, int r, int* dst, int src_to_ds
 
 int* parallel_merge_sort(int* a, int n, int m, int P) {
     int* res = malloc(n * sizeof(int));
-    pthread_mutex_t mutex;
-    pthread_mutex_init(&mutex, NULL);
-    int free_threads = P;
-    thread_data_t data = {a, 0, n - 1, res, 0, m, &mutex, &free_threads};
+    atomic_int free_threads = P-1;
+    thread_data_t data = {a, 0, n - 1, res, 0, m, &free_threads};
     parmergesort(&data);
-    pthread_mutex_destroy(&mutex);
     free(res);
 }
