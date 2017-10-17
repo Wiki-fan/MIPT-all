@@ -3,9 +3,9 @@
 #include <time.h>
 #include <pthread.h>
 #include "../examples/openmp_dot_product/graph/graph.h"
-//#include "BlockingQueue.h"
-#include "BlockingQueue_univ.h"
+#include "BlockingQueue.h"
 #include "Population.h"
+#include "ThreadPool.h"
 
 typedef struct {
     int t, N, S;
@@ -14,14 +14,16 @@ typedef struct {
 blocking_queue random_numbers;
 int rand_mt() {
     long long num;
-    assert(blocking_queue_get(&random_numbers, &num));
+    assert(blocking_queue_get(&random_numbers, (void**)&num));
     return (int)num;
 }
 
+thread_pool tp;
 
+// Хитрость: возвращаем int внутри void*
 void* number_generator_work(void* arg) {
     blocking_queue* q = (blocking_queue*) arg;
-    while (blocking_queue_put(q, (long long) rand() % 1000)) {}
+    while (blocking_queue_put(q, (void*)((long long) rand() % 1000))) {}
 }
 
 int main(int args, char* argv[]) {
@@ -44,6 +46,7 @@ int main(int args, char* argv[]) {
     pthread_t number_generator;
     pthread_create(&number_generator, NULL, number_generator_work, &random_numbers);
 
+    ThreadPool_init(&tp, ctx.t);
     Population pop;
     Population_init(&pop, ctx.N, graph);
     Population_fill_random(&pop);
@@ -72,6 +75,7 @@ int main(int args, char* argv[]) {
     blocking_queue_shutdown(&random_numbers);
     pthread_join(number_generator, NULL);
     blocking_queue_destroy(&random_numbers);
+    Thread_Pool_Shutdown(&tp);
     graph_destroy(graph);
     return 0;
 }

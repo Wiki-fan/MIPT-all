@@ -1,6 +1,9 @@
 #include <malloc.h>
 #include "Population.h"
 #include "utils.h"
+#include "ThreadPool.h"
+
+extern thread_pool tp;
 
 void Population_init(Population* pop, int n, graph_t* g) {
     pop->size = n;

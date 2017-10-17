@@ -1,18 +1,4 @@
-#pragma once
-
-#include <pthread.h>
-#include <string.h>
-#include "packaged_task.h"
-#include "utils.h"
-#include "queue_impl.h"
-
-typedef struct {
-    int capacity;
-    int is_open;
-    pthread_mutex_t mutex;
-    pthread_cond_t cv_put, cv_get;
-    Queue q;
-} blocking_queue;
+#include "BlockingQueue.h"
 
 void blocking_queue_init(blocking_queue* queue, int capacity) {
     queue->is_open = 1;
@@ -64,8 +50,7 @@ int blocking_queue_get(blocking_queue* queue, void** item) {
     return 1;
 }
 
-// Как TryPop
-/*int blocking_queue_try_get(blocking_queue* queue, Value** v) {
+int blocking_queue_try_get(blocking_queue* queue, void** v) {
     pthread_mutex_lock(&queue->mutex);
 
     if (queue->q.size == 0) {
@@ -79,7 +64,7 @@ int blocking_queue_get(blocking_queue* queue, void** item) {
 
     PRERR(pthread_mutex_unlock(&queue->mutex));
     return 1;
-}*/
+}
 
 void blocking_queue_shutdown(blocking_queue* queue) {
     PRERR(pthread_mutex_lock(&queue->mutex));
