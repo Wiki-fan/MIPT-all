@@ -11,7 +11,12 @@ typedef struct {
     int t, N, S;
 } context;
 
-
+blocking_queue random_numbers;
+int rand_mt() {
+    long long num;
+    assert(blocking_queue_get(&random_numbers, &num));
+    return (int)num;
+}
 
 
 void* number_generator_work(void* arg) {
@@ -35,8 +40,6 @@ int main(int args, char* argv[]) {
     }
 
     // graph_dump(graph, stdout);
-
-    blocking_queue random_numbers;
     blocking_queue_init(&random_numbers, 1000);
     pthread_t number_generator;
     pthread_create(&number_generator, NULL, number_generator_work, &random_numbers);
@@ -45,14 +48,30 @@ int main(int args, char* argv[]) {
     Population_init(&pop, ctx.N, graph);
     Population_fill_random(&pop);
 
-    for (int i = 0; i < 10; ++i) {
-        printf("%d ", Tour_weight(Population_get_best(&pop)));
+    int best_solution = Tour_weight(Population_get_best(&pop));
+    int s = 0;
+    for (int i = 0;; ++i) {
+        int tw = Tour_weight(Population_get_best(&pop));
+        printf("%d ", tw);
+        if (tw >= best_solution) {
+            ++s;
+            if (s == ctx.S) {
+                break;
+            }
+        } else {
+            s = 0;
+        }
+        if (best_solution > tw) {
+            best_solution = tw;
+        }
         pop = Population_evolve(&pop);
     }
+
+    printf("Optimum was %d", best_solution);
 
     blocking_queue_shutdown(&random_numbers);
     pthread_join(number_generator, NULL);
     blocking_queue_destroy(&random_numbers);
-
+    graph_destroy(graph);
     return 0;
 }

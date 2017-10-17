@@ -19,3 +19,5 @@
 #endif
 
 #define PRERR(VAL) do { int err; if ((err = (VAL))) { printf("%s", strerror(err)); assert(0);} } while(0)
+
+int rand_mt();

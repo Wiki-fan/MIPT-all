@@ -1,6 +1,6 @@
 #include <malloc.h>
-#include <tkPort.h>
 #include "Population.h"
+#include "utils.h"
 
 void Population_init(Population* pop, int n, graph_t* g) {
     pop->size = n;
@@ -25,7 +25,7 @@ void Population_destroy(Population* pop) {
 Tour* Population_get_best(Population* pop) {
     float best_fitness = Tour_fitness(&pop->tours[0]);
     Tour* best_tour = &pop->tours[0];
-    for (int i = 0; pop->size; ++i) {
+    for (int i = 0; i<pop->size; ++i) {
         float fitness = Tour_fitness(&pop->tours[i]);
         if (fitness > best_fitness) {
             best_fitness = fitness;
@@ -57,6 +57,6 @@ Population Population_evolve(Population* pop) {
 }
 
 int Population_get_crossover_candidate(Population* pop) {
-    return rand() % pop->size;
+    return rand_mt() % pop->size;
 }
 
