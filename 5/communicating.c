@@ -1,4 +1,5 @@
 #include "communicating.h"
+#include "walking.h"
 
 void send_array_point(int to, Vector_point* points) {
     MPI_Send(&points->size, 1, MPI_INT, to, 0, MPI_COMM_WORLD);

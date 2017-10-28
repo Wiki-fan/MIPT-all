@@ -21,17 +21,19 @@ MPI_Type_commit(&datatype);
 
 #include <assert.h>
 #include "stdlib.h"
-#include "vector_impl.h"
+#include "vector.h"
+#include "utils.h"
 
 #define OVERLAP 5
 #define MASTER 0
-#define ITERS_PER_EXCHANGE 10
+#define ITERS_PER_EXCHANGE 1000
 
 typedef struct {
     int l, a, b, n, N;
     float pl, pr, pu, pd;
     float cdf[4];
     int rank, size;
+    int* counts;
 } context;
 
 typedef struct {
@@ -47,3 +49,14 @@ typedef struct {
 } thread_data;
 
 int make_step(thread_data* td, context* ctx);
+
+// Проверить, нужно ли отправить точку в другой узел, и если да, положить в нужный массив и обнулить.
+int check_if_leaved(context* ctx, point* pnt, Vector_point* vec_send);
+
+void print_vector_points(Vector_point* v);
+
+void merge_with_vector(Vector_point* big, Vector_point* small);
+
+void communicate_for(int prev, int next, context* ctx, Vector_point* vec_send, Vector_point* my_points);
+
+void custom(void* arg);

@@ -1,1 +1,1 @@
-add_executable(OpenMP3 main.c utils.h parmergesort.h)
+add_executable(Pthread3 main.c utils.h parmergesort.h parmergesort.c)

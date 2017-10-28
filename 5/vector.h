@@ -1,3 +1,5 @@
+#pragma once
+
 #define define_vector(TYPE)\
 typedef struct {\
 	TYPE* arr;\
