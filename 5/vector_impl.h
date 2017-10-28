@@ -22,11 +22,11 @@ void Vector_##TYPE##_init(Vector_##TYPE* v, int init_size)\
 \
 void Vector_##TYPE##_push(Vector_##TYPE* v, TYPE elem)\
 {\
-	v->arr[v->size++] = elem;\
-	if (v->size >= v->max_size) {\
+    if (v->size >= v->max_size) {\
 		v->max_size *= 2;\
 		v->arr = realloc(v->arr, v->max_size*sizeof(TYPE));\
 	}\
+	v->arr[v->size++] = elem;\
 }\
 \
 void Vector_##TYPE##_set(Vector_##TYPE* v, TYPE elem, int pos)\

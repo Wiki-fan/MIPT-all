@@ -1,16 +1,16 @@
 #include "communicating.h"
 
 void send_array_point(int to, Vector_point* points) {
-    //MPI_Send(&points->size, 1, MPI_INT, to, 0, MPI_COMM_WORLD);
+    MPI_Send(&points->size, 1, MPI_INT, to, 0, MPI_COMM_WORLD);
     MPI_Send(points->arr, points->size*sizeof(point), MPI_BYTE, to, 0, MPI_COMM_WORLD);
 }
 
 Vector_point recv_array_point(int from) {
     int n;
-    MPI_Status status;
-    MPI_Probe(0, 0, MPI_COMM_WORLD, &status);
-    MPI_Get_count(&status, MPI_INT, &n);
-    //MPI_Recv(&n, 1, MPI_INT, from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    //MPI_Status status;
+    //MPI_Probe(0, 0, MPI_COMM_WORLD, &status);
+    //MPI_Get_count(&status, MPI_INT, &n);
+    MPI_Recv(&n, 1, MPI_INT, from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     point* buf = NULL;
     buf = malloc(n * sizeof(point));
