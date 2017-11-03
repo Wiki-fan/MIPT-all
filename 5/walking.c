@@ -100,7 +100,8 @@ void merge_with_vector(Vector_point* big, Vector_point* small) {
 
 void communicate_for(int prev, int next, context* ctx, Vector_point* vec_send, Vector_point* my_points) {
     debug(printf("Me is %d, next=%d, prev=%d\n", ctx->rank, next, prev));
-    int coef = ctx->rank % 2 != next % 2 ? 1 : ctx->l;
+    int coef = ctx->rank % 2 != next % 2 ? 1 : ctx->a;// TODO: или b?
+    //printf("coef %d\n", coef);
 
     if ((ctx->rank / coef) % 2 == 0) {
         send_array_point(next, vec_send);
