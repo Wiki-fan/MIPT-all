@@ -10,6 +10,7 @@ add_subdirectory(2)
 add_subdirectory(3)
 add_subdirectory(4)
 add_subdirectory(5)
+add_subdirectory(7)
 
 if (MPI_FOUND)
     include_directories(${MPI_INCLUDE_PATH})

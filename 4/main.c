@@ -48,7 +48,7 @@ int main(int args, char* argv[]) {
 
     ThreadPool_init(&tp, ctx.t);
     Population pop;
-    Population_init(&pop, ctx.N, graph);
+    Population_init(&pop, ctx.N, graph, &tp);
     Population_fill_random(&pop);
 
     int best_solution = Tour_weight(Population_get_best(&pop));

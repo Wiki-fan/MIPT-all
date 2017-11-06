@@ -1,5 +1,6 @@
 #include <malloc.h>
 #include "ThreadPool.h"
+#include "BlockingQueue.h"
 
 void* RunWorker(void* arg) {
     thread_pool* this_pool = (thread_pool*) arg;
@@ -10,6 +11,7 @@ void* RunWorker(void* arg) {
             task->func_ptr(task->args);
             //atomic_store(&task->is_ready, 1); // TODO: ATOMIC!
             //pthread_cond_broadcast(&task->cv);
+            //free(task);
         } else {
             break;
         }
@@ -50,6 +52,13 @@ void Thread_Pool_Shutdown(thread_pool* pool) {
     PRERR(pthread_mutex_destroy(&pool->mutex_side_task));
 }
 
+void ThreadPool_help(thread_pool* pool) {
+    packaged_task* side_task;
+    if (blocking_queue_try_get(&pool->queue, (void**)&side_task)) {
+        side_task->func_ptr(side_task->args);
+        //atomic_store(&side_task->is_ready, 1);
+    }
+}
 // Надо тестировать.
 void ThreadPool_Wait(thread_pool* pool, packaged_task* task) {
     // Если очередь не пуста, делаем новые задания. Выходим, если было сделано то, которое мы ждём.
@@ -72,4 +81,10 @@ void ThreadPool_Wait(thread_pool* pool, packaged_task* task) {
     }
     //async_result.wait();
     //pthread_mutex_unlock(&pool->mutex_side_task);
+}
+
+void ThreadPool_Wait_until_free(thread_pool* tp) {
+    while (blocking_queue_size(&tp->queue)) {
+        //ThreadPool_help(tp);
+    }
 }

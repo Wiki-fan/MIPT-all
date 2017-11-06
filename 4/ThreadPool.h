@@ -21,3 +21,5 @@ void ThreadPool_Submit(thread_pool* pool, packaged_task* task);
 void Thread_Pool_Shutdown(thread_pool* pool);
 
 void ThreadPool_Wait(thread_pool* pool, packaged_task* task);
+
+void ThreadPool_Wait_until_free(thread_pool* tp);

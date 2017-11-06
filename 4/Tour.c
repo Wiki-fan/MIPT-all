@@ -2,7 +2,6 @@
 #include <tkPort.h>
 #include "Tour.h"
 #include "Population.h"
-#include "utils.h"
 
 #define MUTATION_RATE 0.015
 
@@ -23,8 +22,8 @@ void shuffle(int* array, size_t n) {
 }
 
 void Tour_init(Tour* t, graph_t* g) {
-    t->vertices = malloc(g->n*sizeof(int));
-    for(int i = 0; i<g->n; ++i) {
+    t->vertices = malloc(g->n * sizeof(int));
+    for (int i = 0; i < g->n; ++i) {
         t->vertices[i] = -1;
     }
     t->g = g;
@@ -35,7 +34,7 @@ void Tour_destroy(Tour* t) {
 }
 
 void Tour_print(Tour* t) {
-    for (int i = 0; i<t->g->n; ++i) {
+    for (int i = 0; i < t->g->n; ++i) {
         printf("%d ", t->vertices[i]);
     }
     printf("\n");
@@ -50,7 +49,7 @@ int Tour_weight(Tour* t) {
 }
 
 float Tour_fitness(Tour* t) {
-    return 1 / (float)Tour_weight(t);
+    return 1 / (float) Tour_weight(t);
 }
 
 Tour Tour_crossover(Tour* t1, Tour* t2) {
@@ -85,11 +84,17 @@ Tour Tour_crossover(Tour* t1, Tour* t2) {
     }
 
     IF_DBG(printf("Crossover for start=%d end=%d:\n", start_pos, end_pos);
-    Tour_print(t1);
-    Tour_print(t2);
-    Tour_print(&child));
+               Tour_print(t1);
+               Tour_print(t2);
+               Tour_print(&child));
 
     return child;
+}
+
+void* Tour_crossover_tp(void* void_arg) {
+    Tour_crossover_param* arg = (Tour_crossover_param*) void_arg;
+    *arg->ans_ptr = Tour_crossover(arg->t1, arg->t2);
+    //free(arg);
 }
 
 int Tour_contains_node(Tour* t, int v) {
@@ -109,6 +114,12 @@ void Tour_mutate(Tour* tour) {
             swap(tour->vertices[i], tour->vertices[j]);
         }
     }
+}
+
+void* Tour_mutate_tp(void* void_arg) {
+    Tour_crossover_param* arg = (Tour_crossover_param*) void_arg;
+    Tour_mutate(arg->t1);
+    //free(arg);
 }
 
 void Tour_generate(Tour* t) {
