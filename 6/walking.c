@@ -131,12 +131,13 @@ struct talker_args {
     pthread_barrier_t barrier1, barrier2;
 };
 
+#define MAGIC 5
 void* talker_func(void* arg) {
-    struct talker_args* targs = (struct talker_args*)arg;
+    struct talker_args* targs = (struct talker_args*) arg;
 
     context* ctx = targs->ctx;
 
-    for(int i = 0; i < ctx->n / ITERS_PER_EXCHANGE + 1; ++i) {
+    for (int i = 0; i < ctx->n / ITERS_PER_EXCHANGE + MAGIC; ++i) {
         pthread_barrier_wait(&targs->barrier1);
         Vector_point* vecs_to_send = *targs->vecs;
         int up = mod(ctx->rank - ctx->a, ctx->size);
@@ -151,6 +152,7 @@ void* talker_func(void* arg) {
         pthread_barrier_wait(&targs->barrier2);
     }
 }
+
 
 void custom(void* arg) {
     context* ctx = (context*) arg;
@@ -181,7 +183,7 @@ void custom(void* arg) {
     pthread_create(&talker, NULL, talker_func, &targs);
 
     // Делаем ITERS_PER_EXCHANGE итераций, обмениваемся точками и синхронизируемся барьером. При этом в синхронизации все точки прошли одинаково итераций. Можно просто определить количество нужных повторений внешнего цикла.
-    for (int i = 0; i < ctx->n / ITERS_PER_EXCHANGE + 1; ++i) {
+    for (int i = 0; i < ctx->n / ITERS_PER_EXCHANGE + MAGIC; ++i) {
         for (int j = 0; j < ITERS_PER_EXCHANGE; ++j) {
             if (!make_step(&td, ctx)) {
                 break;
@@ -198,7 +200,7 @@ void custom(void* arg) {
 
         // Формируем массивы и отправляем.
         Vector_point vec_send[4];
-        vecs_to_pass = vec_send;
+        //vecs_to_pass = vec_send; WRONG
         for (int j = 0; j < 4; ++j) {
             Vector_point_init(&vec_send[j], 10);
         }
@@ -215,14 +217,25 @@ void custom(void* arg) {
                      vec_send[2].size,
                      vec_send[3].size));
 
+        if (i != 0) {
+            pthread_barrier_wait(&targs.barrier2);
+
+            for (int j = 0; j < 4; ++j) {
+                merge_with_vector(&td.points, &targs.ret[j]);
+                Vector_point_destroy(&targs.ret[j]);
+            }
+        }
+
         // signal
+        vecs_to_pass = vec_send;
         pthread_barrier_wait(&targs.barrier1);
 
-        pthread_barrier_wait(&targs.barrier2);
-
-        for (int j = 0; j<4; ++j) {
-            merge_with_vector(&td.points, &targs.ret[j]);
-            Vector_point_destroy(&targs.ret[j]);
+        if (i == ctx->n / ITERS_PER_EXCHANGE+MAGIC-1) {
+            pthread_barrier_wait(&targs.barrier2);
+            for (int j = 0; j < 4; ++j) {
+                merge_with_vector(&td.points, &targs.ret[j]);
+                Vector_point_destroy(&targs.ret[j]);
+            }
         }
 
         debug(printf("Iteration completed\n"));

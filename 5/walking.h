@@ -50,9 +50,6 @@ typedef struct {
 
 int make_step(thread_data* td, context* ctx);
 
-// Проверить, нужно ли отправить точку в другой узел, и если да, положить в нужный массив и обнулить.
-int check_if_leaved(context* ctx, point* pnt, Vector_point* vec_send);
-
 void print_vector_points(Vector_point* v);
 
 void merge_with_vector(Vector_point* big, Vector_point* small);
