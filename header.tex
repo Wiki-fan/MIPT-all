@@ -1,7 +1,21 @@
 \usepackage[a4paper,left=20mm,right=10mm,top=20mm,bottom=20mm]{geometry}
 
+\makeatletter
+\newcommand*{\declarecommand}{%
+	\@star@or@long\declare@command
+}
+\newcommand*{\declare@command}[1]{%
+	\provide@command{#1}{}%
+	% \let#1\@empty % would be more efficient, but without error checking
+	\renew@command{#1}%
+}
+\makeatother
+
+\renewcommand{\newcommand}{\declarecommand}
 \usepackage{amsgen, amsmath, amstext, amsbsy, amsopn, amsfonts, amsthm, thmtools,  amssymb, amscd, mathtext, mathtools}
 \usepackage{versions}
+
+\usepackage{complexity}
 
 \usepackage{float}
 \restylefloat{table}
