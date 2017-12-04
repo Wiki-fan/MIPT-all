@@ -1,12 +1,37 @@
 \begin{thebibliography}{}
 %\bibliographystyle{gost780s}
 
+@inproceedings{BK06,
+	author = {Berman, Piotr and Karpinski, Marek},
+	title = {8/7 approximation Algorithm for {(1,2)-TSP}},
+	booktitle = {Proceedings of the Seventeenth Annual ACM-SIAM Symposium on Discrete Algorithm},
+	series = {SODA '06},
+	year = {2006},
+	isbn = {0-89871-605-5},
+	location = {Miami, Florida},
+	pages = {641--648},
+	numpages = {8},
+	url = {http://dl.acm.org/citation.cfm?id=1109557.1109627},
+	acmid = {1109627},
+	publisher = {Society for Industrial and Applied Mathematics},
+	address = {Philadelphia, PA, USA},
+} 
+
 @techreport{C76,
-	author={N. Christofides},
-	title="Worst-Case Analysis of a New Heuristic for the Traveling Salesman Problem",
-	institution={Carnegie-Mellon University},
-	year={1976}
+added-at = {2008-01-10T17:04:02.000+0100},
+author = {Christofides, Nicos},
+biburl = {https://www.bibsonomy.org/bibtex/2107ce5afe4cdd886e5cf863b16533205/jvrb_regulski},
+institution = {Graduate School of Industrial Administration, Carnegie Mellon University},
+interhash = {17c4f6224da4a8ead47972fd788d7556},
+intrahash = {107ce5afe4cdd886e5cf863b16533205},
+keywords = {3(2006)12},
+number = 388,
+timestamp = {2008-01-10T17:06:15.000+0100},
+title = {Worst-case analysis of a new heuristic for the travelling salesman problem},
+type = {Technical Report},
+year = 1976
 }
+
 @book{K72,
 	author={R. M. Karp},
 	title="Reducibility among Combinatorial Problems",
@@ -15,32 +40,62 @@
 	address={New York},
 	year=1972
 }
-@inproceedings{EK01,
-	author={L. Engebretsen and M. Karpinski},
-	title="Approximation Hardness of {TSP} with Bounded Metrics",
-	booktitle={28th ICALP (2001)},
-	publisher={Springer},
-	year=2001,
-	pages={201-212},
-	organization={LNCS 2076}
+
+@Inbook{EK01,
+	author="Engebretsen, Lars
+	and Karpinski, Marek",
+	editor="Orejas, Fernando
+	and Spirakis, Paul G.
+	and van Leeuwen, Jan",
+	title="Approximation Hardness of TSP with Bounded Metrics",
+	bookTitle="Automata, Languages and Programming: 28th International Colloquium, ICALP 2001 Crete, Greece, July 8--12, 2001 Proceedings",
+	year="2001",
+	publisher="Springer Berlin Heidelberg",
+	address="Berlin, Heidelberg",
+	pages="201--212",
+	abstract="The general asymmetric (and metric) TSP is known to be approximable only to within an O(log n) factor, and is also known to be approximable within a constant factor as soon as the metric is bounded. In this paper we study the asymmetric and symmetric TSP problems with bounded metrics and prove approximation lower bounds of 101/100 and 203/202, respectively, for these problems. We prove also approximation lower bounds of 321/320 and 743/742 for the asymmetric and symmetric TSP with distances one and two.",
+	isbn="978-3-540-48224-6",
+	doi="10.1007/3-540-48224-5_17",
+	url="https://doi.org/10.1007/3-540-48224-5_17"
 }
+
 @inproceedings{BR05,
-	author={M. Blaser and L. Shankar Ram},
-	title="An Improved Approximation for {TSP} with Distances One and Two",
-	booktitle={15th FCT (2005)},
-	organization={LNCS 3623}, 
-	publisher={Springer},
-	year=2005,
-	pages=504-515
-}
+	author = {Bl\"{a}ser, M. and Ram, L. Shankar},
+	title = {An Improved Approximation Algorithm for TSP with Distances One and Two},
+	booktitle = {Proceedings of the 15th International Conference on Fundamentals of Computation Theory},
+	series = {FCT'05},
+	year = {2005},
+	isbn = {3-540-28193-2, 978-3-540-28193-1},
+	location = {L\&\#252;beck, Germany},
+	pages = {504--515},
+	numpages = {12},
+	url = {http://dx.doi.org/10.1007/11537311_44},
+	doi = {10.1007/11537311_44},
+	acmid = {2153515},
+	publisher = {Springer-Verlag},
+	address = {Berlin, Heidelberg},
+} 
+
 @article{PY93,
-	author={C. H. Papadimitriou and M. Yannakakis},
-	title="The Traveling Salesman Problem With Distances One and Two",
-	journal={Math. Oper. Res.},
-	volume=18,
-	year=1993,
-	pages=1-11
-}
+author = {Papadimitriou, Christos H. and Yannakakis, Mihalis},
+title = {The Traveling Salesman Problem with Distances One and Two},
+journal = {Math. Oper. Res.},
+issue_date = {Feb. 1993},
+volume = {18},
+number = {1},
+month = feb,
+year = {1993},
+issn = {0364-765X},
+pages = {1--11},
+numpages = {11},
+url = {http://dx.doi.org/10.1287/moor.18.1.1},
+doi = {10.1287/moor.18.1.1},
+acmid = {154541},
+publisher = {INFORMS},
+address = {Institute for Operations Research and the Management Sciences (INFORMS), Linthicum, Maryland, USA},
+keywords = {computational complexity, polynomial-time algorithms, traveling salesman},
+} 
+
 @incollection{JP85,
 	author={D. S. Johnson and C. H. Papadimitriou},
 	editor={E. L. Lawler and J. K. Lenstra and A. H. J. Rinnooy Kan and D. B. Shmoys},
@@ -53,17 +108,19 @@
 }
 
 @book{BA09,
-	author = {Arora, Sanjeev and Barak, Boaz},
-	title = {Computational Complexity: A Modern Approach},
-	year = {2009},
-	isbn = {0521424267, 9780521424264},
-	edition = {1st},
-	publisher = {Cambridge University Press},
-	address = {New York, NY, USA},
-	page=40
+author = {Arora, Sanjeev and Barak, Boaz},
+title = {Computational Complexity: A Modern Approach},
+year = {2009},
+isbn = {0521424267, 9780521424264},
+edition = {1st},
+publisher = {Cambridge University Press},
+address = {New York, NY, USA},
 } 
 
-% Мусатов page=46
-
+@book{M17,
+	author=" Мусатов, Д. В.",
+	title="Сложность вычислений",
+	page=46,
+}
 
 \end{thebibliography}
