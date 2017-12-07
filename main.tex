@@ -1,0 +1,323 @@
+\input{boilerplate.tex}
+
+\begin{document}
+
+\newcommand{\ra}{\rightarrow}
+\newcommand{\cross}{\times}
+\newcommand{\bf}{\textbf}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\begin{defn}
+Пусть $X$ --- некоторое мн-во. Функция $\rho:X \cross X \ra \R$ наз-ся \textbf{метрикой} в мн-ве $X$, если:
+\begin{enumerate}
+	\i $\rho(x, y) \ge 0 \forall x, y \in X$ и $\rho(x, y) = 0 \Iff x=y$
+	\i $\rho(x, y) = \rho(y, x) \forall x, y \in X$
+	\i $\rho(x, y) \le \rho(x, z)+\rho(z, y) \forall x, y, z \in X$
+\end{enumerate}
+Множество $X$ с введённой на нём метрикой $\rho$ называется \bf{метрическим пространством} $(X, \rho)$.
+\end{defn}
+
+\begin{defn}
+Мн-во $S$ из метр. пр-ва $(X, \rho)$ наз-ся \bf{всюду плотным} в $X$, если его замыкание совпадает с $X$, т. е. $\forall x \in X \forall \eps > 0 \exists y \in S: \rho(x, y)<\eps$.	
+\end{defn}
+
+\begin{defn}
+МП $(X, \rho)$ наз-ся \bf{сепарабельным}, если в нём существует счётное всюду плотное мн-во. 
+\end{defn}
+
+\begin{defn}
+П-ть $\{x_n\}_{n=1}^{\infty}$ элементов МП $(X, \rho)$ наз-ся \bf{фундаментальной} (или $\rho$-фундаментальной), если $\forall \eps > 0 \exists N = N(\eps):\forall n, m > N \Have \rho(x_n, x_m) < \eps$.
+\end{defn}
+
+\begin{defn}
+МП $(X, \rho)$ наз-ся \bf{полным}, если любая фундаментальная п-ть из $(X, \rho)$ сх-ся.
+\end{defn}
+
+\begin{defn}
+МП $(X, \rho)$ наз-ся \bf{связным}, если $X$ нельзя представить в виде объединения двух непустых непересекающихся открытых множеств.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \rho)$ --- МП. \bf{Открытым шаром} с центром в точке $x \in X$ радиуса $R>0$ наз-ся мн-во $B_R(x) = B(x, R) = \{y \in X \mid \rho(x, y) < R\}$.
+\bf{Замкнутым шаром} с центром в точке $x \in X$ радиуса $R>0$ наз-ся мн-во $\bar{B}_R(x) = \bar{B}(x, R) = \{y \in X \mid \rho(x, y) \le R\}$.
+\end{defn}
+
+\begin{defn}
+Мн-во $M \subset X$, где $(X, \rho)$ --- МП, наз-ся \bf{открытым}, если $\forall x_0 \in M \exists \eps > 0: B_\eps(x_0) \subset M$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \rho)$ --- МП и $M \subset X$. Точка $x_0 \in X$ наз-ся \bf{точкой прикосновения} мн-ва $M$, если $\forall \epsilon > 0 \Have B_\eps(x_0) \cap M \ne \emptyset$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \rho)$ --- МП и $M \subset X$. Множество $[M]$(или $\bar{M})$ наз-ся \bf{замыканием} мн-ва $M$, если оно получено добавлением к $M$ всех его точек прикосновения.
+\end{defn}
+
+\begin{defn}
+Мн-во $M \subset X$, где $(X, \rho)$ --- МП, наз-ся \bf{замкнутым}, если $[M] = M$.
+\end{defn}
+
+\begin{defn}
+Лебегово пр-во $l_p$ для $1 \le p < +\infty$ состоит из числовых п-тей вида $x = (x_1, x_2, \dots)$
+
+$l_p = \{x: \N \ra \R \mid \sum\limits_{k=1}^{\infty} |x(k)|^p <+\infty\}$ 
+
+с нормой $\norm{x}_p = \sqrt[p]{\sum\limits_{k=1}^{\infty} |x(k)|^p}$ и метрикой $\rho_p(x, y) = \norm{x-y}_p$.
+
+\bf{Полное сепарабельное}
+\end{defn}
+
+\begin{defn}
+Лебегово пр-во $l_\infty$. 
+С нормой $\norm{x}_\infty = \sup\limits_{k \in \N} |x(k)|$ и метрикой $\rho_\infty(x, y) = \norm{x-y}_\infty$.
+\bf{Полное несепарабельное}
+\end{defn}
+
+\begin{defn}
+Пр-во $C[a,b] = \{x: [a, b] \ra \R \mid x\text{ непрерывно на } [a, b]\}$ непрерывных на $[a, b]$ функций с нормой $\norm{x}_C = \sup\limits_{t \in [a, b]} |x(t)|$ и метрикой $\rho_C(x, y) = \norm{x-y}_C$.
+
+\bf{Полное сепарабельное связное}
+\end{defn}
+
+\begin{thm}[Достаточное условие несепарабельности МП]
+Пусть в МП $(X, \rho)$ существует несчётное подмножество $A_0$ и $\exists \eps_0 > 0: \forall a, b \in A_0, a \ne b, \Have \rho(a, b) \ge \eps_0$. Тогда МП $(X, \rho)$ является несепарабельным.
+\end{thm}
+
+\begin{defn}
+Пусть $(X, \rho)$ --- МП. Отображение $f: X \ra X$ наз-ся \bf{сжимающим}, если $\exists \alpha \in (0, 1): \forall x, y \in X \Have \rho(f(x), f(y)) \le \alpha \rho(x, y)$.
+\end{defn}
+
+\begin{defn}
+Пусть X --- некоторое мн-во, $f: X \ra X$ --- отображение. Точка $x_o \in X$ наз-ся \bf{неподвижной} для отображения $f$, если $f(x_0) = x_0$.
+\end{defn}
+
+\begin{thm}[Банаха о сжимающих отображениях]
+Пусть $(X, \rho)$ --- ПМП, $f: X \ra X$ --- сжимающее отображение. Тогда $f$ имеет единственную неподвижную точку.
+\end{thm}
+
+\begin{defn}
+Пусть $(X_1, \rho_1)$ и $(X_2, \rho_2)$ --- МП. Отображение $\phi: X_1 \ra X_2$ называется \bf{изометрией}, если $\phi$ --- биекция и $\forall x_1, y_1 \in X_1 \Have \rho_1(x_1, y_1) = \rho_2(\phi(x_1), \phi(y_1))$. Если между МП $X_1$ и $X_2$ существует изометрия, они называются \bf{изометричными}.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \rho)$ --- МП. Мн-во $A \subset X$ наз-ся \bf{всюду плотным в мн-ве $B \subset X$}, если $\forall b \in B \forall \eps > 0 \exists a \in A: \rho(a, b) < \eps$.
+\end{defn}
+
+\begin{defn}
+ПМП $(Y, d)$ наз-ся \bf{пополнением} МП $(X, \rho)$, если $\exists Z \subset Y$, $Z$ --- всюду плотное в $Y$, т. ч. МП $(X, \rho)$ и $(Z, d)$ изометричны.
+\end{defn}
+
+\begin{defn}
+Пусть $X$ --- некоторое сем-во множеств. Семейство $\tau$ подмножеств мн-ва $X$ наз-ся \bf{топологией}, если:
+\begin{enumerate}
+\i $X \in \tau$ и $\emptyset \in \tau$
+\i $\forall$ семейства подмн-в $\{U_\alpha \mid \alpha \in A\} \subset \tau \Have \bigcup\limits_{\alpha \in A} U_\alpha \in \tau$
+\i $\forall$ конечного семейства подмн-в ${U_k \mid k \in \bar{1,N}} \subset \tau \Have \bigcup\limits_{k=1}^N U_k \in \tau$
+\end{enumerate}
+Мн-во $X$ со введённой на нём топологией $\tau$ наз-ся \bf{топологическим пр-вом (ТП)} $(X, \tau)$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \tau)$ --- ТП. Любое мн-во $U \in \tau$ наз-ся \bf{открытым}($\tau$-открытым) в ТП $(X, \tau)$. Топология $\tau$ называется \bf{семейством открытых подмн-в} мн-ва $X$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \tau)$ --- ТП. Для любого $x \in X$ \bf{окрестностью} $x$ называется произвольное $\tau$-открытое множество, содержащее $x$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \tau)$ --- ТП, $S \subset X$. \bf{Открытым покрытием} мн-ва $S$ наз-ся сем-во $\tau$-открытых мн-в $\{U_\alpha \mid \alpha \in A\}$, т. ч. $S \subset \bigcup\limits_{\alpha \in A} U_\alpha$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \tau)$ --- ТП. Мн-во $S \subset X$ наз-ся:
+\begin{enumerate}
+\i \bf{компактным (бикомпактным)}, если любое открытое покрытие мн-ва S содержит конечное подпокрытие
+\i \bf{счётно-компактным}, если любое счётное открытое покрытие мн-ва $S$ содержит конечное подпокрытие
+\i \bf{секвенциально компактным}, если любая п-пть эл-тов мн-ва S содержит п-ть, сходящуюся по топологии $\tau$ к некоторому эл-ту $S$
+\end{enumerate}
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \tau)$ --- ТП. Говорят, что п-ть $\{x_n\}_{n=1}^\infty \subset X$ \bf{сх-ся по топологии $\tau$} к элементу $x \in X$, если $\forall U(x) \exists N: \forall n > N \Have x_n \in U(x)$. Обозначается $x_n \ra_{n \ra \infty}^\tau x$.
+\end{defn}
+
+\begin{thm}
+Бикомпактность 
+Счётная компактность
+Секвенциальная компактность
+\end{thm}
+
+\begin{defn}
+Пусть $(X, \rho)$ --- МП. Мн-во $S \subset X$ наз-ся \bf{вполне ограниченным}, если $\forall \eps > 0 \exists$ конечный набор точек $x_1, \dots, x_N \in S: S \subset \bigcup\limits_{k=1}^N B_\eps(x_k)$. Указанный набор точек называется \bf{конечной $\eps$-сетью} мн-ва S.
+\end{defn}
+
+\begin{thm}[Критерий компактности]
+Пусть $(X, \rho)$ --- МП, $S \subset X$. Тогда СУЭ:
+\begin{enumerate}
+\i $S$ --- компакт
+\i МП $(S, \rho)$ --- полное и ВО (если $(X, \rho)$ полное, то достаточно замкнутости $S$)
+\i мн-во $S$ явл. секвенциально компактным
+\end{enumerate}
+\end{thm}
+
+\begin{thm}[Критерий компактности]
+МП компактно $\Iff$ любая п-ть его точек не содержит сходящуюся п-пть.
+\end{thm}
+
+\begin{defn}
+Пусть $(X, \rho)$ --- МП. Мн-во $M \subset X$ наз-ся \bf{ограниченным}, если $\exists x_0 \in X: \exists r > 0: M \subset B_r(x_0)$.
+\end{defn}
+
+\begin{defn}
+Мн-во метрического пространства наз-ся \bf{предкомпактом}, если его замыкание компактно.
+\end{defn}
+
+\begin{defn}
+Сем-во функций $S \subset C[a, b]$ наз-ся \bf{равномерно ограниченным}, если $\exists c: \forall f \in S \max\limits_{x \in [a, b]} |f(x)| \le c$.
+\end{defn}
+
+\begin{defn}
+Сем-во функций $S \subset C[a, b]$ наз-ся \bf{равностепенно непрерывным}, если $\forall \eps > 0 \exists \delta > 0: \forall f \in S \forall x, x' \in [a, b] \Have |x-x'| , \delta \Then |f(x)-f(x')| < \eps$.
+\end{defn}
+
+\begin{thm}[Теорема Арцела-Асколи]
+Сем-во ф-ий $S \subset C[a, b]$ предкомпактна в пр-ве $C[a, b]$ $\Iff$ она равномерно ограничена и равностепенно непрерывна.
+\end{thm}
+
+\begin{defn}
+Пр-во $C^k[a, b]$ k раз непр. дифф. ф-ий $x:[a, b] \ra \R$ с нормой $\norm{x}_{C^k} = \sum\limits_{i=0}^k \max\limits_{x \in [a, b]} |x^{(i)}(t)|$.
+\end{defn}
+
+\begin{defn}
+Непустое мн-во $L$ наз-ся \bf{линейным} (или \bf{векторным}) пр-вом, если оно удовлетворяет:
+TODO
+\end{defn}
+
+\begin{defn}
+Пусть $X$ --- комплексное ЛП. Ф-ия $\norm{\cdot}: X \ra \R$ наз-ся \bf{нормой} в $X$, если:
+TODO
+
+Любое пр-во с фиксированной в нём нормой будем называть ЛНП.
+\end{defn}
+
+\begin{defn}
+Полное НП наз-ся \bf{банаховым (БП)}(обычно обозначается $B$) .
+\end{defn}
+
+\begin{defn}
+ЛП наз-ся \bf{замкнутым}, если оно содержит все свои предельные точки.
+\end{defn}
+
+\begin{defn}
+ЛП $L'$ наз-ся \bf{подпространством} ЛП $L$, если $L' \subset L$ и операции сложения векторов и умножения вектора на число определены так же, как в $L$.
+\end{defn}
+
+\begin{defn}
+\bf{Линейной комбинацией (ЛК)} в-ров $x_1, \dots, x_n$ наз-ся любой в-р вида $\alpha_1 x_1 + \dots + \alpha_n x_n$, где $\alpha_1, \dots, \alpha_n$ --- числовые множители.
+\end{defn}
+
+\begin{defn}
+ЛК наз. \bf{нетривиальной}, если хотя бы один из коэф. $\alpha_1, \dots, \alpha_n$ отличен от нуля.
+\end{defn}
+
+\begin{defn}
+В-ры $x_1, \dots, x_n$ наз-ся \bf{линейно зависимыми (ЛЗ)}, если $\exists$ нетрив. ЛК, равная 0. Иначе они называются \bf{линейно независимыми (ЛНЗ)}.
+\end{defn}
+
+\begin{defn}
+ЛП наз-ся \bf{n-мерным}, если в нём $\exists$ n ЛНЗ в-ров, а любые $n+1$ в-ров ЛЗ. В таком случае эти $n$ в-ров наз-ся базисом.
+\end{defn}
+
+\begin{defn}
+ЛП наз-ся \bf{бесконечномерным}, если $\forall n \in \N$ в нём $\exists$ $n$ ЛНЗ в-ров.
+\end{defn}
+
+\begin{defn}
+Пусть задана некоторая система эл-тов ЛП $L$. Совокупность всех ЛК этой системы наз-ся её \bf{линейной оболочкой}.
+\end{defn}
+
+\begin{defn}
+Система эл-тов $\{x_\alpha, \alpha \in A\}$ наз-ся \bf{полной} в пр-ве $X$, если её ЛО плотна в $X$, т. е. если $\forall x \in X \forall \eps > 0 \exists \{x_{alpha_1}, \dots, x_{alpha_n} \subset \{x_\alpha, \alpha \in A\} \exists \lambda_1, \dots, \lambda_n: \norm{x-\sum\limits_{j=1}^n \lambda_j x_{\alpha_j}} < \eps$.
+\end{defn}
+
+\begin{defn}
+П-ть эл-тов $e_1, e_2, \dots$ ЛНП $X$ наз-ся \bf{базисом} пр-ва $X$, если каэдый эл-т $x \in X$ имеет единственное разложение по этой системе, т. е. $\exists ! \{\lambda_n\}_{n=1}^\infty: x = \sum\limits_{n=1}^\infty \lambda_n e_n$. Здесь ряд сх-ся к эл-ту $x$ по норме пр-ва $X$. TODO
+\end{defn}
+
+\begin{defn}
+Пр-во $c$ сходящихся п-тей $x=(x_1, x_2, \dots)$ с операциями сложения и умножения на число и нормой $\norm{x}_C = \sup\limits_{k \in N} |x_k|$.
+\end{defn}
+
+\begin{defn}
+Пр-во $c_0$ сходящихся п-тей, эл-ты которых стремятся к 0, $x=(x_1, x_2, \dots)$ с операциями сложения и умножения на число и нормой $\norm{x}_C = \sup\limits_{k \in N} |x_k|$.
+\end{defn}
+
+\begin{defn}
+Пусть $X$ --- комплексное ЛП. \bf{Скалярным произведением} в $X$ наз-ся отображение $(\cdot, \cdot): X \cross X \ra \C$, т. ч.:
+\begin{enumerate}
+\i $\forall x \in X \Have (x, x) \in \R$ и $(x, x) \ge 0$;
+\i $(x, x)=0 \Iff x = 0$;
+\i $\forall x, y \in X \Have (x, y) = \bar{(y, x)}$;
+\i $\forall x, y, z \in X \forall \alpha, \beta \in \C \Have (\alpha x + \beta y, z) = \alpha (x, z) + \beta(y, z)$.
+\end{enumerate}
+\end{defn}
+
+\begin{defn}
+ЛП с фиксированным в нём скалярным произведением наз-ся \bf{евклидовым}.
+\end{defn}
+
+\begin{stmt}
+Пусть $X$ --- евклидово пр-во. Тогда величина $\norm{x} = \sqrt{(x, x)}, x \in X$, удовлетворяет определению нормы в $X$. Такая норма называется \bf{нормой, порождённой скалярным произведением}. 
+\end{stmt}
+
+\begin{defn}
+ЕП, полное относительно нормы, порождённой скалярным произв., наз. \bf{гильбертовым пр-вом (ГП)} (обычно обозначается $H$).
+\end{defn}
+
+\begin{defn}
+Пусть $L$ --- действительное ЛП, и $x, y \in L$. Назовём \bf{замкнутым отрезком} в L, соединяющим точки $x$ и $y$, совокупность $\{\alpha x + \beta y \mid \alpha, \beta \ge 0, \alpha + \beta = 1\}$. Отрезок без концевых точек $x, y$ называется \bf{открытым отрезком}.
+Мн-во $M \subset L$ наз-ся выпуклым, если оно вместе с любыми двумя точками $x$ и $y$ содержит соединяющий их отрезок.
+\end{defn}
+
+\begin{defn}
+Пусть $X, Y$ --- ЛП. Линейное отображение $A: X \ra Y$ наз-ся \bf{линейным оператором}.
+\end{defn}
+
+\begin{defn}
+Пусть $X, Y$ --- ЛП, $A: X \ra Y$ --- линейный оператор. Ядром линейного оператора $A$ наз-ся подпр-во из $X$ вида $\Ker A = \{x \in X \mid Ax = 0\}$. Образом (или мн-вом значений) оператора $A$ наз-ся подпр-во из $Y$ вида $\Im A = \{Ax \mid x \in X\}$
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \norm{\cdot}_X)$ и $(Y, \norm{\cdot}_Y)$ --- ЛНП. Лин. опер. $A: X \ra Y$ наз. \bf{ограниченным}, если $\forall$ ограниченного мн-ва $S \subset X$ его образ $A(S)$ является ограниченным в $Y$. 
+\end{defn}
+
+\begin{stmt}
+Пусть $(X, \norm{\cdot}_X)$ и $(Y, \norm{\cdot}_Y)$ --- ЛНП, $A: X \ra Y$ --- лин. опер. Тогда СУЭ:
+\begin{enumerate}
+\i $A$ непрерывен в $X$
+\i $A$ непрерывен в нуле
+\i $A$ ограничен
+\i $\exists R > 0: A(B_1^X(0)) \subset B_R^Y(0)$, где $B_r^X (x) = \{z \in X \mid \norm{z-x}_X \le r$.
+\end{enumerate}
+\end{stmt}
+
+\begin{defn}
+Пусть $(X, \norm{\cdot}_X)$ и $(Y, \norm{\cdot}_Y)$ --- ЛНП. \bf{Нормой} лин. опер. $A: X \ra Y$ наз-ся $\norm{A} = \sup\limits_{\norm{x}_X \le 1} \norm{Ax}_Y$.
+\end{defn}
+
+\begin{stmt}
+TODO
+\end{stmt}
+
+\begin{defn}
+$\norm{A} < +\infty \Iff $ лин. опер. $A$ ограничен.
+\end{defn}
+
+\begin{defn}
+
+\end{defn}
+
+\end{document}
