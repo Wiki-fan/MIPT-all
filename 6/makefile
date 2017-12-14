@@ -3,7 +3,7 @@ MPI5:
 	mpicc -g -o run main.c walking.c communicating.c
 
 launch:
-	mpirun -n 4 ./run 10 2 2 100 10 0.25 0.25 0.25 0.25
+	mpirun -n 4 ./run 10 2 2 100000 10 0.25 0.25 0.25 0.25
 
 launch3:
 	mpirun -n 9 ./run 10 3 3 100 10 0.25 0.25 0.25 0.25

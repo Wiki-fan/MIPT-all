@@ -43,21 +43,25 @@ int make_step(thread_data* td, context* ctx) {
     return some_node_alive;
 }
 
-int check_if_leaved(context* ctx, point* pnt, Vector_point* vec_send) {
-    if (pnt->x < 0 - OVERLAP) {
+int check_if_leaved(context* ctx, point* pnt, Vector_point* vec_send, int overlap) {
+    if (pnt->x < 0 - overlap) {
         // вниз
+        pnt->x += ctx->l;
         Vector_point_push(&vec_send[0], *pnt);
         pnt->i = 0;
-    } else if (pnt->x > ctx->l + OVERLAP) {
+    } else if (pnt->x >= ctx->l + overlap) {
         // вверх
+        pnt->x -= ctx->l;
         Vector_point_push(&vec_send[1], *pnt);
         pnt->i = 0;
-    } else if (pnt->y < 0 - OVERLAP) {
+    } else if (pnt->y < 0 - overlap) {
         //влево
+        pnt->y += ctx->l;
         Vector_point_push(&vec_send[2], *pnt);
         pnt->i = 0;
-    } else if (pnt->y > ctx->l + OVERLAP) {
+    } else if (pnt->y >= ctx->l + overlap) {
         //вправо
+        pnt->y -= ctx->l;
         Vector_point_push(&vec_send[3], *pnt);
         pnt->i = 0;
     }
@@ -120,6 +124,41 @@ Vector_point communicate_for(int prev, int next, context* ctx, Vector_point* vec
         return buf;
     }
     debug(printf("%d communicated\n", ctx->rank));
+}
+
+void exchange(context* ctx, thread_data* td, int overlap) {
+    Vector_point vec_send[4];
+    for (int j = 0; j < 4; ++j) {
+        Vector_point_init(&vec_send[j], 10);
+    }
+
+    for (int j = 0; j < td->points.size; ++j) {
+        pointp pnt = &td->points.arr[j];
+        check_if_leaved(ctx, pnt, vec_send, overlap);
+    }
+
+    debug(printf("Process %d wants to exchange %d %d %d %d\n",
+                 ctx->rank,
+                 vec_send[0].size,
+                 vec_send[1].size,
+                 vec_send[2].size,
+                 vec_send[3].size));
+
+    int up = mod(ctx->rank - ctx->a, ctx->size);
+    int down = mod(ctx->rank + ctx->a, ctx->size);
+    int left = mod(ctx->rank - 1,ctx->a) + (ctx->rank / ctx->a) * ctx->a;
+    int right = mod(ctx->rank + 1, ctx->a) + (ctx->rank / ctx->a) * ctx->a;
+    debug(printf("For %d %d:%d:%d:%d %d\n", ctx->rank, left, right, up, down, ctx->size));
+    Vector_point ret[4];
+    ret[0] = communicate_for(left, right, ctx, &vec_send[0]);
+    ret[1] = communicate_for(right, left, ctx, &vec_send[1]);
+    ret[2] = communicate_for(up, down, ctx, &vec_send[2]);
+    ret[3] = communicate_for(down, up, ctx, &vec_send[3]);
+
+    for (int j = 0; j < 4; ++j) {
+        merge_with_vector(&td->points, &ret[j]);
+        Vector_point_destroy(&ret[j]);
+    }
 }
 
 struct talker_args {
@@ -207,7 +246,7 @@ void custom(void* arg) {
 
         for (int j = 0; j < td.points.size; ++j) {
             pointp pnt = &td.points.arr[j];
-            check_if_leaved(ctx, pnt, vec_send);
+            check_if_leaved(ctx, pnt, vec_send, OVERLAP);
         }
 
         debug(printf("Process %d wants to exchange %d %d %d %d\n",
@@ -246,6 +285,10 @@ void custom(void* arg) {
     pthread_barrier_destroy(&targs.barrier2);
 
     MPI_Barrier(MPI_COMM_WORLD);
+
+    for (int i = 0; i< ctx->a+ctx->b+1; ++i) {
+        exchange(ctx, &td, 0);
+    }
 
     int count = 0;
     for (int i = 0; i < td.points.size; ++i) {

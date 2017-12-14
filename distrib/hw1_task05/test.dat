@@ -1,0 +1,26 @@
+FSCK started by mcs2017013 (auth:SIMPLE) from /93.175.29.107 for path /user/mcs2017013/output.dat at Thu Nov 23 00:32:20 MSK 2017
+/user/mcs2017013/output.dat 100000000 bytes, 3 block(s):  OK
+0. BP-1135830572-93.175.29.106-1493426010892:blk_1074416966_676524 len=33554432 Live_repl=2 [DatanodeInfoWithStorage[93.175.29.116:50010,DS-0bb4d7bc-0810-4ff9-8455-bed9cfe07338,DISK], DatanodeInfoWithStorage[93.175.29.113:50010,DS-0577ca31-8450-4384-a540-cd4f83eb1bbf,DISK]]
+1. BP-1135830572-93.175.29.106-1493426010892:blk_1074416967_676525 len=33554432 Live_repl=2 [DatanodeInfoWithStorage[93.175.29.110:50010,DS-ea163d39-5f3c-41e6-9281-aa2013a5ba38,DISK], DatanodeInfoWithStorage[93.175.29.109:50010,DS-3b63d425-0f0e-45be-b954-f090a313119d,DISK]]
+2. BP-1135830572-93.175.29.106-1493426010892:blk_1074416968_676526 len=32891136 Live_repl=2 [DatanodeInfoWithStorage[93.175.29.111:50010,DS-0618707d-c00c-4563-b7d8-ec217f4c972c,DISK], DatanodeInfoWithStorage[93.175.29.109:50010,DS-3b63d425-0f0e-45be-b954-f090a313119d,DISK]]
+
+Status: HEALTHY
+ Total size:	100000000 B
+ Total dirs:	0
+ Total files:	1
+ Total symlinks:		0
+ Total blocks (validated):	3 (avg. block size 33333333 B)
+ Minimally replicated blocks:	3 (100.0 %)
+ Over-replicated blocks:	0 (0.0 %)
+ Under-replicated blocks:	0 (0.0 %)
+ Mis-replicated blocks:		0 (0.0 %)
+ Default replication factor:	2
+ Average block replication:	2.0
+ Corrupt blocks:		0
+ Missing replicas:		0 (0.0 %)
+ Number of data-nodes:		7
+ Number of racks:		1
+FSCK ended at Thu Nov 23 00:32:20 MSK 2017 in 0 milliseconds
+
+
+The filesystem under path '/user/mcs2017013/output.dat' is HEALTHY

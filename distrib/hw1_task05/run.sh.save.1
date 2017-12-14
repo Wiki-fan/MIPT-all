@@ -1,0 +1,42 @@
+#! /bin/bash
+
+BYTE_COUNT=$1
+
+FILENAME="/user/$USER/output.dat"
+#echo FILENAME "${FILENAME}"
+
+dd if=/dev/zero of=output.dat  bs=$BYTE_COUNT count=1 2>/dev/null
+hdfs dfs -put output.dat $FILENAME
+
+BLKNAMES="$(hdfs fsck $FILENAME -files -blocks -locations 2>/dev/null | grep -oP 'blk_\d*_?')"
+echo BLKNAMES $BLKNAMES
+
+
+BLKNAMES="${BLKNAMES: : -1}"
+#echo BLKNAME $BLKNAME
+
+NODENAME="$(./run1.sh $FILENAME)"
+#echo NODENAME $NODENAME
+COMMAND="sudo -u hdfsuser ssh hdfsuser@$NODENAME find / -name $BLKNAME 2>/dev/null"
+#echo $COMMAND
+BLOCKFILE="$( $COMMAND )"
+#echo BLOCKFILE $BLOCKFILE
+
+BLOCKSIZE="$(sudo -u hdfsuser ssh hdfsuser@$NODENAME du -b $BLOCKFILE |cut -f1)"
+#echo BLOCKSIZE $BLOCKSIZE
+#BLOCKS="$(hdfs fsck /user/$USER/output.dat -files -blocks -locations)"
+#echo $BLOCKS
+
+BLK_COUNT="$( ./run3.sh /user/$USER/output.dat)"
+#echo BLK_COUNT $BLK_COUNT
+
+#C = "$(dehumanize $COUNT)"
+#echo C $C
+let ANS=$(($BLOCKSIZE * $BLK_COUNT - $BYTE_COUNT))
+echo $ANS
+
+#BLKINFO="$(./run4.sh )"
+#BLOCK_NAME
+#hdfs fsck -blocks $1 2>/dev/null | python scr.py
+
+hdfs dfs -rm /user/$USER/output.dat 2>/dev/null
