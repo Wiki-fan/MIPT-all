@@ -1,12 +1,17 @@
 \input{boilerplate.tex}
 
-\begin{document}
+\usepackage{tikz}
 
 \newcommand{\ra}{\rightarrow}
 \newcommand{\cross}{\times}
 \newcommand{\bf}{\textbf}
 \newcommand{\eps}{\varepsilon}
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\wave}{\tilde}
+
+\begin{document}
+
+\section{МП и ТП}
 
 \begin{defn}
 Пусть $X$ --- некоторое мн-во. Функция $\rho:X \cross X \ra \R$ наз-ся \textbf{метрикой} в мн-ве $X$, если:
@@ -19,12 +24,44 @@
 \end{defn}
 
 \begin{defn}
+Пр-во $Y$ наз-ся \bf{подпространством} пр-ва $X$, если $Y \subset X$, и на $Y$ берётся \bf{индуцированная метрика} $\rho_Y(y_1, y_2) = \rho_X(y_1, y_2) \forall y_1, y_2 \in Y$. 
+\end{defn}
+
+\begin{defn}
+\bf{Расстояние между множествами} есть $\rho(A, B) = \inf\limits_{a \in A, b \in B} \rho(a, b)$
+\end{defn}
+
+\begin{defn}
 Мн-во $S$ из метр. пр-ва $(X, \rho)$ наз-ся \bf{всюду плотным} в $X$, если его замыкание совпадает с $X$, т. е. $\forall x \in X \forall \eps > 0 \exists y \in S: \rho(x, y)<\eps$.	
 \end{defn}
 
 \begin{defn}
 МП $(X, \rho)$ наз-ся \bf{сепарабельным}, если в нём существует счётное всюду плотное мн-во. 
 \end{defn}
+
+\begin{defn}
+Пусть $X$ --- некоторое сем-во множеств. Семейство $\tau$ подмножеств мн-ва $X$ наз-ся \bf{топологией}, если:
+\begin{enumerate}
+\i $X \in \tau$ и $\emptyset \in \tau$
+\i $\forall$ семейства подмн-в $\{U_\alpha \mid \alpha \in A\} \subset \tau \Have \bigcup\limits_{\alpha \in A} U_\alpha \in \tau$
+\i $\forall$ конечного семейства подмн-в ${U_k \mid k \in \bar{1,N}} \subset \tau \Have \bigcup\limits_{k=1}^N U_k \in \tau$
+\end{enumerate}
+Мн-во $X$ со введённой на нём топологией $\tau$ наз-ся \bf{топологическим пр-вом (ТП)} $(X, \tau)$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \tau)$ --- ТП. Любое мн-во $U \in \tau$ наз-ся \bf{открытым}($\tau$-открытым) в ТП $(X, \tau)$. Топология $\tau$ называется \bf{семейством открытых подмн-в} мн-ва $X$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \tau)$ --- ТП. Для любого $x \in X$ \bf{окрестностью} $x$ называется произвольное $\tau$-открытое множество, содержащее $x$.
+\end{defn}
+
+\begin{defn}
+Пусть $(X, \tau)$ --- ТП, $S \subset X$. \bf{Открытым покрытием} мн-ва $S$ наз-ся сем-во $\tau$-открытых мн-в $\{U_\alpha \mid \alpha \in A\}$, т. ч. $S \subset \bigcup\limits_{\alpha \in A} U_\alpha$.
+\end{defn}
+
+\section{ПМП}
 
 \begin{defn}
 П-ть $\{x_n\}_{n=1}^{\infty}$ элементов МП $(X, \rho)$ наз-ся \bf{фундаментальной} (или $\rho$-фундаментальной), если $\forall \eps > 0 \exists N = N(\eps):\forall n, m > N \Have \rho(x_n, x_m) < \eps$.
@@ -44,7 +81,7 @@
 \end{defn}
 
 \begin{defn}
-Мн-во $M \subset X$, где $(X, \rho)$ --- МП, наз-ся \bf{открытым}, если $\forall x_0 \in M \exists \eps > 0: B_\eps(x_0) \subset M$.
+Мн-во $M \subset X$, где $(X, \rho)$ --- МП, наз-ся \bf{открытым}, если $\forall x_0 \in M \exists \eps > 0: B_\eps(x_0) \subset M$. Обычно обозначается $G$.
 \end{defn}
 
 \begin{defn}
@@ -52,11 +89,15 @@
 \end{defn}
 
 \begin{defn}
+Пусть $(X, \rho)$ --- МП и $M \subset X$. Точка $x_0 \in X$ наз-ся \bf{предельной точкой} мн-ва $M$, если $\exists y \in B_eps(x_0)\cap M: y \ne x$.
+\end{defn}
+
+\begin{defn}
 Пусть $(X, \rho)$ --- МП и $M \subset X$. Множество $[M]$(или $\bar{M})$ наз-ся \bf{замыканием} мн-ва $M$, если оно получено добавлением к $M$ всех его точек прикосновения.
 \end{defn}
 
 \begin{defn}
-Мн-во $M \subset X$, где $(X, \rho)$ --- МП, наз-ся \bf{замкнутым}, если $[M] = M$.
+Мн-во $M \subset X$, где $(X, \rho)$ --- МП, наз-ся \bf{замкнутым}, если $[M] = M$. Обычно обозначается $F$.
 \end{defn}
 
 \begin{defn}
@@ -85,6 +126,14 @@ $l_p = \{x: \N \ra \R \mid \sum\limits_{k=1}^{\infty} |x(k)|^p <+\infty\}$
 Пусть в МП $(X, \rho)$ существует несчётное подмножество $A_0$ и $\exists \eps_0 > 0: \forall a, b \in A_0, a \ne b, \Have \rho(a, b) \ge \eps_0$. Тогда МП $(X, \rho)$ является несепарабельным.
 \end{thm}
 
+\begin{thm}[2.1, Принцип вложенных шаров]
+Пусть $X$ --- ПМП, $\{B_n := \bar{B}(x_n, r_n)\}$ --- п-ть замкн. вложенных шаров, $r_n \ra 0$. Тогда $\exists! x \in \bigcap\limits_n B_n$.
+\end{thm}
+
+\begin{thm}[2.2, Бэр]
+Пусть $X$ --- ПМП, тогда $X$ нельзя представить в виде $X = \bigcup\limits_{n=1}^\infty M_n$, где $M_n$ --- нигде не плотное множество.
+\end{thm}
+
 \begin{defn}
 Пусть $(X, \rho)$ --- МП. Отображение $f: X \ra X$ наз-ся \bf{сжимающим}, если $\exists \alpha \in (0, 1): \forall x, y \in X \Have \rho(f(x), f(y)) \le \alpha \rho(x, y)$.
 \end{defn}
@@ -93,7 +142,7 @@ $l_p = \{x: \N \ra \R \mid \sum\limits_{k=1}^{\infty} |x(k)|^p <+\infty\}$
 Пусть X --- некоторое мн-во, $f: X \ra X$ --- отображение. Точка $x_o \in X$ наз-ся \bf{неподвижной} для отображения $f$, если $f(x_0) = x_0$.
 \end{defn}
 
-\begin{thm}[Банаха о сжимающих отображениях]
+\begin{thm}[2.3, Банаха о сжимающих отображениях]
 Пусть $(X, \rho)$ --- ПМП, $f: X \ra X$ --- сжимающее отображение. Тогда $f$ имеет единственную неподвижную точку.
 \end{thm}
 
@@ -102,66 +151,69 @@ $l_p = \{x: \N \ra \R \mid \sum\limits_{k=1}^{\infty} |x(k)|^p <+\infty\}$
 \end{defn}
 
 \begin{defn}
-Пусть $(X, \rho)$ --- МП. Мн-во $A \subset X$ наз-ся \bf{всюду плотным в мн-ве $B \subset X$}, если $\forall b \in B \forall \eps > 0 \exists a \in A: \rho(a, b) < \eps$.
-\end{defn}
-
-\begin{defn}
 ПМП $(Y, d)$ наз-ся \bf{пополнением} МП $(X, \rho)$, если $\exists Z \subset Y$, $Z$ --- всюду плотное в $Y$, т. ч. МП $(X, \rho)$ и $(Z, d)$ изометричны.
 \end{defn}
 
-\begin{defn}
-Пусть $X$ --- некоторое сем-во множеств. Семейство $\tau$ подмножеств мн-ва $X$ наз-ся \bf{топологией}, если:
-\begin{enumerate}
-\i $X \in \tau$ и $\emptyset \in \tau$
-\i $\forall$ семейства подмн-в $\{U_\alpha \mid \alpha \in A\} \subset \tau \Have \bigcup\limits_{\alpha \in A} U_\alpha \in \tau$
-\i $\forall$ конечного семейства подмн-в ${U_k \mid k \in \bar{1,N}} \subset \tau \Have \bigcup\limits_{k=1}^N U_k \in \tau$
-\end{enumerate}
-Мн-во $X$ со введённой на нём топологией $\tau$ наз-ся \bf{топологическим пр-вом (ТП)} $(X, \tau)$.
-\end{defn}
+\begin{thm}[2.4, Хаусдорф]
+Пусть $X$ --- ПМП, тогда $\exists$ ПМП $Y$ --- пополнение $X$
+\end{thm}
 
 \begin{defn}
-Пусть $(X, \tau)$ --- ТП. Любое мн-во $U \in \tau$ наз-ся \bf{открытым}($\tau$-открытым) в ТП $(X, \tau)$. Топология $\tau$ называется \bf{семейством открытых подмн-в} мн-ва $X$.
+Пусть $(X, \rho)$ --- МП. Мн-во $A \subset X$ наз-ся \bf{плотным в мн-ве $B \subset X$}, если $B \subset \bar{A}$, т. е. $\forall b \in B \forall \eps > 0 \exists a \in A: \rho(a, b) < \eps$.
+
+$A$ наз-ся \bf{всюду плотным}, если $A$ плотно в $X$.
+
+$A$ \bf{нигде не плотно}, если оно не плотно ни в одном шаре, т. е. в каждом шаре $B \subset R$ содержится другой шар $B', B' \cap A = \emptyset$.
 \end{defn}
 
-\begin{defn}
-Пусть $(X, \tau)$ --- ТП. Для любого $x \in X$ \bf{окрестностью} $x$ называется произвольное $\tau$-открытое множество, содержащее $x$.
-\end{defn}
+\section{КМП и КТП}
 
 \begin{defn}
-Пусть $(X, \tau)$ --- ТП, $S \subset X$. \bf{Открытым покрытием} мн-ва $S$ наз-ся сем-во $\tau$-открытых мн-в $\{U_\alpha \mid \alpha \in A\}$, т. ч. $S \subset \bigcup\limits_{\alpha \in A} U_\alpha$.
-\end{defn}
-
-\begin{defn}
-Пусть $(X, \tau)$ --- ТП. Мн-во $S \subset X$ наз-ся:
-\begin{enumerate}
-\i \bf{компактным (бикомпактным)}, если любое открытое покрытие мн-ва S содержит конечное подпокрытие
-\i \bf{счётно-компактным}, если любое счётное открытое покрытие мн-ва $S$ содержит конечное подпокрытие
-\i \bf{секвенциально компактным}, если любая п-пть эл-тов мн-ва S содержит п-ть, сходящуюся по топологии $\tau$ к некоторому эл-ту $S$
-\end{enumerate}
+Пусть $(X, \tau)$ --- ТП. Мн-во $S \subset X$ наз-ся \bf{компактным}, если любое открытое покрытие мн-ва $S$ содержит конечное подпокрытие
+%\begin{enumerate}
+%\i \bf{компактным (бикомпактным)}, если любое открытое покрытие мн-ва $S$ содержит конечное подпокрытие
+%\i \bf{счётно-компактным}, если любое счётное открытое покрытие мн-ва $S$ содержит конечное подпокрытие
+%\i \bf{секвенциально компактным}, если любая п-пть эл-тов мн-ва $S$ содержит п-ть, сходящуюся по топологии $\tau$ к некоторому эл-ту $S$
+%\end{enumerate}
 \end{defn}
 
 \begin{defn}
 Пусть $(X, \tau)$ --- ТП. Говорят, что п-ть $\{x_n\}_{n=1}^\infty \subset X$ \bf{сх-ся по топологии $\tau$} к элементу $x \in X$, если $\forall U(x) \exists N: \forall n > N \Have x_n \in U(x)$. Обозначается $x_n \ra_{n \ra \infty}^\tau x$.
 \end{defn}
 
-\begin{thm}
-Бикомпактность 
-Счётная компактность
-Секвенциальная компактность
+%\begin{thm}
+%Бикомпактность 
+%Счётная компактность
+%Секвенциальная компактность
+%\end{thm}
+
+\begin{defn}
+Пусть $X$ --- ТП. $\{B_\alpha\}$ наз-ся \bf{центрированной системой множеств (ЦС)}, если любая их конечная подсистема имеет непустое пересечение.
+\end{defn}
+
+\begin{thm}[3.1, Критерий компактности топологических пространств]
+Пусть $X$ --- ТП. Тогда $X$ --- компакт $\Iff$ в $X$ любая ЦС замкнутых подмножеств имеет непустое пересечение.
 \end{thm}
 
 \begin{defn}
 Пусть $(X, \rho)$ --- МП. Мн-во $S \subset X$ наз-ся \bf{вполне ограниченным}, если $\forall \eps > 0 \exists$ конечный набор точек $x_1, \dots, x_N \in S: S \subset \bigcup\limits_{k=1}^N B_\eps(x_k)$. Указанный набор точек называется \bf{конечной $\eps$-сетью} мн-ва S.
 \end{defn}
 
-\begin{thm}[Критерий компактности]
+\begin{thm}[3.2, Критерий компактности метрических пространств]
 Пусть $(X, \rho)$ --- МП, $S \subset X$. Тогда СУЭ:
 \begin{enumerate}
 \i $S$ --- компакт
 \i МП $(S, \rho)$ --- полное и ВО (если $(X, \rho)$ полное, то достаточно замкнутости $S$)
 \i мн-во $S$ явл. секвенциально компактным
-\end{enumerate}
+\i Любое бесконечное множество в $X$ имеет предельную точку.
+\end{enumerate} 
 \end{thm}
+\begin{cor}
+Если $X$ --- ПМП, то $M$ --- компактно $\Iff$ $M$ --- замкн. и ВО.
+\end{cor}
+\begin{cor}
+Если $X = \R^n$, то $M$ --- компактно $\Iff$ $M$ --- замкн. и огр.
+\end{cor}
 
 \begin{thm}[Критерий компактности]
 МП компактно $\Iff$ любая п-ть его точек не содержит сходящуюся п-пть.
@@ -180,28 +232,62 @@ $l_p = \{x: \N \ra \R \mid \sum\limits_{k=1}^{\infty} |x(k)|^p <+\infty\}$
 \end{defn}
 
 \begin{defn}
-Сем-во функций $S \subset C[a, b]$ наз-ся \bf{равностепенно непрерывным}, если $\forall \eps > 0 \exists \delta > 0: \forall f \in S \forall x, x' \in [a, b] \Have |x-x'| , \delta \Then |f(x)-f(x')| < \eps$.
+Сем-во функций $S \subset C[a, b]$ наз-ся \bf{равностепенно непрерывным}, если $\forall \eps > 0 \exists \delta > 0: \forall f \in S \forall x, x' \in [a, b] \Have |x-x'| < \delta \Then |f(x)-f(x')| < \eps$.
 \end{defn}
 
-\begin{thm}[Теорема Арцела-Асколи]
-Сем-во ф-ий $S \subset C[a, b]$ предкомпактна в пр-ве $C[a, b]$ $\Iff$ она равномерно ограничена и равностепенно непрерывна.
+\begin{thm}[3.3, Теорема Арцела-Асколи]
+Пусть $X$ --- КМП. Тогда сем-во ф-ий $S \subset C(X)$ предкомпактно в пр-ве $C(X)$ $\Iff$ оно равномерно ограниченно и равностепенно непрерывно.
 \end{thm}
 
 \begin{defn}
 Пр-во $C^k[a, b]$ k раз непр. дифф. ф-ий $x:[a, b] \ra \R$ с нормой $\norm{x}_{C^k} = \sum\limits_{i=0}^k \max\limits_{x \in [a, b]} |x^{(i)}(t)|$.
 \end{defn}
 
+\section{ЛНП}
+
 \begin{defn}
-Непустое мн-во $L$ наз-ся \bf{линейным} (или \bf{векторным}) пр-вом, если оно удовлетворяет:
-TODO
+Непустое мн-во $L$ наз-ся \bf{линейным} (или \bf{векторным}) пр-вом над $M$, если оно удовлетворяет:
+$\forall x, y, z \in L \forall \alpha, \beta \in M$:
+\begin{enumerate}
+\i однозначно определён элемент $x+y \in L$:
+ \begin{enumerate}
+ \i $x+y = y+x$
+ \i $x+(y+z) = (x+y)+z$
+ \i $\exists 0 \in L: x+0 = 0+x = x$
+ \i $\exists (-x) \in L: x+(-x) = 0$
+ \end{enumerate}
+\i однозначно определён элемент $\alpha x \in L$:
+ \begin{enumerate}
+ \i $\alpha(\beta x) = (\alpha \beta)x$
+ \i $\exists 1 \in L: 1x=x$
+ \i $(\alpha+\beta)x = \alpha x + \beta x$
+ \i $\alpha(x+y) = \alpha x + \alpha y$
+ \end{enumerate}
+\end{enumerate}
+В зависимости от $M$ различают действительные ($M=\R$) и комплексные ($M=\C$) линейные нормированные пространства.
 \end{defn}
 
 \begin{defn}
 Пусть $X$ --- комплексное ЛП. Ф-ия $\norm{\cdot}: X \ra \R$ наз-ся \bf{нормой} в $X$, если:
-TODO
-
-Любое пр-во с фиксированной в нём нормой будем называть ЛНП.
+\begin{enumerate}
+\i $\forall x \in X \Have \norm{x} \ge 0, \norm{x} = 0 \Iff x = 0$
+\i $\forall x \in X \forall t \in \R \norm{tx} = |t| \norm{x}$
+\i $\forall x, y \in X \Have \norm{x+y} \le \norm{x} + \norm{y}$ (нер-во треугольника)
+\end{enumerate}
+Любое пр-во с фиксированной в нём нормой будем называть \bf{линейным нормированным пространством (ЛНП)}.
 \end{defn}
+
+\begin{defn}
+$\norm{\cdot}_1$ и $\norm{\cdot}_2$ на ЛП $E$ наз. \bf{эквивалентными}, если $\exists c_1, c_2 \ge 0: \forall x \in E c_1 \norm{x}_2 \le \norm{x}_1 \le c_2 \norm{x}_2$.
+\end{defn}
+
+\begin{defn}
+Пусть $\norm{\cdot}_1$ и $\norm{\cdot}_2$ --- нормы на ЛП $E$. $\norm{\cdot}_1$ \bf{слабее} $\norm{\cdot}_2$, если $x_n \xrightarrow[\norm{\cdot}_2]{} x \Then x_n \xrightarrow[\norm{\cdot}_1]{} x$.
+\end{defn}
+
+\begin{thm}[4.1, Рисс]
+Пусть $E$ --- НП, $\dim E = \infty$. Тогда $S(0, 1)$ не является компактной (даже не является ВО).
+\end{thm}
 
 \begin{defn}
 Полное НП наз-ся \bf{банаховым (БП)}(обычно обозначается $B$) .
@@ -240,11 +326,11 @@ TODO
 \end{defn}
 
 \begin{defn}
-Система эл-тов $\{x_\alpha, \alpha \in A\}$ наз-ся \bf{полной} в пр-ве $X$, если её ЛО плотна в $X$, т. е. если $\forall x \in X \forall \eps > 0 \exists \{x_{\alpha_1}, \dots, x_{\alpha_n} \subset \{x_\alpha, \alpha \in A\} \exists \lambda_1, \dots, \lambda_n: \norm{x-\sum\limits_{j=1}^n \lambda_j x_{\alpha_j}} < \eps$.
+Система эл-тов $\{x_\alpha, \alpha \in A\}$ наз-ся \bf{полной} в пр-ве $X$, если её ЛО плотна в $X$, т. е. если $\forall x \in X \forall \eps > 0 \exists \{x_{\alpha_1}, \dots, x_{\alpha_n} \subset \{x_\alpha, \alpha \in A\} \exists \lambda_1, \dots, \lambda_n: \norm{x-\sum\limits_{k=1}^n \lambda_k x_{\alpha_k}} < \eps$.
 \end{defn}
 
 \begin{defn}
-П-ть эл-тов $e_1, e_2, \dots$ ЛНП $X$ наз-ся \bf{базисом} пр-ва $X$, если каэдый эл-т $x \in X$ имеет единственное разложение по этой системе, т. е. $\exists ! \{\lambda_n\}_{n=1}^\infty: x = \sum\limits_{n=1}^\infty \lambda_n e_n$. Здесь ряд сх-ся к эл-ту $x$ по норме пр-ва $X$. TODO
+П-ть эл-тов $e_1, e_2, \dots$ ЛНП $X$ наз-ся \bf{базисом} пр-ва $X$, если каэдый эл-т $x \in X$ имеет единственное разложение по этой системе, т. е. $\exists ! \{\lambda_n\}_{n=1}^\infty: x = \sum\limits_{n=1}^\infty \lambda_n e_n$. Здесь ряд сх-ся к эл-ту $x$ по норме пр-ва $X$, т. е. $\forall \eps > 0 \exists N \in \N: \forall n \ge N \Have \norm{x - \sum\limits_{k=1}^n \lambda_k x_{\alpha_k}} < \eps$.
 \end{defn}
 
 \begin{defn}
@@ -277,6 +363,30 @@ TODO
 ЕП, полное относительно нормы, порождённой скалярным произв., наз. \bf{гильбертовым пр-вом (ГП)} (обычно обозначается $H$).
 \end{defn}
 
+\begin{thm}[4.2]
+Пусть $E$ --- ЛНП. Тогда норма в $E$ порождена скалярным произведением $\Iff$ выполняется \bf{равенство параллелограмма}: $\norm{x+y}^2+\norm{x-y}^2 = 2(\norm{x}^2+\norm{y}^2)$.
+\end{thm}
+
+\begin{thm}[4.3, Рисса о проекциях]
+Пусть $H$ --- ГП, $M \subset H$ --- подпр-во. Тогда $H = M \oplus M^\perp$, где $M^\perp = \{y \mid (m, y) = 0 \forall m \in M\}$ --- \bf{аннулятор}.
+\end{thm}
+
+\begin{thm}[4.4]
+Пусть $H$ --- ГП над $\R$ или $\C$, $e = \{e_n\}_{n=1}^\infty$ --- ОНС. Тогда СУЭ:
+\begin{enumerate}
+\i $e$ --- базис
+\i $e$ --- полная система
+\i $e^\perp = \{0\}$
+\i $\forall x \in H$ справедливо равенство Парсеваля $\norm{x}^2 = \sum |(x, e_n)|^2$.
+\end{enumerate}
+\end{thm}
+
+\begin{thm}[Рисса-Фишера]
+Пусть $H$ --- ГП, $\{e_n\}$ --- ОНС. Тогда $\sum \alpha_n e_n$ сходится $\Iff$ $\sum |\alpha_n|^2$ сх-ся.
+\end{thm}
+
+\section{ЛОО}
+
 \begin{defn}
 Пусть $L$ --- действительное ЛП, и $x, y \in L$. Назовём \bf{замкнутым отрезком} в L, соединяющим точки $x$ и $y$, совокупность $\{\alpha x + \beta y \mid \alpha, \beta \ge 0, \alpha + \beta = 1\}$. Отрезок без концевых точек $x, y$ называется \bf{открытым отрезком}.
 Мн-во $M \subset L$ наз-ся выпуклым, если оно вместе с любыми двумя точками $x$ и $y$ содержит соединяющий их отрезок.
@@ -294,6 +404,11 @@ TODO
 Пусть $(X, \norm{\cdot}_X)$ и $(Y, \norm{\cdot}_Y)$ --- ЛНП. Лин. опер. $A: X \ra Y$ наз. \bf{ограниченным}, если $\forall$ ограниченного мн-ва $S \subset X$ его образ $A(S)$ является ограниченным в $Y$. 
 \end{defn}
 
+\begin{thm}[5.1]
+Пусть $E_1, E_2$ --- ЛНП, $A: E_1 \ra E_2$: --- лин. опер. Тогда $A$ --- непр. $\Iff$ $A$ --- огр.
+\end{thm}
+
+Где следующее утверждение было в лекциях?
 \begin{stmt}
 Пусть $(X, \norm{\cdot}_X)$ и $(Y, \norm{\cdot}_Y)$ --- ЛНП, $A: X \ra Y$ --- лин. опер. Тогда СУЭ:
 \begin{enumerate}
@@ -305,19 +420,96 @@ TODO
 \end{stmt}
 
 \begin{defn}
-Пусть $(X, \norm{\cdot}_X)$ и $(Y, \norm{\cdot}_Y)$ --- ЛНП. \bf{Нормой} лин. опер. $A: X \ra Y$ наз-ся $\norm{A} = \sup\limits_{\norm{x}_X \le 1} \norm{Ax}_Y$.
+Пусть $(X, \norm{\cdot}_X)$ и $(Y, \norm{\cdot}_Y)$ --- ЛНП. \bf{Нормой} лин. опер. $A: X \ra Y$ наз-ся $\norm{A} = \inf\{k \mid \norm{Ax}_Y \le k\norm{x}_X \forall x \in X \}$.
 \end{defn}
 
 \begin{stmt}
-TODO
+Пусть $(X, \norm{\cdot}_X)$ и $(Y, \norm{\cdot}_Y)$ --- ЛНП, $A: X \ra Y$ --- лин. опер. Тогда 
+$\norm{A} 
+= \sup\limits_{x \ne 0} \frac{\norm{Ax}_Y}{\norm{x}_X} 
+= \sup\limits_{\norm{x}_X = 1} \norm{Ax}_Y 
+= \sup\limits_{\norm{x}_X \le 1} \norm{Ax}_Y$
 \end{stmt}
 
-\begin{defn}
+\begin{stmt}
 $\norm{A} < +\infty \Iff $ лин. опер. $A$ ограничен.
-\end{defn}
+\end{stmt}
+
+\begin{thm}[5.2]
+Пусть $E_1, E_2$ --- ЛНП. Обозначим $L(E_1, E_2)$ --- мн-во лин. огр. операторов. Если на нём определить функции "$+$" и "$\cdot$", оно будет ЛП. Тогда:
+\begin{enumerate}
+\i Оно будет ЛНП, сли $\norm{A}$ сделать нормой в $L(E_1, E_2)$
+\i Оно будет БП, если $E_2$ --- БП.
+\end{enumerate}
+\end{thm}
+\begin{cor}
+$E$ --- БП $\Then$ $L(E)$ --- БП.
+\end{cor}
+\begin{cor}
+$E$ --- НП $\Then$ $L(E, \R(\C))$ --- БП.
+\end{cor}
+
+\begin{thm}[5.3]
+Пусть $E_1$ --- ЛНП, $E_2$ --- БП. $D(A) := \{$линейное многообразие в $E, D(A)$ всюду плотно в $E\}$, где $A$ --- лин. огр. оп., $A: D(A) \ra E_2$.
+
+Тогда $\exists! \wave{A} \in L(E_1, E_2): \begin{cases} \wave{A}\mid_{D(A)} = A \\ \norm{\wave{A}} = \norm{A} \end{cases}$.
+\end{thm}
+
+\begin{thm}[5.4, Банах-Штейнгауз, "принцип равномерной ограниченности"]
+Пусть $E_1$ --- БП, $E_2$ --- НП, $A_n \in L(E_1, E_2): \forall x \in E_1 \sup\limits_n \norm{A_n x} < \infty$.
+
+Тогда $\sup\limits_n \norm{A_n} < \infty$
+\end{thm}
+
+\begin{thm}[сл-вие 5.4, полнота $L(E_1, E_2)$ в смысле поточечной сх-ти]
+Пусть $E_1, E_2$ --- БП, $\{A_n\} \subset L(E_1, E_2)$, и $\forall x \in E_1 \{A_nx\}$ --- фунд.
+
+Тогда $\exists A \in L(E_1, E_2): A_n \ra A$ поточечно.
+\end{thm}
+
+\begin{thm}[сл-вие 5.4, критерий поточ. сх-ти лин. огр. оператора]
+Пусть $E_1, E_2$ --- БП, $\{A_n\} \subset L(E_1, E_2)$, и $ A \in L(E_1, E_2)$ --- лин. огр. опер. 
+
+Тогда $A_n \to A$ поточ. $\Iff \begin{cases} \}\norm{A_n}\} огр. \\ A_n x \ra Ax \forall x \in S: \bar{[S]} = E_1 \end{cases}$
+\end{thm}
 
 \begin{defn}
+$L_1$ --- ЛНП функций с нормой $\norm{f}_{L_1} = \int |f(x)| dx$.
 
+\bf{Полное лин. норм., но не евклидово}
 \end{defn}
+
+\section{Обр. опер.}
+
+\begin{defn}
+Пусть $E_1, E_2$ --- ЛП, $A: E_1 \ra E_2$. На $\Im A = \{y \in E_2\mid \exists$ решение $Ax=y$ в $E_1\}$ определён \bf{обратный оператор} $A^{-1}$, если $\forall y \in \Im A \exists! x \in E_1: Ax=y$.
+\end{defn}
+
+\begin{thm}[6.1]
+Пусть $E_1, E_2$ --- ЛП, $A \in L(E_1, E_2)$. 
+
+Тогда $\exists A^{-1} \in L(\Im A, E_1) \Iff \exists M>0: \norm{Ax} \ge m \norm{x} \forall x \in E_1$.
+\end{thm}
+
+\begin{thm}[6.2]
+Пусть $E$ --- БП, $A \in L(E): \norm{A} < 1$. 
+
+Тогда $\exists (I+A)^{-1} \in L(E)$.
+\end{thm}
+
+\begin{thm}[6.3]
+Пусть $E_1$ --- БП, $E_2$ --- НП, $A \in L(E_1, E_2), \exists A^{-1} \in L(E_2, E_1), \Delta A \in L(E_1, E_2): \norm{\Delta A} < \norm{A^{-1}}^{-1}$.
+
+Тогда $\exists (A+\Delta A)^{-1} \in L(E_2)$.
+\end{thm}
+
+\begin{thm}[6.4, Банаха об обратном операторе]
+Пусть $E_1, E_2$ --- БП, $A \in L(E_1, E_2)$, $A$ --- биекция.
+
+Тогда $\exists A^{-1} \in L(E_2, E_1)$.
+\end{thm}
+
+\section{Сопряжённое пространство}
+Следующий семестр.
 
 \end{document}
