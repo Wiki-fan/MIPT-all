@@ -1,6 +1,6 @@
 \usepackage[a4paper,left=20mm,right=10mm,top=20mm,bottom=20mm]{geometry}
 
-\usepackage{amsgen, amsmath, amstext, amsbsy, amsopn, amsfonts, amsthm, thmtools,  amssymb, amscd, mathtext, mathtools}
+\usepackage{amsgen, amsmath, amstext, amsbsy, amsopn, amsfonts, amsthm, amssymb, amscd, mathtext, mathtools}
 \usepackage{versions}
 
 \usepackage{float}
@@ -12,6 +12,9 @@
 
 \usepackage{minted}
 \newcommand{\mi}{\mintinline}
+
+% Set line spacing for the whole document
+\renewcommand{\baselinestretch}{1}
 
 % RedeclareMathOperator
 \makeatletter
@@ -79,7 +82,11 @@
 \renewcommand{\i}{\item}
 \newcommand{\ul}{\itemize}
 \renewcommand{\bar}{\overline}
-\newcommand{\ol}{\enumerate}
+%\newcommand{\ol}{\enumerate}
+%\let\ol\enumerate
+\newenvironment{ol}{\begin{enumerate}}{\end{enumerate}}
+\renewcommand{\b}{\begin}
+\newcommand{\e}{\end}
 
 \usepackage{pifont}
 \newcommand{\cmark}{\ding{51}}
@@ -122,14 +129,36 @@
 }
 \makeatother
 
-\newcommand{\nopandoc}[1]{#1} % hide LaTeX code from pandoc
+% hide LaTeX code from pandoc
+\newcommand{\nopandoc}[1]{#1}
 \nopandoc{
 	\let\Begin\begin
 	\let\End\end
 }
 
 
-% Styles
+% Styles for theorems
+\usepackage{thmtools}
+% renewtheorem
+% not works
+\makeatletter
+\def\renewtheorem#1{%
+  \expandafter\let\csname#1\endcsname\relax
+  \expandafter\let\csname c@#1\endcsname\relax
+  \gdef\renewtheorem@envname{#1}
+  \renewtheorem@secpar
+}
+\def\renewtheorem@secpar{\@ifnextchar[{\renewtheorem@numberedlike}{\renewtheorem@nonumberedlike}}
+\def\renewtheorem@numberedlike[#1]#2{\newtheorem{\renewtheorem@envname}[#1]{#2}}
+\def\renewtheorem@nonumberedlike#1{  
+\def\renewtheorem@caption{#1}
+\edef\renewtheorem@nowithin{\noexpand\newtheorem{\renewtheorem@envname}{\renewtheorem@caption}}
+\renewtheorem@thirdpar
+}
+\def\renewtheorem@thirdpar{\@ifnextchar[{\renewtheorem@within}{\renewtheorem@nowithin}}
+\def\renewtheorem@within[#1]{\renewtheorem@nowithin[#1]}
+\makeatother
+
 \declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={},%
 postheadspace={5px},headformat={\makebox[0pt][r]{\NAME\ \NUMBER\ }\setbox0\hbox{\ }\hspace{-\the\wd0}\NOTE}]{problemstyle}
 \declaretheorem[style=problemstyle,numbered=no,name=№]{problem}
@@ -137,9 +166,16 @@ postheadspace={5px},headformat={\makebox[0pt][r]{\NAME\ \NUMBER\ }\setbox0\hbox{
 \declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={ },postheadspace={0px},qed=$\blacktriangleleft$,
 headformat={\makebox[0pt][r]{\NAME\ }\setbox0\hbox{\ }\hspace{-\the\wd0}\NOTE},]{solutionstyle}
 \declaretheorem[style=solutionstyle,numbered=no,name=$\blacktriangleright$]{solution}
+\let\proof\relax
+\declaretheorem[style=solutionstyle,numbered=no,name=$\blacktriangleright$]{proof}
 
 \declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={.},postheadspace={4px}]{definitionstyle}
-\declaretheorem[style=definitionstyle,numbered=yes,name=Опр.]{defn}
+\declaretheorem[style=definitionstyle,numbered=yes,name=Опр]{defn}
+\declaretheorem[style=definitionstyle,numbered=no,name=Утв]{stmt}
+\declaretheorem[style=definitionstyle,numbered=no,name=Зам]{note}
+\declaretheorem[style=definitionstyle,numbered=no,name=Теор]{thm}
+\let\lemma\relax
+\declaretheorem[style=definitionstyle,numbered=no,name=Лемма]{lemma}
 
 \usepackage{enumitem}
 \AddEnumerateCounter{\Asbuk}{\@Asbuk}{\CYRM}
@@ -149,6 +185,32 @@ headformat={\makebox[0pt][r]{\NAME\ }\setbox0\hbox{\ }\hspace{-\the\wd0}\NOTE},]
 \setlist[itemize]{leftmargin=*}
 \setlist[enumerate]{leftmargin=*}
 
+\usepackage[at]{easylist}
+
+\def\definemyeasylist#1#2{\expandafter\def\csname el@style@#1\endcsname{\NewList(#2)}}
+\def\el{\futurelet\next\domyeasylist}
+\def\domyeasylist{\ifx[\next\expandafter\domyeasylistone\else\expandafter\domyeasylistnop\fi}
+\def\domyeasylistone[#1]{\begin{easylist}\if\relax\detokenize{#1}\relax\else\csname el@style@#1\endcsname\fi}
+\def\domyeasylistnop{\begin{easylist}\NewList}
+\def\endel{\end{easylist}}
+
+\definemyeasylist{ul}{Margin1=0cm,Progressive*=1em,
+Hang=true,Space=-1pt,Space*=-1pt,Hide=1000,%
+Style1*=\textbullet\hskip .5em,%
+Style2*=--\hskip .5em,%
+Style3*=$\ast$\hskip .5em,%
+Style4*=$\cdot$\hskip .5em}
+
+\definemyeasylist{ol}{Hang=true,Mark=.,Space=-1pt,Space*=-1pt,Align=move,
+Style2*={(},Mark2={)},Numbers2=l,Hide2=1,%
+Numbers3=r,Hide3=2,%
+Numbers4=L,Hide4=3}
+
 % Strikeout
 \usepackage[normalem]{ulem}
 \newcommand{\s}[1]{\ifmmode\text{\sout{\ensuremath{#1}}}\else\sout{#1}\fi}
+
+% Tables
+\usepackage{color}
+\usepackage{colortbl}
+\usepackage{pbox}
