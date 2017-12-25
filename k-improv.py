@@ -120,6 +120,5 @@ def improv(K, G, draw=False, desired=None):
     algo_ans = G.number_of_nodes()+A_components_num
     if A_components_num == 1 and A_vertices_in_cycles_num > 0:
         algo_ans -= 1
-    #nx.draw(A, with_labels=True)
-    #plt.show()
+
     return algo_ans, A, C.number_of_edges()
