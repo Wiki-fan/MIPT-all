@@ -87,6 +87,8 @@
 \newenvironment{ol}{\begin{enumerate}}{\end{enumerate}}
 \renewcommand{\b}{\begin}
 \newcommand{\e}{\end}
+\newcommand{\<}{\langle}
+\renewcommand{\>}{\rangle} % Возможно сломает форматирование
 
 \usepackage{pifont}
 \newcommand{\cmark}{\ding{51}}
@@ -214,3 +216,6 @@ Numbers4=L,Hide4=3}
 \usepackage{color}
 \usepackage{colortbl}
 \usepackage{pbox}
+
+\usepackage{tikz}
+\usetikzlibrary{chains,shapes,arrows,positioning}
