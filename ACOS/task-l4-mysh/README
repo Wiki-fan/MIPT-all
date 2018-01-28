@@ -1,0 +1,9 @@
+Simple shell.
+Supports >, <, >>, |, &, quoted strings.
+Some errors are treating as major, and shell exits with error code.
+Others are minor, and error just prints to stdout, and execution continues.
+
+Error codes:
+See in error_stuff.h
+
+Ready for check.

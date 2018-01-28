@@ -1,0 +1,7 @@
+Combination of wc and sort programs.
+Should sort strings, which are ended with '\n'. Other characters are arbitrary (even '\0' can take place).
+We can read the whole file into memory, but we should use dynamic memory allocation with realloc (i. e. we can't allocate memory for the whole file using fstat).
+Also we should print number of strings, words and characters in fille to stdout. Words are separated with isspace characters. Empty string is string.
+We can't use our gets_safe function and <string.h>.
+
+Not ready yet.

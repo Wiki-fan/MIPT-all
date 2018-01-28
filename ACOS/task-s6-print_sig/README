@@ -1,0 +1,7 @@
+print_sig prints pid's of first ten processes which sent signals to print_sig.
+
+Exit codes:
+Common.
+20 Unable to set handler
+
+Ready for check.

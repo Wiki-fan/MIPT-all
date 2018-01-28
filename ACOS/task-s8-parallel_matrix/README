@@ -1,0 +1,8 @@
+Calculates maximum in matrix.
+File with matrix must be specified as only command line parameter. Reading from standard input otherwise.
+
+Matrix must be defined as
+<columns> <rows>
+<rows*columns doubles representing actual matrix>
+
+Ready for check.

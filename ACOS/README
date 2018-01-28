@@ -1,0 +1,23 @@
+ACOS tasks and conspects.
+
+Usage of  global Makefile
+
+make -- build all
+make short_tasks - build short tasks and their dependencies
+make long_tasks - build long tasks and their dependencies
+make style - astyle all sources from current directory and all its direct subdirectories
+make clean - clean all .o, .d, .orig and executables
+make conspects - build only pdf conspects
+
+
+Common exit codes (mysh and doom have their own codes):
+
+0 All was successful.
+1 Error (re)allocating memory
+2 Failed to open file
+3 Unreachable code
+10 Wrong number of parameters
+11 Unknown parameter
+12 Expected parameter
+13 Too many parameters
+Additional info may be printed to stderr.

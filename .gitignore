@@ -36,3 +36,23 @@ CMakeCache.txt
 cmake-build-debug
 cmake_install.cmake
 vgcore.*
+
+# ACOS
+**/*~
+**/*.o
+**.*.gch
+**/*.d
+**/*.orig
+**/*.a
+**/*.so
+**/*.so.*
+**/*.swp
+**/*.swo
+**/.#*
+**/*.tmp
+**/a.out
+**/.DS_Store
+**/thumbs.db
+**/*.cfg
+.idea
+CMakeLists.txt
