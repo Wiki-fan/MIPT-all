@@ -1,4 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
 ### C++ template
 # Compiled Object files
 *.slo
@@ -30,3 +29,10 @@
 *.out
 *.app
 
+.idea
+.ipynb_checkpoints
+CMakeFiles
+CMakeCache.txt
+cmake-build-debug
+cmake_install.cmake
+vgcore.*
