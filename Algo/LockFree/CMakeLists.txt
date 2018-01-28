@@ -1,0 +1,4 @@
+add_executable(QueueWithoutSmr QueueWithoutSmr.h QueueWithoutSmr.cpp)
+add_executable(QueueWithIdleDelete QueueWithIdleDelete.h QueueWithIdleDelete.cpp)
+add_executable(QueueWithReferenceCounting QueueWithReferenceCounting.h QueueWithReferenceCounting.cpp)
+add_executable(QueueWithHazardPointers hazard_pointer.h QueueWithHazardPointers.h QueueWithHazardPointers.cpp)
