@@ -1,0 +1,14 @@
+@1-drop
+@1-create_types
+@1-create_tables
+@populate_users
+@populate_pools
+@populate_tags
+@populate_artists
+@populate_sites
+@populate_pictures
+@populate_watches
+@populate_reposts
+@populate_pools_pictures
+@populate_tags_pictures
+exit
