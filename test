@@ -1,0 +1,80 @@
+ADD JAR /opt/cloudera/parcels/CDH/lib/hive/lib/hive-contrib.jar;
+add jar /opt/cloudera/parcels/CDH/lib/hive/lib/hive-serde.jar;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+
+USE mcs2017013;
+
+DROP TABLE IF EXISTS Logs;
+CREATE EXTERNAL TABLE Logs (
+    ip STRING,
+    time INT,
+    request STRING,
+    size INT,
+    responseCode INT,
+    browser STRING
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe'
+WITH SERDEPROPERTIES (
+    "input.regex" = '^(\\S*)\\t\\t\\t(\\d{8})\\S*\\t(\\S*)\\t(\\S*)\\t(\\S*)\\t(\\S*) .*$',
+    "timestamp.formats" = 'yyyyMMddHHmmss'
+)
+STORED AS TEXTFILE
+LOCATION '/data/user_logs/user_logs_M';
+
+DROP TABLE IF EXISTS LogsPart;
+CREATE EXTERNAL TABLE LogsPart (
+    ip STRING,
+    request STRING,
+    size INT,
+    responseCode INT,
+    browser STRING
+)
+PARTITIONED BY (time INT)
+STORED AS TEXTFILE;
+INSERT OVERWRITE TABLE LogsPart PARTITION (time)
+SELECT * FROM Logs;
+
+DROP TABLE IF EXISTS Users;
+CREATE EXTERNAL TABLE Users (
+    ip STRING,
+    browser STRING,
+    gender STRING,
+    age INT
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY  '\t'
+STORED AS TEXTFILE
+LOCATION '/data/user_logs/user_data_M';
+
+DROP TABLE IF EXISTS IPRegions;
+CREATE EXTERNAL TABLE IPRegions (
+    ip STRING,
+    region STRING
+)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY  '\t'
+STORED AS TEXTFILE
+LOCATION '/data/user_logs/ip_data_M';
+
+--1
+SELECT browser, COUNT(*) AS cnt from Logs GROUP BY browser ORDER BY cnt DESC;
+
+--2
+SELECT responseCode, SUM(maleCNT), SUM(femaleCNT) FROM (SELECT responseCode, IF(gender='male', count(*), 0) as maleCnt, IF(gender='female', count(*), 0) as femaleCnt FROM Logs JOIN Users ON (Logs.ip = Users.ip) GROUP BY responseCode, gender) t2 GROUP BY responseCode;
+
+--3
+
+
+ADD JAR /opt/cloudera/parcels/CDH/lib/hive/lib/hive-contrib.jar;
+ip, time, request, size, responseCode, 
+
+SELECT TRANSFORM(ip, time, request, size, responseCode, browser) USING 'sed -e "s/Safari/Chrome/"' AS ip, time, request, size, responseCode, browser
+FROM Logs
+LIMIT 10;
+
+--4
+SELECT TRANSFORM(age) USING 'awk "{print 100-$1\;}"' AS to100
+FROM Users
+LIMIT 10;
+
+
+--/data/user_logs/ip_data_S/ipDataS
+--/data/user_logs/user_data_S/userDataS
