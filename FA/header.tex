@@ -1,0 +1,172 @@
+\usepackage[a4paper,left=20mm,right=10mm,top=15mm,bottom=15mm]{geometry}
+
+\makeatletter
+\newcommand*{\declarecommand}{%
+	\@star@or@long\declare@command
+}
+\newcommand*{\declare@command}[1]{%
+	\provide@command{#1}{}%
+	% \let#1\@empty % would be more efficient, but without error checking
+	\renew@command{#1}%
+}
+\makeatother
+
+\renewcommand{\newcommand}{\declarecommand}
+\usepackage{amsgen, amsmath, amstext, amsbsy, amsopn, amsfonts, amsthm, thmtools,  amssymb, amscd, mathtext, mathtools}
+\usepackage{versions}
+
+\usepackage{complexity}
+
+\usepackage{float}
+\restylefloat{table}
+
+\usepackage{xfrac}
+
+% RedeclareMathOperator
+\makeatletter
+\newcommand\RedeclareMathOperator{%
+  \@ifstar{\def\rmo@s{m}\rmo@redeclare}{\def\rmo@s{o}\rmo@redeclare}%
+}
+% this is taken from \renew@command
+\newcommand\rmo@redeclare[2]{%
+  \begingroup \escapechar\m@ne\xdef\@gtempa{{\string#1}}\endgroup
+  \expandafter\@ifundefined\@gtempa
+     {\@latex@error{\noexpand#1undefined}\@ehc}%
+     \relax
+  \expandafter\rmo@declmathop\rmo@s{#1}{#2}}
+% This is just \@declmathop without \@ifdefinable
+\newcommand\rmo@declmathop[3]{%
+  \DeclareRobustCommand{#2}{\qopname\newmcodes@#1{#3}}%
+}
+\@onlypreamble\RedeclareMathOperator
+\makeatother
+
+% Explain
+\newcommand{\expl}[2]{\underset{\mathclap{\overset{\uparrow}{#2}}}{#1}}
+\newcommand{\explup}[2]{\overset{\mathclap{\underset{\downarrow}{#2}}}{#1}}
+\newcommand{\obrace}[2]{\overbrace{#1}^{#2}}
+\newcommand{\ubrace}[2]{\underbrace{#1}_{#2}}
+
+% Arrows
+\newcommand{\Then}{\Rightarrow}
+\newcommand{\Iff}{\Leftrightarrow}
+\newcommand{\When}{\Leftarrow}
+\newcommand{\Bydef}{\rightleftharpoons}
+%\newcommand{\Divby}{\raisebox{-2pt}{\vdots}}
+\DeclareRobustCommand{\Divby}{%
+  \mathrel{\text{\vbox{\baselineskip.65ex\lineskiplimit0pt\hbox{.}\hbox{.}\hbox{.}}}}%
+}
+
+\DeclareMathOperator{\Char}{char}
+\DeclareMathOperator{\Ker}{Ker}
+\DeclareMathOperator{\Quot}{Quot}
+\DeclareMathOperator{\Gal}{Gal}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\id}{id}
+\RedeclareMathOperator{\Im}{Im}
+\DeclareMathOperator{\ord}{ord}
+
+% Mathbbs
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Zp}{\Z_p}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\renewcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathbb{F}}
+
+% Short names
+\renewcommand{\~}{\sim}
+\renewcommand{\phi}{\varphi}
+\newcommand{\Have}{\hookrightarrow}
+\newcommand{\isom}{\cong}
+\renewcommand{\ge}{\geqslant}
+\renewcommand{\le}{\leqslant}
+\providecommand{\abs}[1]{\lvert#1\rvert}
+\renewcommand{\bf}{\textbf}
+\renewcommand{\it}{\textit}
+\renewcommand{\i}{\item}
+\newcommand{\ul}{\itemize}
+\renewcommand{\bar}{\overline}
+% \newcommand{\ol}{\enumerate} Not workong for nested?
+
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\y}{\cmark}
+\newcommand{\x}{\xmark}
+
+% Quotes
+\usepackage{xspace}
+\newcommand{\lgq}{\guillemotleft\nobreak\ignorespaces}
+\newcommand{\rgq}{\guillemotright\xspace}
+
+% Consider changing to sfrac
+\newcommand{\bigslant}[2]{{\raisebox{.2em}{$#1$}\left/\raisebox{-.2em}{$#2$}\right.}}
+
+\makeatletter
+\newenvironment{sqcases}{%
+  \matrix@check\sqcases\env@sqcases
+}{%
+  \endarray\right.%
+}
+\def\env@sqcases{%
+  \let\@ifnextchar\new@ifnextchar
+  \left\lbrack
+  \def\arraystretch{1.2}%
+  \array{@{}l@{\quad}l@{}}%
+}
+\makeatother
+
+\makeatletter
+\newenvironment{nocases}{%
+  \matrix@check\sqcases\env@sqcases
+}{%
+  \endarray\right.%
+}
+\def\env@nocases{%
+  \let\@ifnextchar\new@ifnextchar
+  \def\arraystretch{1.2}%
+  \array{@{}l@{\quad}l@{}}%
+}
+\makeatother
+
+\newcommand{\nopandoc}[1]{#1} % hide LaTeX code from pandoc
+\nopandoc{
+	\let\Begin\begin
+	\let\End\end
+}
+
+
+% Styles
+\declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={},%
+postheadspace={5px},headformat={\makebox[0pt][r]{\NAME\ \NUMBER\ }\setbox0\hbox{\ }\hspace{-\the\wd0}\NOTE}]{problemstyle}
+\declaretheorem[style=problemstyle,numbered=no,name=№]{problem}
+
+\declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={ },postheadspace={0px},qed=$\blacktriangleleft$,
+headformat={\makebox[0pt][r]{\NAME\ }\setbox0\hbox{\ }\hspace{-\the\wd0}\NOTE},]{solutionstyle}
+\declaretheorem[style=solutionstyle,numbered=no,name=$\blacktriangleright$]{solution}
+
+\declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={.},postheadspace={4px}]{definitionstyle}
+\declaretheorem[style=definitionstyle,numbered=yes,name=Опр.]{defn}
+\declaretheorem[style=definitionstyle,numbered=yes,name=Утв.]{stmt}
+\declaretheorem[style=definitionstyle,numbered=yes,name=Теор.]{thm}
+\declaretheorem[numberwithin=thm,style=definitionstyle,numbered=yes,name=Сл-вие.]{cor}
+
+\usepackage{enumitem}
+\AddEnumerateCounter{\Asbuk}{\@Asbuk}{\CYRM}
+\AddEnumerateCounter{\asbuk}{\@asbuk}{\cyrm}
+%\renewcommand{\theenumi}{(\Asbuk{enumi})}
+%\renewcommand{\labelenumi}{\Asbuk{enumi})}
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+
+% Strikeout
+\usepackage[normalem]{ulem}
+\newcommand{\s}[1]{\ifmmode\text{\sout{\ensuremath{#1}}}\else\sout{#1}\fi}
+
+\usepackage{hyperref,texlinks}
+
+\usepackage{minted}
+
+\usepackage{caption}
