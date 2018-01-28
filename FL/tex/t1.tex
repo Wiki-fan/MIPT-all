@@ -1,0 +1,99 @@
+\input{boilerplate.tex}
+
+\input{header.tex}
+\begin{document}
+\b{defn}
+Недетерминированный конечный автомат (НКА) --- кортеж $M = \<Q, \Sigma, \Delta, q_0, F \>$, где 
+
+\b{conditions}
+$Q, \abs{Q} < \infty$ & множество состояний\\
+$\Sigma, \abs{\Sigma} < \infty$ & алфавит\\
+$\Gamma \subset Q \times \Sigma^* \times Q$ & множество переходов (обозначают $\<q_1, w\> \to q_2$)\\
+$q_0 \in Q$ & стартовое состояние\\
+$F \subseteq Q$ & завершающие состояния
+\e{conditions}
+\e{defn}
+
+\b{defn}
+Конфигурация НКА --- пара $\<q, w\>, q \in Q, w \in \Sigma^*$ --- текущее состояние и ещё не прочитанный фрагмент слова.
+\e{defn}
+
+
+\b{defn}
+Отношение достижимости $\vdash$ --- наименьшее рефлексивное транзитивное замыкание отношения, т. ч. $\forall \<q_1, w\> \to q_2 \in \Delta\forall u \in \Sigma^* \<q_1, wu\> \vdash \<q_2, u\>$.
+\e{defn}
+
+\b{defn}
+$L(M) = \{ w \mid \exists q \in F: \<q_0, w\> \vdash <q, \eps\}$ --- язык, принимаемый автоматом.
+\e{defn}
+
+\b{stmt}
+Можно считать, что завершающее состояние одно: $\abs{F} = 1$.
+\e{stmt}
+\b{proof}
+Проведём из имеющегося завершающего $\eps$-переходы в новое завершающее: $Q' = Q\cup \{q'\}, F'= \{q'\}, \Delta' = \Delta \cup \{ \<q, \eps \> \to q' \mid q \in F \}$.
+\e{proof}
+
+
+\b{stmt}
+Можно считать, что все переходы менее чем однобуквенны ($\forall \<q_1, w\> \to q_2 \in \Delta \abs{w} \le 1$).
+\e{stmt}
+\b{proof}
+TODO:картинка и формальное пояснение.
+\e{proof}
+
+
+\b{stmt}
+$\forall$ НКА $M$ $\exists$ НКА $M' = \<Q', \Sigma', \Gamma', \Delta', q_0', F' \>: \b{cases}L(M) = L(M') \\ \forall \<q_1, w\> \to q_2 \in \Delta' \abs{omega} = 1 \e{cases}$ (то есть автомат с устранёнными $\eps$-переходами).
+\e{stmt}
+\b{proof}
+$M = \<Q, \Sigma, \Gamma, \Delta, q_0, F \>, \forall \<q_1, w\> \to q_2 \in \Delta \abs{w} \le 1$ по предыдущей лемме.
+
+$Q' = Q$
+
+$q_0' = q_0$
+
+Обозначим $Delta(q, w) := \{ q' \mid \<q, w\> \vdash \<q', \eps \> \}$, т. е. те состояния, до которых добираемся из $\<q, w\>$ по всему слову $w$.
+
+$F' = \{q' \mid \Delta(q', \eps) \cap F \ne \emptyset \}$ -- т. е. те, из которых достижимо текущее завершающее.
+
+$\Delta' = \{ \<q_1, a\> \to q_2 \mid \exists q_3 \in \Delta(q_1, \eps): \< q_3, a \> \to q_2 \in \Delta \}$ --- т. е. сначала мы можем пройти сколько-то по $\eps$, а потом только по $a$.
+
+$L(M) = L(M'):$
+
+\b{stmt}
+$\<q_1, w\> \vdash_{M} \<q_2, \eps\> \Then \<q_1, w\> \vdash_{M'} \<q_2, \eps\>$
+\e{stmt}
+\b{proof}
+Индукция по $\abs{w}$. 
+База:
+\b{ol}
+\i $\abs{w} = 0 \Then \<q_1, \eps\> \vdash_{M} \<q_2, \eps\> \Then q_1 = q_2 \Then \<q_1, \eps\> \vdash_{M'} \<q_2, \eps\>$
+\i $\abs{w} = 1 \Then \<q_1, a\> \vdash_{M} \<q_2, \eps\> \Then \<q_1, a\> \to q_2 \in Delta \Then \exists q_3:(q_3 \in \Delta(q_1, \eps), (\<q_3, a \> \to q_2) \in Delta) \Then \<q_3, a\> \vdash_{M'} \<q_2, \eps\>$
+\e{ol}
+
+Переход: 
+$\abs{w} > 1 Then w=ua, a \in \Sigma$
+
+В новом автомате $\<q_1, w \> \vdash_{M'} \<q_2, \eps \> \Then \exists q_3: \b{cases} \<q_1, u \> \vdash_{M'} \<q_3, \eps \> \\ \<q_3, a \> \vdash_{M'} \<q_2, \eps \>$.
+
+В старом автомате 
+$\b{cases} (a_1, u) \vdash_{M} (a_3, \eps) \\ (q_3, a) \vdash_{M} (q_2, \eps) \e{cases} \Then (q_1, ua) \vdash (q_2, \eps) \e{cases}$.
+\e{proof}
+
+$L(M) \subseteq L(M')$, т. к. $w \in L(M') \Iff \exists q \in F: (q_0, w) \to (q, \eps) \Iff \exists q' \in F': 
+\b{cases} (q_0, w) \vdash_{M'} (q, \eps) \\ (q, \eps) \vdash_{M'} (q', \eps) \e{cases}$
+
+$L(M) \supseteq L(M')$, т. к. $(q_1, ua) \vdash_M (q_2, a) \vdash_M (q_3, \eps) \Then (q_1, ua) \vdash_{M'} (q_3, \eps)$
+\e{proof}
+
+\b{stmt}
+Проблема принадлежности слова автоматному языку распознаётся за $O(\abs{w}^2\abs{\Delta})$ по времени и $O(\abs{Q})$ (не считая памяти для хранения самого НКА).
+\e{stmt}
+\b{proof}
+TODO: алгоритм
+
+По сути, это --- BFS, разбивающий на слои. Если в каком-то слое оказался конечный элемент, надо выйти.
+\e{proof}
+
+\end{document}

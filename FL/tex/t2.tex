@@ -1,0 +1,42 @@
+\input{boilerplate.tex}
+
+\input{header.tex}
+\begin{document}
+\b{defn}
+Конечный автомат $M = \<Q, \Sigma, \Delta, q_0, F \>$ называется детерминированным (ДКА), если 
+\b{ol}
+\i $\forall \<q_1, w\> \to q_2 \in \Delta \abs{w} = 1$ -- однобуквенные переходы
+\i $\forall q_1 \in Q \forall a \in \Sigma \abs{\{q_2: (q_1, a) \to q_2 \}} \le 1$ -- т. е. из состояния по заданной букве переход не более чем в одно состояние
+\e{ol}
+\end{defn}
+
+\begin{defn}
+ДКА называется полным, если $\forall q_1 \in Q \forall a \in \Sigma \exists q_w: ((q_1, a) \to q_2)\in \Delta$.
+\end{defn}
+
+\b{thm}
+$\forall$ НКА $M = \<Q, \Sigma, \Delta, q_0, F \>$ $\exists$ ДКА $M' = \<Q', \Sigma', \Delta', q_0', F' \>: L(M) = L(M')$
+\e{thm}
+\b{proof}
+БОО в $M$ однобуквенные переходы.
+$Q' = 2^Q, q_0' = \{q_0\}, F' = \{\bar{Q}: \bar{Q} \in Q', \bar{Q} \cap F \ne \emptyset \}, \Delta' = \{ (Q_1, a) \to Q_2 \mid Q_2 = \Delta (Q_1, a) \}$, где $\Delta(Q_1, a) := \bigcup_{q_1 \in Q_1} \Delta(q_1, a)$.
+Т. е. $F'$ --- все такие подмножества, которые содержат старые конечные состояния.
+
+\b{lm}
+$\Delta'(\bar{Q}, w) = \Delta(\bar{Q}, w)$
+\e{lm}
+\b{proof}
+Индукция по $\abs{w}$.
+База: $\abs{w} = 0 \Then$ по построению $\Delta(\bar{Q}, \eps) = Q_0 = \Delta(\bar{Q}, \eps)$, т. к. нет $\eps$-переходов.
+Переход: $w = w'a$
+$\Delta(\bar{Q}, w'a)=\Delta(\Delta(\bar{Q}, w'), a) \expl{=}{IH} = \Delta(\Delta'(\bar{Q}, w'), a) = \{q \in Q: \exists q_1 \in \Delta'(\bar{Q}, w'): (q_1, a) \to_M q \} = \Delta' (\Delta'(\bar{Q}, w'), a) = \Delta'(\bar{Q}, w'a)$
+\e{proof}
+
+$L(M) = \{w \bar \exists q \in F: (q_0, w) \vdash (q, \eps) \} = \{w \mid \Delta(q_0, w) \cap F \ne \emptyset \} = \{w \mid \Delta' (q_0', w) \cap F \ne \emptyset \} = \{ w \mid \Delta'(q_0', w) \in F' \} = L(M')$
+\e{proof}
+
+Затраты памяти на хранение ДКА $O(log \abs{Q})$
+
+Распознавание принадлежности $O(\abs{w})$ по времени и $O(1)$ по памяти (не считая памяти на хранение автомата).
+
+\end{document}

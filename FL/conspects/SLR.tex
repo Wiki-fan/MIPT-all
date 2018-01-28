@@ -1,0 +1,116 @@
+\documentclass[a4paper,10pt, russian]{article}
+\usepackage[T1, T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{amsgen, amsmath, amstext, amsbsy, amsopn, amsfonts, amsthm, thmtools,  amssymb, amscd, mathtext}
+\usepackage{versions}
+\usepackage[table]{xcolor}
+%\usepackage{upgreek}
+\usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{geometry}
+  \geometry{left=2cm}
+  \geometry{right=1.5cm}
+  \geometry{top=1cm}
+  \geometry{bottom=2cm}
+  
+\usepackage{tikz}
+\usepackage{ccaption}
+\usepackage{wrapfig}
+
+\usepackage{minted}
+\newcommand{\ci}{\mintinline{c++}}
+
+\usepackage{hyperref}
+\definecolor{linkcolor}{HTML}{799B03}
+\definecolor{urlcolor}{HTML}{0000FF}
+\hypersetup{pdfstartview=FitH, linkcolor=linkcolor, urlcolor=urlcolor, colorlinks=true}
+
+\declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={.},postheadspace=1em]{myproblemstyle}
+\declaretheorem[style=myproblemstyle,numbered=no,name=Задача]{problem}
+
+\declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={:},postheadspace=1em]{myproofstyle}
+\declaretheorem[style=myproofstyle,numbered=no,name=Решение]{solution}
+
+\declaretheoremstyle[notefont=\bfseries,notebraces={}{},headpunct={:},postheadspace=1em]{myanswerstyle}
+\declaretheorem[style=myanswerstyle,numbered=no,name=\it{Ответ}]{answer}
+
+\declaretheoremstyle[spacebelow=5pt,notefont=\bfseries,notebraces={}{},headpunct={.\\},postheadspace=1em]{mytaskstyle}
+\declaretheorem[style=mytaskstyle,numbered=no,name=Задача]{task}
+
+%\excludeversion{solution}
+%\excludeversion{answer}
+
+\newcommand{\dividedby}{\raisebox{-2pt}{\vdots}}
+
+\newcommand{\la}{\leftarrow}
+
+\newcommand\encircle[1]{%
+	\tikz[baseline=(X.base)] 
+	\node (X) [draw, shape=circle, inner sep=0] {\strut #1};}
+
+\title{}
+
+\begin{document}
+	\maketitle
+	
+	Построим множества First:
+	S`: First(C) = c
+	S: First(c) = c
+	C: c
+	D: a
+	
+	По ним построим Follow:
+	S': \$
+	S: First(C), Follow(S') = c, \$
+	D: b, Follow(C) = b, c, \$
+	
+	Запишем все возможные состояния, пронумеруем их и будем заполнять таблицу переходов. Если в таблице правило $A \la \alpha \cdot a \beta$, то из него по $a$ есть переход в $A \la \alpha a \cdot \beta$. Если при этом $a$ нетерминал, то есть переходы по $\epsilon$ во все правила вида $a \la \cdot \gamma$. Если точка стоит в конце, то производится свёртка по соответствующему правилу по символам из $Follow(A)$.
+	\begin{table}
+		\centering
+		\caption{Full table}
+		\label{my-label}
+		\begin{tabular}{|l|l|l|l|l|l|l|l|l|l|}
+			 \hline
+			   &                    & a & b  & c  &$\epsilon$& S & C  & D  & \$  \\ \hline
+			0  & $S' \la \cdot S$   &   &    &    & 2, 8     & 1 &    &    &     \\ \hline
+			1  & $S' \la S \cdot$   &   &    &    &          &   &    &    & acc \\ \hline
+			2  & $S \la \cdot C$    &   &    &    & 11       &   & 3  &    &     \\ \hline
+			3  & $S \la C \cdot$    &   &    & r1 &          &   &    &    & r1  \\ \hline
+			4  & $C \la \cdot aDb$  & 5 &    &    &          &   &    &    &     \\ \hline
+			5  & $D \la a\cdot Db$  &   &    &    & 4, 14    &   &    & 6  &     \\ \hline
+			6  & $D \la aD \cdot b$ &   & 7  &    &          &   &    &    &     \\ \hline
+			7  & $D \la aDb \cdot$  &   & r2 & r2 &          &   &    &    & r2  \\ \hline
+			8  & $S \la \cdot SC$   &   &    &    & 2        & 9 &    &    &     \\ \hline
+			9  & $S \la S \cdot C$  &   &    &    & 11       &   & 10 &    &     \\ \hline
+			10 & $S \la SC \cdot$   &   &    & r3 &          &   &    &    & r3  \\ \hline
+			11 & $C \la \cdot cD$   &   &    & 12 &          &   &    &    &     \\ \hline
+			12 & $C \la c \cdot D$  &   &    &    & 4, 14    &   &    & 13 &     \\ \hline
+			13 & $C \la  cD \cdot$  &   &    & r4 &          &   &    &    & r4  \\ \hline
+			14 & $D \la \cdot$      &   & r5 & r5 &          &   &    &    & r5  \\ \hline
+		\end{tabular}
+	\end{table}
+
+	Далее детерминируем получившийся автомат примерно так, как делали это с обычным.
+	
+	\begin{table}[]
+		\centering
+		\caption{Determinized table}
+		\label{my-label}
+		\begin{tabular}{|l|l|l|l|l|l|l|l|l|}
+			 \hline
+			&          & a                       & b                  & c                        & S                        & C                   & D                   & \$   \\ \hline
+			0 & 0,2,8,11 &                         &                    & \encircle{$3$} 4,12,14 & \encircle{$1$} 1, 9,11 & \encircle{$2$} 3  &                     &     \\ \hline
+			1 & 1,9,11   &                         &                    & \encircle{$3$} 4,12,14 &                          & \encircle{$4$} 10 &                     & acc \\ \hline
+			2 & 3        &                         &                    & r1                       &                          &                     &                     & r1  \\ \hline
+			3 & 4,12,14  & \encircle{$5$} 4,5,14 & r5                 & r5                       &                          &                     & \encircle{$6$} 13 & r5  \\ \hline
+			4 & 10       &                         &                    & r3                       &                          &                     &                     & r3  \\ \hline
+			5 & 4,5,14   & \encircle{$5$} 4,5,14 & r5                 & r5                       &                          &                     & \encircle{$7$} 6  & r5  \\ \hline
+			6 & 13       &                         &                    & r4                       &                          &                     &                     & r4  \\ \hline
+			7 & 6        &                         & \encircle{$8$} 7 &                          &                          &                     &                     &     \\ \hline
+			8 & 7        &                         & r2                 & r2                       &                          &                     &                     & r2  \\ \hline
+		\end{tabular}
+	\end{table}
+
+\end{document}
